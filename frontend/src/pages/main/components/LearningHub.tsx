@@ -20,7 +20,7 @@ const STEPS = [
 function LearningHub() {
   return (
     <section>
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-8 px-6 py-18">
+      <div className="mx-auto flex max-w-page flex-col gap-8 px-6 py-18">
         <div className="flex flex-col gap-2.5 text-center">
           <p className="text-sm font-bold text-primary">AI LEARNING HUB</p>
           <h2 className="text-3xl font-bold text-navy-700">이렇게 공부해요</h2>
@@ -34,7 +34,7 @@ function LearningHub() {
             >
               <p className="text-sm font-bold text-primary">{index + 1}단계</p>
               <h3 className="text-xl font-bold text-navy-900">{step.title}</h3>
-              <p className="text-[15px] leading-relaxed text-ink-soft">
+              <p className="text-body leading-relaxed text-ink-soft">
                 {step.description}
               </p>
             </li>
@@ -44,7 +44,7 @@ function LearningHub() {
         <div className="flex justify-center">
           <Link
             to="/about"
-            className="rounded-full bg-primary-pill px-8 py-3 font-medium text-navy-900 hover:bg-[#b9cdf2]"
+            className="rounded-full bg-primary-pill px-8 py-3 font-medium text-navy-900 hover:bg-primary-pill-hover"
           >
             서비스 소개 보기
           </Link>

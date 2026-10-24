@@ -21,7 +21,7 @@ function Header() {
 
   return (
     <header className="border-b border-line">
-      <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-6 py-3.5">
+      <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-3 px-6 py-3.5">
         <Link to="/" className="flex items-center gap-2.5 text-navy-900">
           <span className="flex size-8 items-center justify-center rounded-lg bg-navy-900 text-sm font-bold text-white">
             AI
@@ -35,7 +35,7 @@ function Header() {
             {ACCOUNT_LINKS.map((link, index) => (
               <span key={link.path} className="flex items-center gap-3">
                 {index > 0 && (
-                  <span aria-hidden="true" className="text-[#c3c9d6]">
+                  <span aria-hidden="true" className="text-line-strong">
                     |
                   </span>
                 )}
@@ -52,7 +52,7 @@ function Header() {
           <form
             role="search"
             onSubmit={handleSearch}
-            className="flex h-9 items-center gap-1.5 rounded-md border border-[#c9d1e0] px-2.5 focus-within:border-primary"
+            className="flex h-9 items-center gap-1.5 rounded-md border border-line-strong px-2.5 focus-within:border-primary"
           >
             <label htmlFor="global-search" className="sr-only">
               검색
