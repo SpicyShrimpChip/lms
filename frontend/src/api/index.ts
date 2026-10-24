@@ -3,3 +3,4 @@ export * from './request';
 export * from './analysis.api';
 export * from './courses.api';
 export * from './notices.api';
+export * from './materials.api';
