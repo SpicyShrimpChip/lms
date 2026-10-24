@@ -1,18 +1,31 @@
+import { CircleAlert } from 'lucide-react';
 import type { FallbackProps } from 'react-error-boundary';
+import Button from './Button';
 
+// AsyncBoundary 안에서 요청이 실패했을 때 보여 주는 화면
+// ApiError는 화면에 그대로 보여 줄 수 있는 문구를 담고 있다 (api/request.ts)
 export default function ErrorFallback({
   error,
   resetErrorBoundary,
 }: FallbackProps) {
-  // TODO: 프로젝트 시작 시 디자인에 맞춰 에러 페이지 UI를 수정
-  return (
-    <div>
-      <h2>Something went wrong.</h2>
-      {/* error가 표준 Error 객체임을 TS에 명시 (타입 단언) */}
-      <p>{(error as Error).message}</p>
+  const message =
+    error instanceof Error && error.message
+      ? error.message
+      : '잠시 후 다시 시도해 주세요.';
 
-      {/* 기능적 가이드: 에러 초기화 및 재요청을 위해 resetErrorBoundary 함수를 버튼 클릭 이벤트에 반드시 바인딩해야 합니다. */}
-      <button onClick={resetErrorBoundary}>Try again</button>
+  return (
+    <div
+      role="alert"
+      className="flex flex-col items-center gap-3 rounded-2xl border border-line px-6 py-14 text-center"
+    >
+      <CircleAlert size={28} aria-hidden="true" className="text-danger" />
+      <p className="text-lg font-bold text-heading">내용을 불러오지 못했어요</p>
+      <p className="max-w-120 text-body leading-relaxed text-ink-soft">
+        {message}
+      </p>
+      <Button onClick={resetErrorBoundary} className="mt-2">
+        다시 시도
+      </Button>
     </div>
   );
 }

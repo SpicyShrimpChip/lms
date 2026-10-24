@@ -9,6 +9,8 @@ import {
 export interface TabItem {
   id: string;
   label: string;
+  // 탭 이름 옆 작은 표시. 예: '준비 중'
+  badge?: string;
   content: ReactNode;
 }
 
@@ -55,13 +57,18 @@ function Tabs({ label, tabs }: TabsProps) {
               tabIndex={selected ? 0 : -1}
               onClick={() => setSelectedId(tab.id)}
               onKeyDown={(e) => handleKeyDown(e, index)}
-              className={`-mb-px border-b-3 px-4 py-3 font-medium ${
+              className={`-mb-px inline-flex items-center gap-1.5 border-b-3 px-4 py-3 font-medium ${
                 selected
                   ? 'border-primary text-heading'
                   : 'border-transparent text-ink-muted hover:text-heading'
               }`}
             >
               {tab.label}
+              {tab.badge && (
+                <span className="rounded-full bg-surface-muted px-2 py-0.5 text-caption font-normal text-ink-muted">
+                  {tab.badge}
+                </span>
+              )}
             </button>
           );
         })}

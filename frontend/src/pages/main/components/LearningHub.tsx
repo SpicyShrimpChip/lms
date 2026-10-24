@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Button } from '@/components';
 import PrivacyNotice from './PrivacyNotice';
 
 const STEPS = [
@@ -47,12 +47,9 @@ function LearningHub() {
         <PrivacyNotice />
 
         <div className="flex justify-center">
-          <Link
-            to="/about"
-            className="rounded-full bg-primary-pill px-8 py-3 font-medium text-heading hover:bg-primary-pill-hover"
-          >
+          <Button to="/about" variant="pill" size="lg">
             서비스 소개 보기
-          </Link>
+          </Button>
         </div>
       </div>
     </section>

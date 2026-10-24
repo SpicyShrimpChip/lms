@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
 import { FileText, MessageSquare } from 'lucide-react';
-import { AiBadge } from '@/components';
+import { AiBadge, Button } from '@/components';
 
 interface EntryCardProps {
   icon: ReactNode;
@@ -30,12 +29,9 @@ function EntryCard({
       </div>
       <h2 className="text-2xl font-bold text-heading">{title}</h2>
       <p className="leading-relaxed text-ink-soft">{description}</p>
-      <Link
-        to={to}
-        className="self-start rounded-lg bg-primary px-6 py-3 font-medium text-on-primary hover:bg-primary-hover"
-      >
+      <Button to={to} size="lg" className="self-start">
         {cta}
-      </Link>
+      </Button>
     </div>
   );
 }

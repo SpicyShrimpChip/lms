@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Button } from '@/components';
 
 function NotFoundPage() {
   return (
@@ -9,12 +9,9 @@ function NotFoundPage() {
       <p className="text-ink-soft">
         주소가 잘못됐거나 페이지가 옮겨졌을 수 있어요.
       </p>
-      <Link
-        to="/"
-        className="rounded-lg bg-primary px-6 py-3 font-medium text-on-primary hover:bg-primary-hover"
-      >
+      <Button to="/" size="lg">
         메인으로 가기
-      </Link>
+      </Button>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import Button from './Button';
 
 interface EmptyStateProps {
   icon?: ReactNode;
@@ -22,12 +22,9 @@ function EmptyState({ icon, title, description, action }: EmptyStateProps) {
         {description}
       </p>
       {action && (
-        <Link
-          to={action.to}
-          className="mt-2 rounded-lg bg-primary px-5 py-2.5 font-medium text-on-primary hover:bg-primary-hover"
-        >
+        <Button to={action.to} className="mt-2">
           {action.label}
-        </Link>
+        </Button>
       )}
     </div>
   );

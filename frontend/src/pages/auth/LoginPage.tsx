@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { SubPage, TextInput } from '@/components';
+import { Button, SubPage, TextInput } from '@/components';
 
 function LoginPage() {
   // TODO: 인증 API가 준비되면 로그인 요청을 보내고 실패 사유를 안내한다
@@ -37,12 +37,9 @@ function LoginPage() {
             required
           />
         </div>
-        <button
-          type="submit"
-          className="mt-2 rounded-lg bg-primary py-3 font-medium text-on-primary hover:bg-primary-hover"
-        >
+        <Button type="submit" size="lg" className="mt-2">
           로그인
-        </button>
+        </Button>
         <p className="text-center text-body text-ink-soft">
           아직 계정이 없나요?{' '}
           <Link

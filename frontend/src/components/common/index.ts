@@ -2,6 +2,7 @@ export { default as AsyncBoundary } from './AsyncBoundary';
 export { default as LoadingFallback } from './LoadingFallback';
 export { default as ErrorFallback } from './ErrorFallback';
 export { default as AiBadge } from './AiBadge';
+export { default as Button } from './Button';
 export { default as SubPage } from './SubPage';
 export { default as EmptyState } from './EmptyState';
 export { default as Tabs, type TabItem } from './Tabs';
