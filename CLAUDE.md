@@ -3,7 +3,7 @@
 ## 프로젝트 한 줄 요약
 학습 자료와 ChatGPT·Claude 등 생성형 AI 대화 기록을 분석해 개념별 강점·약점을 진단하고,
 요약·퀴즈·커리큘럼·챗봇·대시보드로 학습 순서를 계속 다시 짜 주는 LMS.
-기획 배경과 세부 내용은 `docs/handover.md`, 사용자 원문 발언은 `docs/conversation-log.md` 참고.
+기획 배경과 세부 내용은 `docs/handover.md`, 사용자 원문 발언은 `docs/conversation-log.md`, 프론트가 백엔드에 바라는 API는 `docs/frontend-requests.md` 참고.
 
 ## 사용자 유형 (서비스는 하나, 진입 경로만 다름)
 - **A. AI 대화 기록이 많은 사용자:** 대화 내보내기 파일을 가져와 바로 분석
