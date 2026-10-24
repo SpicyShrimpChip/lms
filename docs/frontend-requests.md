@@ -3,7 +3,7 @@
 프론트(변지환)가 지금까지 만든 화면 기준으로, 백엔드(김주미)가 알아야 할 내용을 모은 문서다.
 API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, 바뀌면 이 문서와 프론트 목업을 같이 고친다.
 
-최종 수정: 2026-10-24 (PR #18 기준)
+최종 수정: 2026-10-25 (학습 대시보드 목업 추가)
 
 ## 1. 개발 환경 연결
 
@@ -75,6 +75,40 @@ semester    = "2026-1" | "2026-summer" | "2026-2" | "2026-winter"
   - 판단 근거 — 어떤 대화·퀴즈 기록을 보고 판단했는지 (대화 id, 인용 구간 등)
   - AI 설명 문장 — 화면에서 보라색 "AI" 표시를 붙이므로 **코드 계산 값과 필드를 분리**해 주기
 - 대화 전송: 프론트는 사용자가 고른 대화만, 개인정보를 가린 상태로 보낸다. 원본 파일과 이미지는 보내지 않는다(이미지는 `[이미지]` 표시만 남김).
+
+### 학습 대시보드 — 목업
+
+화면: `/analysis` (학습분석 > 학습 대시보드). 프론트는 아래 모양의 가짜 데이터로 화면을 만들어 두었다(`frontend/src/types/analysis.ts`, `frontend/src/mocks/dashboard.ts`). 과목별 거르기는 프론트가 하므로 한 번에 다 보내 주면 된다.
+
+| 메서드 | 경로                      | 응답 `data`                            |
+| ------ | ------------------------- | -------------------------------------- |
+| GET    | `/api/analysis/dashboard` | `DashboardData` (로그인한 사용자 것만) |
+
+```ts
+DashboardData = {
+  summaries: StudySummary[],        // 과목별 학습량
+  concepts: ConceptMastery[],       // 개념별 숙련도
+  recommendations: Recommendation[] // 과목별 추천 학습 순서
+}
+StudySummary = { courseId, courseName, conversationCount, quizCount, quizCorrectCount }
+ConceptMastery = {
+  conceptId: string, name: string, courseId: number,
+  score: number,                     // 0~100, 코드로 계산 (산식 미결)
+  level: "strength" | "normal" | "weakness",
+  evidence: Evidence[],              // 판단 근거 (코드)
+  aiExplanation: string | null       // AI 설명 (보라색 표시)
+}
+Evidence = {
+  id: string, source: "conversation" | "quiz", date: "2026-10-20",
+  summary: string,                   // 화면에 보여 줄 한 줄 요약
+  signal: "not_understood" | "asked_again" | "applied" | "quiz_correct" | "quiz_wrong"
+}
+Recommendation = { courseId: number, conceptIds: string[], aiReason: string } // 순서와 이유는 AI가 정함
+```
+
+- `ai`로 시작하는 필드만 LLM이 쓴 글이다. 점수·`level`·`evidence`는 코드가 정한다.
+- `evidence.summary`에 대화 원문을 길게 넣지 않는다. 한 줄 요약이면 충분하다.
+- 동적 배치(LLM이 정한 영역 순서와 "왜 여기에 있나요?" 이유)는 다음 프론트 PR에서 추가할 예정이고, 응답에 `layout` 필드가 붙는 모양이 될 것이다.
 
 ## 5. 정해 주면 프론트가 맞출 것
 
