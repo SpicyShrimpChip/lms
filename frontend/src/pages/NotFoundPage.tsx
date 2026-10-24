@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 
-// 아직 만들지 않은 메뉴의 임시 페이지
-function ComingSoonPage() {
+function NotFoundPage() {
   return (
     <div className="mx-auto flex max-w-page flex-col items-center gap-4 px-6 py-32 text-center">
-      <h1 className="text-3xl font-bold text-navy-900">준비 중인 페이지예요</h1>
+      <h1 className="text-3xl font-bold text-navy-900">
+        페이지를 찾을 수 없어요
+      </h1>
       <p className="text-ink-soft">
-        이 메뉴는 지금 만들고 있어요. 메인에서 다른 기능을 먼저 둘러보세요.
+        주소가 잘못됐거나 페이지가 옮겨졌을 수 있어요.
       </p>
       <Link
         to="/"
@@ -18,4 +19,4 @@ function ComingSoonPage() {
   );
 }
 
-export default ComingSoonPage;
+export default NotFoundPage;

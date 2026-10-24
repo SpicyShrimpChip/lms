@@ -1,6 +1,26 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { Layout } from '@/components';
-import { ComingSoonPage, MainPage } from '@/pages';
+import {
+  AboutPage,
+  ConversationImportPage,
+  CurriculumPage,
+  DashboardPage,
+  LoginPage,
+  MainPage,
+  MaterialDetailPage,
+  MaterialListPage,
+  MaterialUploadPage,
+  MyPage,
+  NoticeDetailPage,
+  NoticeListPage,
+  NotFoundPage,
+  PrivacyPage,
+  QuizListPage,
+  QuizResultPage,
+  QuizSolvePage,
+  SearchPage,
+  SignupPage,
+} from '@/pages';
 
 // 페이지 추가 시 배열 안에 객체로 정리
 /*
@@ -15,8 +35,37 @@ export const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { index: true, element: <MainPage /> },
-      // 아직 만들지 않은 메뉴는 모두 "준비 중" 페이지로 보낸다
-      { path: '*', element: <ComingSoonPage /> },
+
+      // 학습자료
+      { path: 'materials', element: <MaterialListPage /> },
+      { path: 'materials/upload', element: <MaterialUploadPage /> },
+      { path: 'materials/:materialId', element: <MaterialDetailPage /> },
+
+      // 맞춤학습
+      { path: 'curriculum', element: <CurriculumPage /> },
+      { path: 'quizzes', element: <QuizListPage /> },
+      { path: 'quizzes/:quizId', element: <QuizSolvePage /> },
+      { path: 'quizzes/:quizId/result', element: <QuizResultPage /> },
+
+      // 학습분석
+      { path: 'analysis', element: <DashboardPage /> },
+      { path: 'analysis/import', element: <ConversationImportPage /> },
+
+      // 커뮤니티
+      { path: 'notices', element: <NoticeListPage /> },
+      { path: 'notices/:noticeId', element: <NoticeDetailPage /> },
+
+      // 이용안내
+      { path: 'about', element: <AboutPage /> },
+      { path: 'privacy', element: <PrivacyPage /> },
+
+      // 계정·기타
+      { path: 'login', element: <LoginPage /> },
+      { path: 'signup', element: <SignupPage /> },
+      { path: 'mypage', element: <MyPage /> },
+      { path: 'search', element: <SearchPage /> },
+
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ]);
