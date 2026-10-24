@@ -1,6 +1,7 @@
 export { default as MainPage } from './main/MainPage';
 export { default as NotFoundPage } from './NotFoundPage';
 
+export { default as CoursePage } from './courses/CoursePage';
 export { default as MaterialListPage } from './materials/MaterialListPage';
 export { default as MaterialUploadPage } from './materials/MaterialUploadPage';
 export { default as MaterialDetailPage } from './materials/MaterialDetailPage';
