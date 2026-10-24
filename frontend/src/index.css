@@ -1,1 +1,48 @@
 @import 'tailwindcss';
+
+/* 색·폰트 토큰. 값과 쓰는 곳은 frontend/CLAUDE.md "색 규칙" 표가 기준이다 */
+@theme {
+  --font-sans:
+    'Pretendard Variable', Pretendard, 'Noto Sans KR', system-ui, sans-serif;
+
+  --color-navy-900: #0d1b57;
+  --color-navy-700: #1f3a8a;
+
+  --color-primary: #2b67d1;
+  --color-primary-soft: #e8effc;
+  --color-primary-pill: #cddcf7;
+
+  --color-footer: #a7b2c5;
+
+  /* AI가 만든 콘텐츠에만 쓴다 (버튼·점수에는 쓰지 않는다) */
+  --color-ai: #86198f;
+  --color-ai-soft: #fbf4fe;
+  --color-ai-border: #e9b8f5;
+  --color-ai-chip: #f5e1fb;
+
+  --color-strength: #166534;
+  --color-strength-soft: #dcfce7;
+  --color-weakness: #9a3412;
+  --color-weakness-soft: #ffedd5;
+
+  /* 오류 메시지에만 쓴다 */
+  --color-danger: #b91c1c;
+
+  /* 본문 글자·보조 글자·구분선 */
+  --color-ink: #1c2333;
+  --color-ink-soft: #3d4760;
+  --color-ink-muted: #4a5468;
+  --color-line: #d9dfeb;
+  --color-surface-muted: #f5f7fb;
+}
+
+@layer base {
+  body {
+    /* 한국어는 어절 단위로 줄바꿈한다 */
+    @apply bg-white font-sans break-keep text-ink antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+}

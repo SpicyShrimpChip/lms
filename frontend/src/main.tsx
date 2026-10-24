@@ -7,6 +7,8 @@ import { router } from './router';
 @/ 절대경로 적용은 취향 차이!
 엔트리 파일 시각적 응집도를 위해 적용하지 않았음
 */
+// 본문 폰트 Pretendard (npm 패키지로 내장, 외부 CDN 요청 없음)
+import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import './index.css';
 
 // QueryClient 생성 및 실무용 기본 세팅
