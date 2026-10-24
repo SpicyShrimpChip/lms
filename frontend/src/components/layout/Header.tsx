@@ -53,7 +53,7 @@ function Header() {
           <form
             role="search"
             onSubmit={handleSearch}
-            className="flex h-9 items-center gap-1.5 rounded-md border border-line-strong px-2.5 focus-within:border-primary"
+            className="flex h-9 items-center gap-1.5 rounded-md border border-input-border px-2.5 focus-within:border-primary"
           >
             <label htmlFor="global-search" className="sr-only">
               검색

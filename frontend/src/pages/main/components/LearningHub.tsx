@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import PrivacyNotice from './PrivacyNotice';
 
 const STEPS = [
   {
@@ -42,6 +43,8 @@ function LearningHub() {
             </li>
           ))}
         </ol>
+
+        <PrivacyNotice />
 
         <div className="flex justify-center">
           <Link

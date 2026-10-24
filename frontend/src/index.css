@@ -34,6 +34,10 @@
 
   --color-footer: #a7b2c5;
 
+  /* 메인 첫 화면 띠 배경과 그 위에 올라온 카드 바탕 */
+  --color-hero: #e8effc;
+  --color-surface-raised: #ffffff;
+
   /* AI가 만든 콘텐츠에만 쓴다 (버튼·점수에는 쓰지 않는다) */
   --color-ai: #86198f;
   --color-ai-soft: #fbf4fe;
@@ -56,16 +60,20 @@
   --color-ink-muted: #4a5468;
   --color-line: #d9dfeb;
   --color-line-strong: #c3c9d6;
+  /* 입력칸·검색칸 테두리 (바탕 대비 3:1 이상, WCAG 1.4.11) */
+  --color-input-border: #7c8598;
 }
 
 /* 다크모드 값: 살짝 차가운 어두운 회색 바탕 + 밝은 화면에서 파란색이던 자리는 블루를 옅게 섞은 색(GitHub·토스 방식). 글자·바탕 쌍은 모두 대비 4.5:1 이상 */
 :root.dark {
   color-scheme: dark;
 
-  --color-brand: #0f1324;
+  /* 상단바(surface)와 구분되도록 네이비 기를 남긴다 */
+  --color-brand: #22305e;
 
   --color-heading: #f0f2f5;
-  --color-heading-soft: #9db8f2;
+  /* 섹션 제목이 링크(primary)처럼 보이지 않도록 파란 기만 살짝 남긴 밝은 회색 */
+  --color-heading-soft: #c9d3e6;
 
   /* 어두운 바탕에서는 버튼을 밝은 파랑으로, 버튼 글자를 어둡게 바꾼다 */
   --color-primary: #7aa5f5;
@@ -76,6 +84,10 @@
   --color-primary-pill-hover: #323f59; /* primary 28% */
 
   --color-footer: #1b1f27;
+
+  /* 어두운 모드는 위에 올라온 면일수록 밝게: 띠(hero) < 카드(raised) */
+  --color-hero: #1a1d24;
+  --color-surface-raised: #1e2128;
 
   --color-ai: #eaa8f7;
   --color-ai-soft: #2a1630;
@@ -96,6 +108,7 @@
   --color-ink-muted: #959ba7;
   --color-line: #2d313a;
   --color-line-strong: #3d424d;
+  --color-input-border: #6b7280;
 }
 
 @layer base {
