@@ -4,22 +4,30 @@
   "timezone": "Asia/Seoul", // 봇의 기준 시간대를 한국으로 설정
   "schedule": ["before 9am on monday"], // 매주 월요일 9시 전에만 묶어서 배달
   "labels": ["dependencies"], // 봇 생성 PR의 자동 생성 라벨
-  
+
   "packageRules": [
     {
-      // TypeScript Package Rules
+      // 타입 정의 패키지(@types/*)
       "matchUpdateTypes": ["minor", "patch"],
-      "matchPackagePrefixes": ["@types/"],
+      "matchPackageNames": ["@types/**"],
       "groupName": "definitelyTyped (types)",
-      // TS package 업데이트는 서비스 로직 영향 X -> 봇 자동 merge
+      // 타입 정의 업데이트는 서비스 로직에 영향이 없으므로 CI 통과 시 자동 머지
       "automerge": true
     },
     {
-      // 프론트엔드 핵심 인프라 rule
+      // 프론트엔드 핵심 인프라: React, ESLint, Prettier, Tailwind 관련 작은 업데이트는 PR 1개로 묶음
       "matchUpdateTypes": ["minor", "patch"],
-      "matchPackageNames": ["react", "react-dom"],
-      "matchPackagePrefixes": ["eslint", "@eslint", "prettier", "tailwindcss"],
-      // React, ESLint, Tailwind 관련 작은 업데이트는 PR 1개로 묶음
+      "matchPackageNames": [
+        "react",
+        "react-dom",
+        "eslint",
+        "eslint-*",
+        "@eslint/**",
+        "typescript-eslint",
+        "prettier",
+        "tailwindcss",
+        "@tailwindcss/**"
+      ],
       "groupName": "core & linting packages"
     }
   ]
