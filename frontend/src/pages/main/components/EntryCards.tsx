@@ -20,7 +20,7 @@ function EntryCard({
   badge,
 }: EntryCardProps) {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-primary-pill bg-surface-raised p-8">
+    <div className="flex flex-col gap-4 rounded-2xl border border-line bg-surface-raised p-8">
       <div className="flex items-center justify-between gap-3">
         <div className="flex size-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
           {icon}

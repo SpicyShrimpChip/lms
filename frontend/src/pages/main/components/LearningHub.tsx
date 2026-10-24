@@ -33,7 +33,7 @@ function LearningHub() {
           {STEPS.map((step, index) => (
             <li
               key={step.title}
-              className="flex flex-col gap-2.5 rounded-2xl bg-primary-soft p-7"
+              className="flex flex-col gap-2.5 rounded-2xl bg-section p-7"
             >
               <p className="text-sm font-bold text-primary">{index + 1}단계</p>
               <h3 className="text-xl font-bold text-heading">{step.title}</h3>

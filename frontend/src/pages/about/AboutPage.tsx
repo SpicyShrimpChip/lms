@@ -25,7 +25,7 @@ function AboutPage() {
       description="AI와 공부한 기록에서 아는 것과 모르는 것을 찾아 드려요"
       breadcrumb={['이용안내', '서비스 소개']}
     >
-      <section className="flex flex-col gap-3 rounded-2xl bg-primary-soft p-6 md:p-8">
+      <section className="flex flex-col gap-3 rounded-2xl bg-section p-6 md:p-8">
         <h2 className="text-xl font-bold text-heading-soft">왜 만들었나요</h2>
         <p className="leading-relaxed text-ink-soft">
           AI로 공부하면 대화가 여러 서비스에 흩어지고, 새 대화를 열 때마다 같은
