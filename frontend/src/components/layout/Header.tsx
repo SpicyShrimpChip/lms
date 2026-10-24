@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 const ACCOUNT_LINKS = [
   { label: '로그인', path: '/login' },
@@ -22,8 +23,8 @@ function Header() {
   return (
     <header className="border-b border-line">
       <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-3 px-6 py-3.5">
-        <Link to="/" className="flex items-center gap-2.5 text-navy-900">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-navy-900 text-sm font-bold text-white">
+        <Link to="/" className="flex items-center gap-2.5 text-heading">
+          <span className="flex size-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand">
             AI
           </span>
           {/* TODO(미결): 서비스 이름 확정 후 교체 */}
@@ -41,7 +42,7 @@ function Header() {
                 )}
                 <Link
                   to={link.path}
-                  className="text-ink-muted hover:text-navy-900"
+                  className="text-ink-muted hover:text-heading"
                 >
                   {link.label}
                 </Link>
@@ -68,11 +69,13 @@ function Header() {
             <button
               type="submit"
               aria-label="검색하기"
-              className="text-ink-muted hover:text-navy-900"
+              className="text-ink-muted hover:text-heading"
             >
               <Search size={16} aria-hidden="true" />
             </button>
           </form>
+
+          <ThemeToggle />
         </div>
       </div>
     </header>

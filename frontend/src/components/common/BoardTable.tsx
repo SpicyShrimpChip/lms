@@ -24,7 +24,7 @@ function BoardTable<T>({
 }: BoardTableProps<T>) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-130 border-collapse border-t-2 border-navy-700 text-body">
+      <table className="w-full min-w-130 border-collapse border-t-2 border-heading-soft text-body">
         <thead>
           <tr className="bg-surface-muted">
             {columns.map((column) => (

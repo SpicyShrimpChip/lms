@@ -6,16 +6,16 @@ function NoticePreview() {
     <section>
       <div className="mx-auto flex max-w-page flex-col gap-4 px-6 pt-16 pb-20">
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-2xl font-bold text-navy-700">공지사항</h2>
+          <h2 className="text-2xl font-bold text-heading-soft">공지사항</h2>
           <Link
             to="/notices"
-            className="text-body text-navy-700 underline-offset-4 hover:underline"
+            className="text-body text-heading-soft underline-offset-4 hover:underline"
           >
             더 보기
           </Link>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-130 border-collapse border-t-2 border-navy-700 text-body">
+          <table className="w-full min-w-130 border-collapse border-t-2 border-heading-soft text-body">
             <thead>
               <tr className="bg-surface-muted">
                 <th

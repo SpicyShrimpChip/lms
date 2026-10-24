@@ -5,11 +5,11 @@ function PrivacyNotice() {
   return (
     <section className="bg-surface-muted">
       <div className="mx-auto flex max-w-page flex-wrap items-center gap-4 px-6 py-8">
-        <div className="flex size-11 items-center justify-center rounded-xl border border-line bg-surface text-navy-700">
+        <div className="flex size-11 items-center justify-center rounded-xl border border-line bg-surface text-heading-soft">
           <Lock size={22} aria-hidden="true" />
         </div>
         <div className="min-w-0 flex-[1_1_480px]">
-          <p className="mb-1 font-bold text-navy-900">
+          <p className="mb-1 font-bold text-heading">
             원본 대화 파일은 서버로 보내지 않아요
           </p>
           <p className="text-body leading-relaxed text-ink-soft">
@@ -19,7 +19,7 @@ function PrivacyNotice() {
         </div>
         <Link
           to="/privacy"
-          className="text-body font-medium text-navy-700 underline-offset-4 hover:underline"
+          className="text-body font-medium text-heading-soft underline-offset-4 hover:underline"
         >
           개인정보처리방침
         </Link>

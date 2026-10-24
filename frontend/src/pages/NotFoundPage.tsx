@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 function NotFoundPage() {
   return (
     <div className="mx-auto flex max-w-page flex-col items-center gap-4 px-6 py-32 text-center">
-      <h1 className="text-3xl font-bold text-navy-900">
+      <h1 className="text-3xl font-bold text-heading">
         페이지를 찾을 수 없어요
       </h1>
       <p className="text-ink-soft">
@@ -11,7 +11,7 @@ function NotFoundPage() {
       </p>
       <Link
         to="/"
-        className="rounded-lg bg-primary px-6 py-3 font-medium text-white hover:bg-navy-700"
+        className="rounded-lg bg-primary px-6 py-3 font-medium text-on-primary hover:bg-primary-hover"
       >
         메인으로 가기
       </Link>

@@ -85,12 +85,13 @@ Tailwind 4 `@theme`에 아래 이름으로 등록한다(`src/index.css`). Tailwi
 
 | 토큰                                       | 값                                            | 쓰는 곳                                  |
 | ------------------------------------------ | --------------------------------------------- | ---------------------------------------- |
-| `navy-900`                                 | `#0d1b57`                                     | GNB, 페이지 제목                         |
-| `navy-700`                                 | `#1f3a8a`                                     | 섹션 제목, 표 상단선, 보조 링크          |
-| `primary`                                  | `#2b67d1`                                     | 모든 버튼, 선택된 메뉴, 숙련도 점수 막대 |
+| `brand` / `on-brand`                       | `#0d1b57` / `#ffffff`                         | GNB·로고 바탕과 그 위 글자               |
+| `heading`                                  | `#0d1b57`                                     | 페이지 제목, 카드 제목                   |
+| `heading-soft`                             | `#1f3a8a`                                     | 섹션 제목, 표 상단선, 보조 링크          |
+| `primary` / `on-primary` / `primary-hover` | `#2b67d1` / `#ffffff` / `#1f3a8a`             | 모든 버튼, 선택된 메뉴, 숙련도 점수 막대 |
 | `primary-soft`                             | `#e8effc`                                     | 카드·섹션 배경                           |
 | `primary-pill`                             | `#cddcf7`                                     | 알약형 보조 버튼                         |
-| `footer`                                   | `#a7b2c5`                                     | 푸터 배경 (글자는 `navy-900`)            |
+| `footer`                                   | `#a7b2c5`                                     | 푸터 배경 (글자는 `heading`)             |
 | `ai` / `ai-soft` / `ai-border` / `ai-chip` | `#86198f` / `#fbf4fe` / `#e9b8f5` / `#f5e1fb` | AI가 만든 콘텐츠만                       |
 | `strength` / `strength-soft`               | `#166534` / `#dcfce7`                         | 강점 표시                                |
 | `weakness` / `weakness-soft`               | `#9a3412` / `#ffedd5`                         | 보완 필요 표시                           |
@@ -102,7 +103,8 @@ Tailwind 4 `@theme`에 아래 이름으로 등록한다(`src/index.css`). Tailwi
   - 숙련도 점수·그래프는 코드가 계산한 값이므로 `primary`. `ai`로 칠하지 않는다.
 - **색만으로 의미를 전달하지 않는다.** AI 요소에는 반짝이 아이콘과 "AI" 글자를, 강점에는 체크 아이콘과 "강점", 보완 필요에는 느낌표 아이콘과 "보완 필요"를 항상 함께 붙인다. AI 요소가 있는 화면에는 "이 표시가 있는 내용은 AI가 작성했어요" 안내를 둔다.
 - 약점에는 빨강을 쓰지 않는다(적록색약, "실패" 느낌). 빨강(`danger`)은 파싱 실패·입력 오류 같은 오류에만 쓴다.
-- **컴포넌트에 색 코드(`text-[#…]`, `bg-white`)를 직접 쓰지 않는다.** 바탕·글자·구분선도 `surface`, `ink`, `line` 계열 토큰만 쓴다. 기본은 밝은 모드이고, 다크모드는 나중에 `prefers-color-scheme`로 토큰 값만 바꿔 붙인다.
+- **컴포넌트에 색 코드(`text-[#…]`, `bg-white`, `text-white`)를 직접 쓰지 않는다.** 바탕·글자·구분선도 `surface`, `ink`, `line` 계열 토큰만 쓴다. 버튼 글자는 `on-primary`, GNB 글자는 `on-brand`.
+- **다크모드:** 표의 값은 밝은 모드 기준이고, 어두운 값은 `src/index.css`의 `:root.dark`에서 같은 토큰을 다시 정의한다. 컴포넌트에 `dark:` 클래스를 붙이지 않는다. 새 토큰을 추가하면 어두운 값도 함께 넣고, 글자·바탕 쌍의 대비 4.5:1을 확인한다. 모드는 상단바의 화면 모드 버튼(기기 설정 / 밝게 / 어둡게, `useThemeStore`)으로 바꾸고, 기본값은 기기 설정을 따른다.
 - 페이지 본문 폭은 `max-w-page`(1200px), 자주 쓰는 글자 크기는 `text-body`(15px)·`text-caption`(13px)·`text-display`(40px) 토큰을 쓴다.
 
 - 폰트: Pretendard (대체: Noto Sans KR, 시스템 폰트)

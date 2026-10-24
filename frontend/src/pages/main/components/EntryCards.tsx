@@ -28,11 +28,11 @@ function EntryCard({
         </div>
         {badge}
       </div>
-      <h2 className="text-2xl font-bold text-navy-900">{title}</h2>
+      <h2 className="text-2xl font-bold text-heading">{title}</h2>
       <p className="leading-relaxed text-ink-soft">{description}</p>
       <Link
         to={to}
-        className="self-start rounded-lg bg-primary px-6 py-3 font-medium text-white hover:bg-navy-700"
+        className="self-start rounded-lg bg-primary px-6 py-3 font-medium text-on-primary hover:bg-primary-hover"
       >
         {cta}
       </Link>
@@ -46,7 +46,7 @@ function EntryCards() {
     <section className="bg-primary-soft">
       <div className="mx-auto flex max-w-page flex-col gap-10 px-6 pt-16 pb-18">
         <div className="flex flex-col items-center gap-3.5 text-center">
-          <h1 className="text-3xl leading-snug font-bold text-navy-900 md:text-display">
+          <h1 className="text-3xl leading-snug font-bold text-heading md:text-display">
             AI와 공부한 기록에서
             <br />
             아는 것과 모르는 것을 찾아 드려요

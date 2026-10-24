@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 function Footer() {
   return (
     <footer className="bg-footer">
-      <div className="mx-auto flex max-w-page flex-wrap justify-between gap-4 px-6 py-8 text-sm text-navy-900">
+      <div className="mx-auto flex max-w-page flex-wrap justify-between gap-4 px-6 py-8 text-sm text-heading">
         <div className="flex flex-col gap-1.5">
           <span className="font-bold">ai-lms</span>
           {/* TODO(미결): 팀 이름 확정 후 교체 */}
