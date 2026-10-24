@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Sparkles } from 'lucide-react';
+import { AiNote } from '@/components';
 
 interface LayoutReasonPopoverProps {
   // 영역 제목. 화면 읽기 프로그램용 버튼 이름에 쓴다
@@ -59,7 +60,7 @@ function LayoutReasonPopover({ title, reason }: LayoutReasonPopoverProps) {
           setDismissed(false);
         }}
         onBlur={() => setFocused(false)}
-        className="inline-flex items-center gap-1 rounded-full bg-ai-chip px-2.5 py-1 text-caption font-medium text-ai hover:bg-ai-border"
+        className="inline-flex items-center gap-1 rounded-full bg-ai-chip px-2.5 py-1 text-caption font-medium text-ai hover:bg-ai-chip-hover"
       >
         <Sparkles size={14} aria-hidden="true" />이 자리인 이유
       </button>
@@ -69,13 +70,9 @@ function LayoutReasonPopover({ title, reason }: LayoutReasonPopoverProps) {
           id={popoverId}
           className="absolute top-full right-0 z-20 w-72 max-w-[calc(100vw-3rem)] pt-2"
         >
-          <p className="rounded-xl border border-ai-border bg-ai-soft px-4 py-3 text-body leading-relaxed text-ink shadow-md">
-            <span className="mb-1 flex items-center gap-1 text-caption font-bold text-ai">
-              <Sparkles size={14} aria-hidden="true" />
-              AI가 이 자리에 둔 이유
-            </span>
-            {reason}
-          </p>
+          <div className="rounded-xl shadow-md">
+            <AiNote title="AI가 이 자리에 둔 이유">{reason}</AiNote>
+          </div>
         </div>
       )}
     </div>

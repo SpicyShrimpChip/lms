@@ -47,6 +47,7 @@
   --color-ai-soft: #fbf4fe;
   --color-ai-border: #e9b8f5;
   --color-ai-chip: #f5e1fb;
+  --color-ai-chip-hover: #efd0f9;
 
   --color-strength: #166534;
   --color-strength-soft: #dcfce7;
@@ -98,6 +99,7 @@
   --color-ai-soft: #2a1630;
   --color-ai-border: #5c2b66;
   --color-ai-chip: #3b1d44;
+  --color-ai-chip-hover: #4a2554;
 
   --color-strength: #86efac;
   --color-strength-soft: #12301f;
@@ -107,7 +109,8 @@
   --color-danger: #fca5a5;
 
   --color-surface: #16181d;
-  --color-surface-muted: #1e2128;
+  /* 카드(surface-raised) 안의 연한 칸·막대 바탕도 보이도록 raised보다 한 단계 밝게 */
+  --color-surface-muted: #272b33;
   --color-ink: #e6e8ec;
   --color-ink-soft: #b4b9c3;
   --color-ink-muted: #959ba7;

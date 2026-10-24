@@ -1,6 +1,6 @@
 import { ListChecks, MessageSquare } from 'lucide-react';
 import { AiNote, LevelBadge } from '@/components';
-import type { ConceptMastery, EvidenceSignal } from '@/types';
+import type { ConceptMastery, Evidence, EvidenceSignal } from '@/types';
 import Panel from './Panel';
 
 const SIGNAL_LABEL: Record<EvidenceSignal, string> = {
@@ -9,6 +9,14 @@ const SIGNAL_LABEL: Record<EvidenceSignal, string> = {
   applied: '스스로 활용',
   quiz_correct: '퀴즈 정답',
   quiz_wrong: '퀴즈 오답',
+};
+
+const SOURCE_META: Record<
+  Evidence['source'],
+  { icon: typeof MessageSquare; label: string }
+> = {
+  conversation: { icon: MessageSquare, label: '대화' },
+  quiz: { icon: ListChecks, label: '퀴즈' },
 };
 
 // 고른 개념의 판단 근거(코드)와 AI 설명(보라색)
@@ -43,7 +51,7 @@ function ConceptDetailPanel({
         <h3 className="text-body font-bold text-ink-soft">이렇게 판단했어요</h3>
         <ul className="flex flex-col gap-2">
           {concept.evidence.map((item) => {
-            const Icon = item.source === 'quiz' ? ListChecks : MessageSquare;
+            const { icon: Icon, label } = SOURCE_META[item.source];
             return (
               <li
                 key={item.id}
@@ -57,8 +65,7 @@ function ConceptDetailPanel({
                 <div className="flex min-w-0 flex-col gap-1">
                   <p className="text-body text-ink">{item.summary}</p>
                   <p className="text-caption text-ink-muted">
-                    {item.source === 'quiz' ? '퀴즈' : '대화'} · {item.date} ·{' '}
-                    {SIGNAL_LABEL[item.signal]}
+                    {label} · {item.date} · {SIGNAL_LABEL[item.signal]}
                   </p>
                 </div>
               </li>

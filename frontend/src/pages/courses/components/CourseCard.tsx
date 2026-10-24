@@ -1,5 +1,5 @@
 import type { Course } from '@/types';
-import { Button } from '@/components';
+import { Button, Card, Chip } from '@/components';
 import { formatSemester } from '@/utils';
 
 interface CourseCardProps {
@@ -11,7 +11,7 @@ interface CourseCardProps {
 
 function CourseCard({ course, onEdit, onDelete, deleting }: CourseCardProps) {
   return (
-    <li className="flex flex-col gap-3 rounded-2xl border border-line bg-surface-raised p-6">
+    <Card as="li" className="flex flex-col gap-3 p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h3 className="text-lg font-bold text-heading">{course.name}</h3>
@@ -40,11 +40,8 @@ function CourseCard({ course, onEdit, onDelete, deleting }: CourseCardProps) {
       {course.keywords.length > 0 ? (
         <ul aria-label="키워드" className="flex flex-wrap gap-1.5">
           {course.keywords.map((keyword) => (
-            <li
-              key={keyword}
-              className="rounded-full border border-line bg-surface-muted px-2.5 py-1 text-caption text-ink-soft"
-            >
-              {keyword}
+            <li key={keyword}>
+              <Chip>{keyword}</Chip>
             </li>
           ))}
         </ul>
@@ -53,7 +50,7 @@ function CourseCard({ course, onEdit, onDelete, deleting }: CourseCardProps) {
           키워드가 없어요. 과목 이름으로만 대화를 골라요.
         </p>
       )}
-    </li>
+    </Card>
   );
 }
 

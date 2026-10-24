@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createCourse, updateCourse } from '@/api';
-import { Button, FormRow, TextInput } from '@/components';
+import { Button, FormRow, SelectInput, TextInput } from '@/components';
 import type { Course, CourseInput } from '@/types';
 import {
   formatSemester,
@@ -33,8 +33,9 @@ function CourseForm({ courses, editing, onDone }: CourseFormProps) {
   const mutation = useMutation({
     mutationFn: (input: CourseInput) =>
       editing ? updateCourse(editing.id, input) : createCourse(input),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['courses'] });
+    onSuccess: () => {
+      // 목록은 뒤에서 다시 불러오고, 폼은 바로 비운다
+      void queryClient.invalidateQueries({ queryKey: ['courses'] });
       setName('');
       setKeywords([]);
       onDone();
@@ -76,7 +77,12 @@ function CourseForm({ courses, editing, onDone }: CourseFormProps) {
         {editing ? `'${editing.name}' 수정하기` : '과목 추가'}
       </h2>
       <div className="border-t-2 border-heading-soft">
-        <FormRow label="과목 이름" htmlFor="course-name" required>
+        <FormRow
+          label="과목 이름"
+          htmlFor="course-name"
+          required
+          error={nameError ?? ''}
+        >
           <TextInput
             id="course-name"
             value={name}
@@ -86,27 +92,20 @@ function CourseForm({ courses, editing, onDone }: CourseFormProps) {
             aria-invalid={nameError ? true : undefined}
             aria-describedby="course-name-error"
           />
-          <p
-            id="course-name-error"
-            aria-live="polite"
-            className="text-caption text-danger"
-          >
-            {nameError}
-          </p>
         </FormRow>
         <FormRow label="학기" htmlFor="course-semester">
-          <select
+          <SelectInput
             id="course-semester"
             value={semester}
             onChange={(e) => setSemester(e.target.value)}
-            className="h-10 w-full max-w-60 rounded-md border border-input-border bg-surface-raised px-3 text-body outline-none focus:border-primary"
+            className="w-full max-w-60"
           >
             {getSemesterOptions().map((option) => (
               <option key={option} value={option}>
                 {formatSemester(option)}
               </option>
             ))}
-          </select>
+          </SelectInput>
         </FormRow>
         <FormRow
           label="키워드"

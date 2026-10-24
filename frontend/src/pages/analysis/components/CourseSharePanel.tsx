@@ -1,3 +1,4 @@
+import { ScoreBar } from '@/components';
 import type { StudySummary } from '@/types';
 import Panel from './Panel';
 
@@ -33,15 +34,7 @@ function CourseSharePanel({ summaries, layoutReason }: CourseSharePanelProps) {
                   {share}% · 대화 {item.conversationCount}개
                 </span>
               </div>
-              <span
-                aria-hidden="true"
-                className="h-2.5 overflow-hidden rounded-full bg-surface-muted"
-              >
-                <span
-                  className="block h-full rounded-full bg-primary"
-                  style={{ width: `${share}%` }}
-                />
-              </span>
+              <ScoreBar value={share} />
             </li>
           );
         })}

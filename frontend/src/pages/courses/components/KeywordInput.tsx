@@ -1,5 +1,5 @@
 import { useState, type KeyboardEvent } from 'react';
-import { X } from 'lucide-react';
+import { Chip, FIELD_CLASS } from '@/components';
 import { addKeywords } from '@/utils';
 
 interface KeywordInputProps {
@@ -39,22 +39,17 @@ function KeywordInput({ id, keywords, onChange }: KeywordInputProps) {
 
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="flex min-h-10 flex-wrap items-center gap-1.5 rounded-md border border-input-border bg-surface-raised px-2 py-1.5 focus-within:border-primary">
+      <div
+        className={`flex min-h-10 flex-wrap items-center gap-1.5 px-2 py-1.5 ${FIELD_CLASS}`}
+      >
         {keywords.map((keyword) => (
-          <span
+          <Chip
             key={keyword}
-            className="inline-flex items-center gap-1 rounded-full border border-line bg-surface-muted py-0.5 pr-1 pl-2.5 text-caption text-ink-soft"
+            onRemove={() => remove(keyword)}
+            removeLabel={`${keyword} 키워드 삭제`}
           >
             {keyword}
-            <button
-              type="button"
-              onClick={() => remove(keyword)}
-              aria-label={`${keyword} 키워드 삭제`}
-              className="rounded-full p-0.5 text-ink-muted hover:bg-line hover:text-ink"
-            >
-              <X size={14} aria-hidden="true" />
-            </button>
-          </span>
+          </Chip>
         ))}
         <input
           id={id}

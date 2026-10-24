@@ -1,4 +1,4 @@
-import { LevelBadge } from '@/components';
+import { LevelBadge, ScoreBar } from '@/components';
 import type { ConceptMastery } from '@/types';
 import Panel from './Panel';
 
@@ -39,15 +39,7 @@ function MasteryPanel({
                 <span className="w-28 shrink-0 font-medium text-heading">
                   {concept.name}
                 </span>
-                <span
-                  aria-hidden="true"
-                  className="h-2.5 min-w-24 flex-1 overflow-hidden rounded-full bg-surface-muted"
-                >
-                  <span
-                    className="block h-full rounded-full bg-primary"
-                    style={{ width: `${concept.score}%` }}
-                  />
-                </span>
+                <ScoreBar value={concept.score} className="min-w-24 flex-1" />
                 <span className="w-14 shrink-0 text-right font-bold text-heading">
                   {concept.score}
                   <span className="sr-only">점</span>

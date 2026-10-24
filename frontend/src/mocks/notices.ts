@@ -1,4 +1,5 @@
 import type { Notice } from '@/types';
+import { mockDelay } from './delay';
 
 // 백엔드 없이 화면을 볼 때 쓰는 샘플 데이터
 export const MOCK_NOTICES: Notice[] = [
@@ -14,3 +15,7 @@ export const MOCK_NOTICES: Notice[] = [
   },
   { id: 1, title: '서비스를 시작했어요', createdAt: '2026-10-15' },
 ];
+
+export function mockGetNotices(): Promise<Notice[]> {
+  return mockDelay(MOCK_NOTICES);
+}

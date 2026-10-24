@@ -5,6 +5,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from 'react';
+import Chip from './Chip';
 
 export interface TabItem {
   id: string;
@@ -64,11 +65,7 @@ function Tabs({ label, tabs }: TabsProps) {
               }`}
             >
               {tab.label}
-              {tab.badge && (
-                <span className="rounded-full bg-surface-muted px-2 py-0.5 text-caption font-normal text-ink-muted">
-                  {tab.badge}
-                </span>
-              )}
+              {tab.badge && <Chip className="font-normal">{tab.badge}</Chip>}
             </button>
           );
         })}

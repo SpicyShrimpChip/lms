@@ -1,5 +1,5 @@
 export const KEYWORD_MAX_COUNT = 20;
-export const KEYWORD_MAX_LENGTH = 20;
+const KEYWORD_MAX_LENGTH = 20;
 
 // 앞뒤 공백을 지우고, 안쪽 공백은 한 칸으로 줄인다
 export function normalizeKeyword(raw: string): string {

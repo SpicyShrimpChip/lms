@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Card } from '@/components';
 import LayoutReasonPopover from './LayoutReasonPopover';
 
 interface PanelProps {
@@ -10,10 +11,10 @@ interface PanelProps {
   children: ReactNode;
 }
 
-// 대시보드 영역 하나를 감싸는 흰 카드
+// 대시보드 영역 하나: 공통 Card + 제목 줄 + 배치 이유 말풍선
 function Panel({ title, description, layoutReason, children }: PanelProps) {
   return (
-    <section className="flex h-full min-w-0 flex-col gap-4 rounded-2xl border border-line bg-surface-raised p-6">
+    <Card as="section" className="flex h-full min-w-0 flex-col gap-4 p-6">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
           <h2 className="text-lg font-bold text-heading">{title}</h2>
@@ -26,7 +27,7 @@ function Panel({ title, description, layoutReason, children }: PanelProps) {
         )}
       </div>
       {children}
-    </section>
+    </Card>
   );
 }
 
