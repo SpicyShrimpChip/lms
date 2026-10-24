@@ -28,3 +28,4 @@ backend/uploads/
 # 개인 로컬 파일 (.claude/settings.json 등 팀 공용 설정은 커밋한다)
 .claude/settings.local.json
 todo.md
+graphify-out/
