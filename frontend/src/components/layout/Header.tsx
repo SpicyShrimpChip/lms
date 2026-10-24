@@ -1,6 +1,13 @@
-import { useState, type FormEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Menu, Search, X } from 'lucide-react';
+import MobileMenu, { MOBILE_MENU_ID } from './MobileMenu';
 import ThemeToggle from './ThemeToggle';
 import { FIELD_CLASS } from '../common/fieldClass';
 
@@ -13,6 +20,21 @@ const ACCOUNT_LINKS = [
 function Header() {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  // Esc로 닫고 포커스를 햄버거 버튼으로 돌려준다
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setMenuOpen(false);
+      menuButtonRef.current?.focus();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [menuOpen]);
 
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,13 +46,30 @@ function Header() {
   return (
     <header className="border-b border-line">
       <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-3 px-6 py-3.5">
-        <Link to="/" className="flex items-center gap-2.5 text-heading">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand">
-            AI
-          </span>
-          {/* TODO(미결): 서비스 이름 확정 후 교체 */}
-          <span className="text-xl font-bold">ai-lms</span>
-        </Link>
+        <div className="flex items-center justify-between max-md:w-full">
+          <Link to="/" className="flex items-center gap-2.5 text-heading">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand">
+              AI
+            </span>
+            {/* TODO(미결): 서비스 이름 확정 후 교체 */}
+            <span className="text-xl font-bold">ai-lms</span>
+          </Link>
+          <button
+            ref={menuButtonRef}
+            type="button"
+            aria-label={menuOpen ? '메뉴 닫기' : '메뉴 열기'}
+            aria-expanded={menuOpen}
+            aria-controls={MOBILE_MENU_ID}
+            onClick={() => setMenuOpen((open) => !open)}
+            className="flex size-9 items-center justify-center rounded-md border border-input-border text-heading md:hidden"
+          >
+            {menuOpen ? (
+              <X size={18} aria-hidden="true" />
+            ) : (
+              <Menu size={18} aria-hidden="true" />
+            )}
+          </button>
+        </div>
 
         <div className="flex flex-wrap items-center gap-4 text-sm">
           <nav aria-label="계정" className="flex items-center gap-3">
@@ -79,6 +118,7 @@ function Header() {
           <ThemeToggle />
         </div>
       </div>
+      {menuOpen && <MobileMenu onClose={closeMenu} />}
     </header>
   );
 }
