@@ -35,6 +35,7 @@ Swagger UI: `/swagger-ui/index.html` — 프론트와 API를 맞출 때 이 문�
 ```
 
 ## API 규칙
+- **프론트가 기대하는 API·응답 형식·우선순위는 `docs/frontend-requests.md`에 있다. API를 만들기 전에 먼저 읽는다.**
 - 경로: `/api/<기능>` (예: `/api/materials`, `/api/analysis/dashboard`)
 - 응답은 항상 `ApiResponse<T>`: `{ success, message, data }`
 - 요청 DTO는 Bean Validation(`@Valid`, `@NotBlank` 등)으로 검증한다.
