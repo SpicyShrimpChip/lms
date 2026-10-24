@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { MENU } from '@/constants';
+import * as m from 'motion/react-m';
+import { MENU, MOTION_TRANSITION } from '@/constants';
 import { isActivePath } from './menuActive';
 
 export const MOBILE_MENU_ID = 'mobile-menu';
@@ -29,10 +30,15 @@ function MobileMenu({ onClose }: MobileMenuProps) {
   }, [onClose]);
 
   return (
-    <nav
+    // 높이가 0에서 펼쳐지고, 닫을 때는 접히며 사라진다 (Header의 AnimatePresence가 사라지는 동안 붙잡아 둔다)
+    <m.nav
       id={MOBILE_MENU_ID}
       aria-label="전체 메뉴"
-      className="bg-brand text-on-brand md:hidden"
+      initial={{ height: 0, opacity: 0 }}
+      animate={{ height: 'auto', opacity: 1 }}
+      exit={{ height: 0, opacity: 0 }}
+      transition={MOTION_TRANSITION}
+      className="overflow-hidden bg-brand text-on-brand md:hidden"
     >
       <ul className="mx-auto flex max-w-page flex-col gap-4 px-6 py-4">
         {MENU.map((group) => (
@@ -62,7 +68,7 @@ function MobileMenu({ onClose }: MobileMenuProps) {
           </li>
         ))}
       </ul>
-    </nav>
+    </m.nav>
   );
 }
 

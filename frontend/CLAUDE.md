@@ -5,7 +5,7 @@
 ## 스택
 
 React 19, TypeScript 6, Vite 8, Tailwind CSS 4, React Router 7(`createBrowserRouter` 배열 라우팅),
-TanStack Query 5(서버 상태), Zustand 5(클라이언트 UI 상태만), Axios, zod(LLM 출력 검증, 설치 예정)
+TanStack Query 5(서버 상태), Zustand 5(클라이언트 UI 상태만), Axios, zod(LLM 출력 검증, 설치 예정), Motion(`motion` 패키지, 움직임)
 
 버전별 주의 (예제·자료가 이전 버전 기준인 경우가 많다):
 
@@ -34,7 +34,7 @@ src/
 ├── constants/    메뉴 구성, 라벨 매핑 등 상수
 ├── hooks/        공통 커스텀 훅
 ├── mocks/        백엔드 없이 개발할 때 쓰는 샘플 데이터
-├── pages/        페이지. 페이지 전용 컴포넌트는 pages/<페이지>/components/ 에 둔다
+├── pages/        페이지(default export). 페이지 전용 컴포넌트는 pages/<페이지>/components/ 에 둔다
 ├── router/       라우트 정의, 로그인 가드
 ├── store/        Zustand 스토어 (인증 세션 등)
 ├── styles/       전역 CSS, Tailwind 설정 연동
@@ -45,7 +45,17 @@ src/
 - import는 `@/` 절대경로를 쓰고, 공통 컴포넌트는 배럴(`index.ts`)로 내보낸다.
 - 화면을 만들 때 공통 부품을 먼저 쓴다: 버튼 `Button`, 흰 카드 `Card`, 작은 알약 `Chip`, 점수·비중 막대 `ScoreBar`, 입력칸 `TextInput`·`SelectInput`(그 밖의 칸 모양은 `FIELD_CLASS`), 폼 줄과 오류 문구 `FormRow`(`error`), AI 글 `AiNote`·`AiBadge`, 강점·보완 `LevelBadge`. 같은 클래스 묶음을 세 번째로 쓰게 되면 공통 부품으로 뺀다.
 - 서버 데이터는 React Query로만 다루고 Zustand에 복사하지 않는다.
-- 로딩·에러 처리는 `useSuspenseQuery` + `AsyncBoundary`로 한다.
+- 로딩·에러 처리는 `useSuspenseQuery` + `AsyncBoundary`로 한다. 불러오는 동안은 `LoadingFallback`(회색 틀 `Skeleton`)이 보인다.
+- 페이지는 처음 방문할 때만 코드를 불러온다. `router/index.tsx`에 `lazyPage(() => import('@/pages/...'))`로 추가하고, 페이지 파일은 default export로 만든다(메인·404만 처음부터 불러온다). 여러 페이지를 한 번에 export하는 모음 파일(`pages/index.ts`)은 만들지 않는다. 쪼개지지 않는다.
+
+## 움직임 (Motion)
+
+- 기준값은 `constants/motion.ts`(시간·곡선·`FADE_UP`)와 `index.css`의 `--default-transition-*`에 모아 둔다. 두 곳의 값은 같이 맞춘다. 느낌이 어색하면 이 값만 고친다.
+- `main.tsx`에서 `LazyMotion`(필요한 기능만, `strict`)과 `MotionConfig reducedMotion="user"`로 감쌌다. 그래서 컴포넌트에서는 `motion.div` 대신 **`import * as m from 'motion/react-m'`의 `m.div`**를 쓴다. `motion.div`를 쓰면 번들이 커지고 `strict`에서 오류가 난다.
+- 나타나고 사라지는 요소(펼침 패널, 말풍선, 결과 문구)는 `AnimatePresence` + `m.*`. 단순한 색·그림자 전환은 CSS(`index.css`가 링크·버튼·입력칸에 기본으로 걸어 둔다)로 충분하다.
+- 페이지 전환은 `PageTransition`(본문 페이드인), 코드 불러오는 동안은 `NavigationProgress`(화면 위 진행 막대).
+- 화면 모드를 바꿀 때는 `theme-switching` 클래스로 전환을 잠깐 꺼서 버튼만 늦게 바뀌지 않게 한다 (`useThemeStore`의 `applyTheme`).
+- "동작 줄이기"를 켠 기기에서는 CSS 움직임이 사실상 꺼지고(`index.css`), Motion은 이동·회전(transform) 움직임을 건너뛴다. 새 움직임도 이 설정에서 정보를 잃지 않아야 한다(움직임으로만 알려 주지 않는다).
 
 ## 백엔드 연동
 

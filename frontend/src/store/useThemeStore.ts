@@ -14,7 +14,13 @@ const darkQuery = () => window.matchMedia('(prefers-color-scheme: dark)');
 export const applyTheme = (preference: ThemePreference) => {
   const dark =
     preference === 'dark' || (preference === 'system' && darkQuery().matches);
-  document.documentElement.classList.toggle('dark', dark);
+  const root = document.documentElement;
+  // 바꾸는 순간에는 색 전환을 꺼서 화면이 한꺼번에 바뀌게 한다 (index.css의 .theme-switching)
+  root.classList.add('theme-switching');
+  root.classList.toggle('dark', dark);
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => root.classList.remove('theme-switching')),
+  );
 };
 
 // 화면 모드 선택 (시스템 설정 / 밝게 / 어둡게). 저장 키는 index.html 스크립트와 같아야 한다

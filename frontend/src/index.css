@@ -13,6 +13,10 @@
   --text-caption: 0.8125rem;
   --text-display: 2.5rem;
 
+  /* 기본 전환(transition-*) 시간과 곡선. constants/motion.ts의 값과 맞춘다 */
+  --default-transition-duration: 180ms;
+  --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+
   /* 페이지 본문 최대 폭 (1200px) → max-w-page */
   --container-page: 75rem;
 
@@ -131,5 +135,35 @@
 
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-primary;
+  }
+
+  /* 누르거나 입력하는 요소는 색이 부드럽게 바뀐다. 개별 요소의 transition-* 클래스가 있으면 그쪽이 우선 */
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    transition-property:
+      color, background-color, border-color, box-shadow, opacity;
+    transition-duration: var(--default-transition-duration);
+    transition-timing-function: var(--default-transition-timing-function);
+  }
+
+  /* 화면 모드를 바꾸는 순간에는 전환을 끈다. 안 그러면 버튼만 천천히 바뀌고 배경은 바로 바뀐다 */
+  .theme-switching,
+  .theme-switching * {
+    transition: none !important;
+  }
+
+  /* 기기 설정에서 "동작 줄이기"를 켠 사용자에게는 CSS 움직임을 사실상 끈다 (motion 라이브러리는 MotionConfig가 따로 처리) */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }

@@ -1,7 +1,9 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { ChartColumn, Sparkles } from 'lucide-react';
+import * as m from 'motion/react-m';
 import { getDashboard } from '@/api';
+import { FADE_UP } from '@/constants';
 import { AsyncBoundary, EmptyState, SubPage } from '@/components';
 import type { DashboardComponentId } from '@/types';
 import {
@@ -103,16 +105,20 @@ function Dashboard() {
       <LayoutSummary layout={layout} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {layout.items.map((item) => {
+        {layout.items.map((item, index) => {
           const content = renderComponent(item.component, item.aiReason);
           if (!content) return null;
           return (
-            <div
+            // 영역이 위에서부터 차례로 나타난다 (과목 탭을 바꿔도 영역은 다시 그려지지 않아 처음에만 보인다)
+            <m.div
               key={item.component}
+              initial={FADE_UP.initial}
+              animate={FADE_UP.animate}
+              transition={{ ...FADE_UP.transition, delay: index * 0.06 }}
               className={item.size === 'wide' ? 'lg:col-span-2' : undefined}
             >
               {content}
-            </div>
+            </m.div>
           );
         })}
       </div>
