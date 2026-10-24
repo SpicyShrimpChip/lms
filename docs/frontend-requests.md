@@ -3,7 +3,7 @@
 프론트(변지환)가 지금까지 만든 화면 기준으로, 백엔드(김주미)가 알아야 할 내용을 모은 문서다.
 API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, 바뀌면 이 문서와 프론트 목업을 같이 고친다.
 
-최종 수정: 2026-10-25 (학습 대시보드 목업 추가)
+최종 수정: 2026-10-25 (학습 대시보드 목업·동적 배치 추가)
 
 ## 1. 개발 환경 연결
 
@@ -108,7 +108,43 @@ Recommendation = { courseId: number, conceptIds: string[], aiReason: string } //
 
 - `ai`로 시작하는 필드만 LLM이 쓴 글이다. 점수·`level`·`evidence`는 코드가 정한다.
 - `evidence.summary`에 대화 원문을 길게 넣지 않는다. 한 줄 요약이면 충분하다.
-- 동적 배치(LLM이 정한 영역 순서와 "왜 여기에 있나요?" 이유)는 다음 프론트 PR에서 추가할 예정이고, 응답에 `layout` 필드가 붙는 모양이 될 것이다.
+- 동적 배치는 아래 `layout` 필드로 받는다.
+
+### 학습 대시보드 동적 배치 — 목업
+
+LLM은 화면 코드를 만들지 않고, 정해진 영역의 순서·크기·이유만 JSON으로 준다. 프론트는 이 JSON을 zod로 검사해서 통과할 때만 그 배치로 보여 주고, 실패하면 기본 배치로 보여 준다(`frontend/src/utils/layout/dashboardLayout.ts`). backend `CLAUDE.md`대로 서버에서도 1차 검증해 주기.
+
+`DashboardData`에 `layout` 필드를 붙인다(없으면 기본 배치):
+
+```ts
+layout = {
+  generatedAt: "2026-10-25T14:00:00",
+  aiSummary: string, // 전체 배치 이유 (AI), 120자까지
+  basis: {
+    // 배치를 만들 때 AI에게 준 숫자 (코드가 센 값)
+    weaknessCount: number, // 보완 필요 개념 수
+    askedAgainCount: number, // 다시 설명 요청 횟수
+    conversationCount: number, // 분석한 대화 수
+  },
+  items: [
+    {
+      component:
+        "summary" |
+        "mastery" |
+        "conceptDetail" |
+        "recommendation" |
+        "courseShare",
+      order: number, // 1부터, 겹치지 않게
+      size: "wide" | "normal",
+      aiReason: string, // 이 위치·크기인 이유 (AI), 80자까지
+    },
+  ],
+};
+```
+
+- **AI에게는 코드가 계산한 숫자만 주고 이유를 쓰게 하기.** 프론트는 이유 옆에 `basis` 숫자를 같이 보여 주므로, AI가 숫자를 지어내면 사용자가 바로 알아챈다.
+- **매번 AI를 부르지 않기.** 새 대화·퀴즈 결과가 들어왔을 때만 새로 만들고, 만든 배치를 저장해 두었다가 대시보드 요청 때 같이 보낸다. `basis`도 그때 값을 저장해야 이유와 숫자가 어긋나지 않는다.
+- 저장 방법 제안(백엔드가 정할 부분): 사용자별로 만들 때마다 한 줄씩 쌓는 표 하나. `id`, `user_id`, `layout_json`(위 JSON 전체를 TEXT로, H2와 함께 쓰므로 DB 전용 JSON 타입은 피함), `model`(어떤 모델이 만들었는지), `created_at`. 지난 배치가 남아 있으면 2단계 "약점 변화 추이"에도 쓸 수 있다.
 
 ## 5. 정해 주면 프론트가 맞출 것
 

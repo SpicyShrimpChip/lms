@@ -238,6 +238,105 @@ const DASHBOARD: DashboardData = {
   ],
 };
 
+// 샘플 배치 JSON (서버가 LLM에게 받아 저장해 둔 값이라고 가정).
+// basis는 위 샘플 데이터에서 센 값: 보완 필요 3개, 다시 설명 요청 3번, 대화 12개
+const BASIS = { weaknessCount: 3, askedAgainCount: 3, conversationCount: 12 };
+
+const LAYOUTS: Record<string, unknown> = {
+  // A: 보완할 개념이 많을 때 — 무엇부터 할지를 위로
+  a: {
+    generatedAt: '2026-10-25T14:00:00',
+    aiSummary:
+      '보완이 필요한 개념이 3개이고 다시 설명을 요청한 대화가 3번 있어, 오늘은 무엇부터 공부할지를 맨 위에 두었어요.',
+    basis: BASIS,
+    items: [
+      {
+        component: 'recommendation',
+        order: 1,
+        size: 'wide',
+        aiReason:
+          '보완이 필요한 개념이 3개라 무엇부터 공부할지를 가장 먼저 보여 드려요.',
+      },
+      {
+        component: 'conceptDetail',
+        order: 2,
+        size: 'normal',
+        aiReason:
+          '다시 설명을 요청한 기록이 3번 있어, 어떤 기록으로 판단했는지 바로 확인하도록 두었어요.',
+      },
+      {
+        component: 'mastery',
+        order: 3,
+        size: 'normal',
+        aiReason:
+          '판단 근거 옆에서 다른 개념 점수와 바로 비교할 수 있게 두었어요.',
+      },
+      {
+        component: 'summary',
+        order: 4,
+        size: 'wide',
+        aiReason: '전체 학습량은 참고용이라 아래쪽에 두었어요.',
+      },
+      {
+        component: 'courseShare',
+        order: 5,
+        size: 'normal',
+        aiReason: '과목이 2개뿐이라 비중은 맨 아래에 작게 보여 드려요.',
+      },
+    ],
+  },
+  // B: 전체를 먼저 훑어보는 배치 (다른 사용자 예시)
+  b: {
+    generatedAt: '2026-10-25T14:00:00',
+    aiSummary:
+      '분석한 대화가 12개로 충분히 쌓여, 오늘은 개념별 점수를 먼저 훑어볼 수 있게 배치했어요.',
+    basis: BASIS,
+    items: [
+      {
+        component: 'mastery',
+        order: 1,
+        size: 'wide',
+        aiReason: '모든 개념의 점수를 한 줄에 넓게 보여 먼저 훑어보게 했어요.',
+      },
+      {
+        component: 'summary',
+        order: 2,
+        size: 'wide',
+        aiReason:
+          '대화 12개와 퀴즈 결과가 쌓인 만큼 학습량을 함께 보여 드려요.',
+      },
+      {
+        component: 'conceptDetail',
+        order: 3,
+        size: 'normal',
+        aiReason:
+          '점수를 본 뒤 궁금한 개념의 근거를 이어서 볼 수 있게 두었어요.',
+      },
+      {
+        component: 'recommendation',
+        order: 4,
+        size: 'normal',
+        aiReason: '보완할 개념은 근거를 확인한 다음 순서로 보여 드려요.',
+      },
+    ],
+  },
+  // 검증에 걸리는 예: 없는 영역 id → 기본 배치로 보여야 한다
+  invalid: {
+    generatedAt: '2026-10-25T14:00:00',
+    aiSummary: '새 영역을 만들어 봤어요.',
+    basis: BASIS,
+    items: [
+      { component: 'superCard', order: 1, size: 'wide', aiReason: '눈에 띄게' },
+    ],
+  },
+};
+
+// 목업에서만: 주소에 ?layout=b, ?layout=invalid, ?layout=none을 붙여 배치를 바꿔 볼 수 있다
+function pickLayout(): unknown {
+  const key = new URLSearchParams(window.location.search).get('layout') ?? 'a';
+  return key === 'none' ? undefined : (LAYOUTS[key] ?? LAYOUTS.a);
+}
+
 export function mockGetDashboard(): Promise<DashboardData> {
-  return mockDelay(DASHBOARD);
+  return mockDelay({ ...DASHBOARD, layout: pickLayout() });
 }

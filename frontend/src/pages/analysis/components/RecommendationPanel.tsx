@@ -6,6 +6,7 @@ interface RecommendationPanelProps {
   recommendations: Recommendation[];
   concepts: ConceptMastery[];
   summaries: StudySummary[];
+  layoutReason?: string | null;
 }
 
 // AI가 추천한 학습 순서와 이유. 순서와 이유 모두 AI가 정한 것이라 보라색 상자에 담는다
@@ -13,6 +14,7 @@ function RecommendationPanel({
   recommendations,
   concepts,
   summaries,
+  layoutReason,
 }: RecommendationPanelProps) {
   const conceptName = (id: string) =>
     concepts.find((item) => item.conceptId === id)?.name ?? id;
@@ -20,7 +22,7 @@ function RecommendationPanel({
     summaries.find((item) => item.courseId === id)?.courseName ?? '';
 
   return (
-    <Panel title="추천 학습 순서">
+    <Panel title="추천 학습 순서" layoutReason={layoutReason}>
       {recommendations.length === 0 ? (
         <p className="text-body text-ink-muted">아직 추천할 순서가 없어요.</p>
       ) : (

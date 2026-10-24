@@ -2,7 +2,15 @@ import type { StudySummary } from '@/types';
 import { getAccuracy, sumSummaries } from '@/utils';
 import Panel from './Panel';
 
-function StudySummaryPanel({ summaries }: { summaries: StudySummary[] }) {
+interface StudySummaryPanelProps {
+  summaries: StudySummary[];
+  layoutReason?: string | null;
+}
+
+function StudySummaryPanel({
+  summaries,
+  layoutReason,
+}: StudySummaryPanelProps) {
   const totals = sumSummaries(summaries);
   const accuracy = getAccuracy(totals.quizCorrectCount, totals.quizCount);
   const items = [
@@ -15,7 +23,7 @@ function StudySummaryPanel({ summaries }: { summaries: StudySummary[] }) {
   ];
 
   return (
-    <Panel title="학습 요약">
+    <Panel title="학습 요약" layoutReason={layoutReason}>
       <dl className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {items.map((item) => (
           <div

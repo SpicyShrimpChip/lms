@@ -12,17 +12,25 @@ const SIGNAL_LABEL: Record<EvidenceSignal, string> = {
 };
 
 // 고른 개념의 판단 근거(코드)와 AI 설명(보라색)
-function ConceptDetailPanel({ concept }: { concept: ConceptMastery | null }) {
+interface ConceptDetailPanelProps {
+  concept: ConceptMastery | null;
+  layoutReason?: string | null;
+}
+
+function ConceptDetailPanel({
+  concept,
+  layoutReason,
+}: ConceptDetailPanelProps) {
   if (!concept) {
     return (
-      <Panel title="판단 근거">
+      <Panel title="판단 근거" layoutReason={layoutReason}>
         <p className="text-body text-ink-muted">개념을 고르면 여기에 보여요.</p>
       </Panel>
     );
   }
 
   return (
-    <Panel title={`판단 근거: ${concept.name}`}>
+    <Panel title={`판단 근거: ${concept.name}`} layoutReason={layoutReason}>
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-body text-ink-soft">
           숙련도{' '}

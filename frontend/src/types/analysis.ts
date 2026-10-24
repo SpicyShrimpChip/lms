@@ -43,8 +43,39 @@ export interface Recommendation {
   aiReason: string;
 }
 
+// 대시보드 영역 id. 배치 JSON에는 이 값만 올 수 있다 (utils/layout/dashboardLayout.ts)
+export type DashboardComponentId =
+  'summary' | 'mastery' | 'conceptDetail' | 'recommendation' | 'courseShare';
+
+export interface LayoutItem {
+  component: DashboardComponentId;
+  order: number;
+  // wide: 한 줄 전체, normal: 넓은 화면에서 반 칸
+  size: 'wide' | 'normal';
+  // 이 위치·크기인 이유 (AI)
+  aiReason: string | null;
+}
+
+// 배치를 만들 때 AI에게 준 숫자 (코드가 센 값, 이유와 함께 보여 준다)
+export interface LayoutBasis {
+  weaknessCount: number;
+  askedAgainCount: number;
+  conversationCount: number;
+}
+
+// 검증을 통과한 배치. 통과하지 못하면 기본 배치(isDefault: true)를 쓴다
+export interface DashboardLayout {
+  isDefault: boolean;
+  generatedAt: string | null;
+  aiSummary: string | null;
+  basis: LayoutBasis | null;
+  items: LayoutItem[];
+}
+
 export interface DashboardData {
   summaries: StudySummary[];
   concepts: ConceptMastery[];
   recommendations: Recommendation[];
+  // LLM이 만든 배치 JSON. 믿지 않고 parseDashboardLayout으로 검증한 뒤에만 쓴다
+  layout?: unknown;
 }
