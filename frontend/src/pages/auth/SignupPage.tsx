@@ -1,5 +1,7 @@
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Button, FormRow, SubPage, TextInput } from '@/components';
+import { isPasswordValid } from '@/utils';
+import PasswordRules from './components/PasswordRules';
 
 const AGREEMENTS = [
   { id: 'agree-terms', label: '서비스 이용약관 동의', required: true },
@@ -14,9 +16,14 @@ const AGREEMENTS = [
 ];
 
 function SignupPage() {
-  // TODO: 인증 API가 준비되면 가입 요청을 보내고, 비밀번호 4가지 조건을 입력하는 동안 실시간으로 표시한다
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const mismatch = confirm !== '' && confirm !== password;
+
+  // TODO: 인증 API가 준비되면 가입 요청을 보낸다
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!isPasswordValid(password) || password !== confirm) return;
   };
 
   return (
@@ -38,18 +45,29 @@ function SignupPage() {
               type="password"
               autoComplete="new-password"
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              aria-describedby="signup-password-rules"
             />
+            <PasswordRules id="signup-password-rules" password={password} />
           </FormRow>
           <FormRow
             label="비밀번호 확인"
             htmlFor="signup-password-confirm"
             required
+            error={
+              mismatch ? '비밀번호가 서로 달라요. 다시 확인해 주세요.' : ''
+            }
           >
             <TextInput
               id="signup-password-confirm"
               type="password"
               autoComplete="new-password"
               required
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              aria-invalid={mismatch ? true : undefined}
+              aria-describedby="signup-password-confirm-error"
             />
           </FormRow>
           <FormRow label="이름" htmlFor="signup-name" required>
@@ -96,7 +114,11 @@ function SignupPage() {
         </fieldset>
 
         <div className="flex justify-center">
-          <Button type="submit" size="lg">
+          <Button
+            type="submit"
+            size="lg"
+            disabled={!isPasswordValid(password) || password !== confirm}
+          >
             가입하기
           </Button>
         </div>

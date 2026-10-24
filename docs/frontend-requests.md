@@ -160,6 +160,7 @@ layout = {
 
 - **인증 방식:** backend `CLAUDE.md`의 JWT access + HttpOnly 쿠키 refresh 방향이면, 로그인 응답 모양과 토큰 갱신 경로를 알려 주기. 배포 때 같은 출처(rewrite)라 쿠키 설정이 단순해진다.
 - **자료 올리기:** 지원 형식(프론트 안: PDF·PPTX·HWP·HWPX), 최대 크기, 원본 보관 여부(루트 `CLAUDE.md` 미결 사항). 텍스트 추출 후보는 PDF·PPTX는 Apache Tika 또는 PDFBox, HWP·HWPX는 hwplib·hwpxlib.
+- **비밀번호 규칙:** 프론트는 임시로 4조건(8자 이상, 영문, 숫자, 특수문자 포함)으로 실시간 표시한다. 서버 규칙과 다르면 가입이 서버에서 거절되므로 확정되면 알려 주기 (프론트는 `utils/password.ts` 한 곳만 고치면 된다). 서버도 같은 규칙으로 검사하고, 거절 사유는 `message`로 사용자에게 보여 줄 문구로 주기.
 - **배포:** 백엔드 주소가 정해지면 Vercel rewrite 대상만 바꾸면 된다.
 
 ## 6. 이 문서 고치는 법
