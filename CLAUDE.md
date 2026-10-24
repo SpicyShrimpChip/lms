@@ -21,7 +21,7 @@ docs/       인수인계 문서, 요구사항 정의서, API 명세, WBS, 회의
 - 프론트: React 19, TypeScript 6, Vite 8, Tailwind CSS 4, React Router 7, React Query(TanStack Query 5), Zustand 5, Axios (메이저 버전 고정, 세부 버전은 `frontend/package-lock.json` 기준)
 - 백엔드: Spring Boot 3.x, Java 17, Gradle, Spring Security
 - 대화 가져오기 1단계 지원: ChatGPT, Claude 공식 내보내기 파일
-- 협업: GitHub 조직 + 모노레포, 기능 브랜치 → PR → 상대방 리뷰 후 main 머지
+- 협업: GitHub 조직 + 모노레포, 기능 브랜치 → PR → CI 통과 확인 후 main 머지. 리뷰 승인은 필수가 아니다(두 사람 시간이 맞지 않아 머지가 늦어지지 않도록). 리뷰는 가능할 때 하고, API·DTO처럼 상대 작업에 영향을 주는 변경은 PR에 적고 상대방에게 알린다. 머지된 원격 브랜치는 자동 삭제된다.
 
 ## 미결 사항 — 임의로 확정하지 말 것
 아래 항목이 필요한 코드는 설정값·인터페이스로 분리하고 `// TODO(미결): ...` 주석을 남긴다.
