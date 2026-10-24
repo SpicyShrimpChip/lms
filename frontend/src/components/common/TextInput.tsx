@@ -5,7 +5,7 @@ function TextInput({ className = '', ...props }: ComponentProps<'input'>) {
   return (
     <input
       {...props}
-      className={`h-10 rounded-md border border-line-strong bg-surface px-3 text-body outline-none placeholder:text-ink-muted focus:border-primary ${className}`}
+      className={`h-10 rounded-md border border-input-border bg-surface px-3 text-body outline-none placeholder:text-ink-muted focus:border-primary ${className}`}
     />
   );
 }

@@ -16,7 +16,7 @@ function ThemeToggle() {
     <div
       role="group"
       aria-label="화면 모드"
-      className="flex h-9 items-center rounded-md border border-line-strong p-0.5"
+      className="flex h-9 items-center rounded-md border border-input-border p-0.5"
     >
       {OPTIONS.map(({ value, label, icon: Icon }) => {
         const selected = preference === value;

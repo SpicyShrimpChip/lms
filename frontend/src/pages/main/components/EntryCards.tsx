@@ -21,7 +21,7 @@ function EntryCard({
   badge,
 }: EntryCardProps) {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-primary-pill bg-surface p-8">
+    <div className="flex flex-col gap-4 rounded-2xl border border-primary-pill bg-surface-raised p-8">
       <div className="flex items-center justify-between gap-3">
         <div className="flex size-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
           {icon}
@@ -43,7 +43,7 @@ function EntryCard({
 // 사용자 유형 A·B의 두 진입 경로
 function EntryCards() {
   return (
-    <section className="bg-primary-soft">
+    <section className="bg-hero">
       <div className="mx-auto flex max-w-page flex-col gap-10 px-6 pt-16 pb-18">
         <div className="flex flex-col items-center gap-3.5 text-center">
           <h1 className="text-3xl leading-snug font-bold text-heading md:text-display">

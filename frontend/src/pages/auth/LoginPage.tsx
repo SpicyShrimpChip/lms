@@ -47,7 +47,7 @@ function LoginPage() {
           아직 계정이 없나요?{' '}
           <Link
             to="/signup"
-            className="font-medium text-heading-soft underline-offset-4 hover:underline"
+            className="font-medium text-primary underline-offset-4 hover:underline"
           >
             회원가입
           </Link>
