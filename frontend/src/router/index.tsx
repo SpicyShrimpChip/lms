@@ -3,6 +3,7 @@ import { Layout } from '@/components';
 import {
   AboutPage,
   ConversationImportPage,
+  CoursePage,
   CurriculumPage,
   DashboardPage,
   LoginPage,
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
       { index: true, element: <MainPage /> },
 
       // 학습자료
+      { path: 'courses', element: <CoursePage /> },
       { path: 'materials', element: <MaterialListPage /> },
       { path: 'materials/upload', element: <MaterialUploadPage /> },
       { path: 'materials/:materialId', element: <MaterialDetailPage /> },

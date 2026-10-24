@@ -15,6 +15,7 @@ export const MENU: MenuGroup[] = [
     label: '학습자료',
     path: '/materials',
     children: [
+      { label: '내 과목', path: '/courses' },
       { label: '내 학습자료', path: '/materials' },
       { label: '자료 올리기', path: '/materials/upload' },
     ],
