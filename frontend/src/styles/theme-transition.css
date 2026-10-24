@@ -1,7 +1,8 @@
 /* 화면 모드를 바꿀 때 색이 서서히 바뀌도록 색 토큰을 <color> 타입으로 등록하고 :root에서 전환한다.
  * 새 --color-* 토큰을 index.css에 추가하면 여기에도 같이 추가한다 (빠뜨리면 그 색만 서서히 안 바뀌고 즉시 바뀐다).
  * 처음 값(initial-value)은 라이트 값이고, 실제 값은 index.css의 @theme와 :root.dark가 정한다.
- * 시간(250ms)은 constants/motion.ts의 MOTION_DURATION.base와 맞춘다. */
+ * 시간·곡선은 아래 :root의 --theme-transition-*. 글자색처럼 밝기가 뒤집히는 색이 컷편집처럼 보이지 않도록
+ * 앞이 몰린 곡선(--default-transition-timing-function) 대신 양쪽이 완만한 곡선을 쓴다. */
 
 @property --color-brand {
   syntax: '<color>';
@@ -170,38 +171,66 @@
 }
 
 :root {
+  --theme-transition-duration: 350ms;
+  --theme-transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
   transition:
-    --color-brand 250ms var(--default-transition-timing-function),
-    --color-on-brand 250ms var(--default-transition-timing-function),
-    --color-on-brand-hover 250ms var(--default-transition-timing-function),
-    --color-heading 250ms var(--default-transition-timing-function),
-    --color-heading-soft 250ms var(--default-transition-timing-function),
-    --color-primary 250ms var(--default-transition-timing-function),
-    --color-primary-hover 250ms var(--default-transition-timing-function),
-    --color-on-primary 250ms var(--default-transition-timing-function),
-    --color-primary-soft 250ms var(--default-transition-timing-function),
-    --color-primary-pill 250ms var(--default-transition-timing-function),
-    --color-primary-pill-hover 250ms var(--default-transition-timing-function),
-    --color-footer 250ms var(--default-transition-timing-function),
-    --color-hero 250ms var(--default-transition-timing-function),
-    --color-surface-raised 250ms var(--default-transition-timing-function),
-    --color-section 250ms var(--default-transition-timing-function),
-    --color-ai 250ms var(--default-transition-timing-function),
-    --color-ai-soft 250ms var(--default-transition-timing-function),
-    --color-ai-border 250ms var(--default-transition-timing-function),
-    --color-ai-chip 250ms var(--default-transition-timing-function),
-    --color-ai-chip-hover 250ms var(--default-transition-timing-function),
-    --color-strength 250ms var(--default-transition-timing-function),
-    --color-strength-soft 250ms var(--default-transition-timing-function),
-    --color-weakness 250ms var(--default-transition-timing-function),
-    --color-weakness-soft 250ms var(--default-transition-timing-function),
-    --color-danger 250ms var(--default-transition-timing-function),
-    --color-surface 250ms var(--default-transition-timing-function),
-    --color-surface-muted 250ms var(--default-transition-timing-function),
-    --color-ink 250ms var(--default-transition-timing-function),
-    --color-ink-soft 250ms var(--default-transition-timing-function),
-    --color-ink-muted 250ms var(--default-transition-timing-function),
-    --color-line 250ms var(--default-transition-timing-function),
-    --color-line-strong 250ms var(--default-transition-timing-function),
-    --color-input-border 250ms var(--default-transition-timing-function);
+    --color-brand var(--theme-transition-duration) var(--theme-transition-ease),
+    --color-on-brand var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-on-brand-hover var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-heading var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-heading-soft var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-primary var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-primary-hover var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-on-primary var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-primary-soft var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-primary-pill var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-primary-pill-hover var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-footer var(--theme-transition-duration) var(--theme-transition-ease),
+    --color-hero var(--theme-transition-duration) var(--theme-transition-ease),
+    --color-surface-raised var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-section var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-ai var(--theme-transition-duration) var(--theme-transition-ease),
+    --color-ai-soft var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-ai-border var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-ai-chip var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-ai-chip-hover var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-strength var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-strength-soft var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-weakness var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-weakness-soft var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-danger var(--theme-transition-duration) var(--theme-transition-ease),
+    --color-surface var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-surface-muted var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-ink var(--theme-transition-duration) var(--theme-transition-ease),
+    --color-ink-soft var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-ink-muted var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-line var(--theme-transition-duration) var(--theme-transition-ease),
+    --color-line-strong var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-input-border var(--theme-transition-duration)
+      var(--theme-transition-ease);
 }
