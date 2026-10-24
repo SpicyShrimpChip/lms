@@ -1,6 +1,9 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Sparkles } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
+import * as m from 'motion/react-m';
 import { AiNote } from '@/components';
+import { FADE_UP, MOTION_DURATION, MOTION_EASE } from '@/constants';
 
 interface LayoutReasonPopoverProps {
   // 영역 제목. 화면 읽기 프로그램용 버튼 이름에 쓴다
@@ -64,17 +67,23 @@ function LayoutReasonPopover({ title, reason }: LayoutReasonPopoverProps) {
       >
         <Sparkles size={14} aria-hidden="true" />이 자리인 이유
       </button>
-      {open && (
-        // 버튼과 말풍선 사이를 padding으로 이어서, 마우스를 옮기는 동안 닫히지 않게 한다
-        <div
-          id={popoverId}
-          className="absolute top-full right-0 z-20 w-72 max-w-[calc(100vw-3rem)] pt-2"
-        >
-          <div className="rounded-xl shadow-md">
-            <AiNote title="AI가 이 자리에 둔 이유">{reason}</AiNote>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          // 버튼과 말풍선 사이를 padding으로 이어서, 마우스를 옮기는 동안 닫히지 않게 한다
+          <m.div
+            id={popoverId}
+            initial={FADE_UP.initial}
+            animate={FADE_UP.animate}
+            exit={FADE_UP.exit}
+            transition={{ duration: MOTION_DURATION.fast, ease: MOTION_EASE }}
+            className="absolute top-full right-0 z-20 w-72 max-w-[calc(100vw-3rem)] pt-2"
+          >
+            <div className="rounded-xl shadow-md">
+              <AiNote title="AI가 이 자리에 둔 이유">{reason}</AiNote>
+            </div>
+          </m.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

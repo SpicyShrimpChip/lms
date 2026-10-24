@@ -1,6 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { LoaderCircle } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
+import * as m from 'motion/react-m';
 import { getCourses, uploadMaterial } from '@/api';
 import {
   Button,
@@ -11,6 +14,7 @@ import {
   TextInput,
 } from '@/components';
 import {
+  FADE_UP,
   MATERIAL_EXTENSIONS,
   MATERIAL_MAX_SIZE_MB,
   MATERIAL_TITLE_MAX_LENGTH,
@@ -173,16 +177,26 @@ function MaterialUploadPage() {
           </label>
         </Card>
 
-        {mutation.isError && (
-          <p role="alert" className="text-center text-body text-danger">
-            {mutation.error.message}
-          </p>
-        )}
-        {mutation.isSuccess && (
-          <p role="status" className="text-center text-body text-strength">
-            자료를 올렸어요.
-          </p>
-        )}
+        <AnimatePresence>
+          {mutation.isError && (
+            <m.p
+              {...FADE_UP}
+              role="alert"
+              className="text-center text-body text-danger"
+            >
+              {mutation.error.message}
+            </m.p>
+          )}
+          {mutation.isSuccess && (
+            <m.p
+              {...FADE_UP}
+              role="status"
+              className="text-center text-body text-strength"
+            >
+              자료를 올렸어요.
+            </m.p>
+          )}
+        </AnimatePresence>
 
         <div className="flex justify-center">
           <Button
@@ -190,6 +204,13 @@ function MaterialUploadPage() {
             size="lg"
             disabled={mutation.isPending || !agreed || !file || !hasCourses}
           >
+            {mutation.isPending && (
+              <LoaderCircle
+                size={18}
+                aria-hidden="true"
+                className="animate-spin"
+              />
+            )}
             {mutation.isPending ? '올리는 중…' : '자료 올리기'}
           </Button>
         </div>

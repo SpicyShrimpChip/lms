@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { LazyMotion, MotionConfig, domAnimation } from 'motion/react';
 import { router } from './router';
 /*
 @/ 절대경로 적용은 취향 차이!
@@ -30,7 +31,12 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     {/* 앱 전체를 Provider로 덮어서 어디서든 캐싱 데이터 사용 가능하도록 */}
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      {/* 움직임: 필요한 기능만 불러오고(LazyMotion), 기기의 "동작 줄이기" 설정을 따른다 */}
+      <LazyMotion features={domAnimation} strict>
+        <MotionConfig reducedMotion="user">
+          <RouterProvider router={router} />
+        </MotionConfig>
+      </LazyMotion>
     </QueryClientProvider>
   </StrictMode>,
 );

@@ -7,6 +7,9 @@ import {
 } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, Search, X } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
+import * as m from 'motion/react-m';
+import { MOTION_DURATION } from '@/constants';
 import MobileMenu, { MOBILE_MENU_ID } from './MobileMenu';
 import ThemeToggle from './ThemeToggle';
 import { FIELD_CLASS } from '../common/fieldClass';
@@ -63,11 +66,20 @@ function Header() {
             onClick={() => setMenuOpen((open) => !open)}
             className="flex size-9 items-center justify-center rounded-md border border-input-border text-heading md:hidden"
           >
-            {menuOpen ? (
-              <X size={18} aria-hidden="true" />
-            ) : (
-              <Menu size={18} aria-hidden="true" />
-            )}
+            {/* 아이콘이 바뀔 때 살짝 돌며 나타난다 */}
+            <m.span
+              key={menuOpen ? 'close' : 'open'}
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              transition={{ duration: MOTION_DURATION.fast }}
+              className="flex"
+            >
+              {menuOpen ? (
+                <X size={18} aria-hidden="true" />
+              ) : (
+                <Menu size={18} aria-hidden="true" />
+              )}
+            </m.span>
           </button>
         </div>
 
@@ -118,7 +130,9 @@ function Header() {
           <ThemeToggle />
         </div>
       </div>
-      {menuOpen && <MobileMenu onClose={closeMenu} />}
+      <AnimatePresence initial={false}>
+        {menuOpen && <MobileMenu onClose={closeMenu} />}
+      </AnimatePresence>
     </header>
   );
 }
