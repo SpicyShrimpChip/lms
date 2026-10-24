@@ -43,9 +43,16 @@ export interface Recommendation {
   aiReason: string;
 }
 
-// 대시보드 영역 id. 배치 JSON에는 이 값만 올 수 있다 (utils/layout/dashboardLayout.ts)
-export type DashboardComponentId =
-  'summary' | 'mastery' | 'conceptDetail' | 'recommendation' | 'courseShare';
+// 대시보드 영역 id. 배치 JSON에는 이 값만 올 수 있다 (검증: utils/layout/dashboardLayout.ts)
+export const DASHBOARD_COMPONENT_IDS = [
+  'summary',
+  'mastery',
+  'conceptDetail',
+  'recommendation',
+  'courseShare',
+] as const;
+
+export type DashboardComponentId = (typeof DASHBOARD_COMPONENT_IDS)[number];
 
 export interface LayoutItem {
   component: DashboardComponentId;
@@ -63,13 +70,11 @@ export interface LayoutBasis {
   conversationCount: number;
 }
 
-// 검증을 통과한 배치. 통과하지 못하면 기본 배치(isDefault: true)를 쓴다
+// 검증을 통과한 배치. 통과하지 못하면 기본 배치(explanation: null)를 쓴다
 export interface DashboardLayout {
-  isDefault: boolean;
-  generatedAt: string | null;
-  aiSummary: string | null;
-  basis: LayoutBasis | null;
   items: LayoutItem[];
+  // 전체 배치 이유(AI)와 그때 본 숫자(코드). 기본 배치면 없음
+  explanation: { aiSummary: string; basis: LayoutBasis } | null;
 }
 
 export interface DashboardData {

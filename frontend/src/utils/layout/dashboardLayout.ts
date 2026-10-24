@@ -1,21 +1,13 @@
 import { z } from 'zod';
-import type {
-  DashboardComponentId,
-  DashboardLayout,
-  LayoutItem,
+import {
+  DASHBOARD_COMPONENT_IDS,
+  type DashboardLayout,
+  type LayoutItem,
 } from '@/types';
 
-// LLM은 화면 코드를 만들지 않고, 여기 있는 영역 id·순서·크기·이유만 JSON으로 준다
-export const DASHBOARD_COMPONENT_IDS = [
-  'summary',
-  'mastery',
-  'conceptDetail',
-  'recommendation',
-  'courseShare',
-] as const satisfies readonly DashboardComponentId[];
-
-export const LAYOUT_REASON_MAX_LENGTH = 80;
-export const LAYOUT_SUMMARY_MAX_LENGTH = 120;
+// LLM은 화면 코드를 만들지 않고, 정해진 영역 id·순서·크기·이유만 JSON으로 준다
+const LAYOUT_REASON_MAX_LENGTH = 80;
+const LAYOUT_SUMMARY_MAX_LENGTH = 120;
 
 const count = z.number().int().nonnegative();
 
@@ -27,7 +19,6 @@ const layoutItemSchema = z.object({
 });
 
 const layoutSchema = z.object({
-  generatedAt: z.string(),
   aiSummary: z.string().trim().min(1).max(LAYOUT_SUMMARY_MAX_LENGTH),
   basis: z.object({
     weaknessCount: count,
@@ -51,10 +42,7 @@ const layoutSchema = z.object({
 
 // 검증 실패·배치 없음일 때 쓰는 기본 배치 (이유 없음)
 export const DEFAULT_LAYOUT: DashboardLayout = {
-  isDefault: true,
-  generatedAt: null,
-  aiSummary: null,
-  basis: null,
+  explanation: null,
   items: [
     { component: 'summary', order: 1, size: 'wide', aiReason: null },
     { component: 'mastery', order: 2, size: 'normal', aiReason: null },
@@ -92,10 +80,7 @@ export function parseDashboardLayout(raw: unknown): DashboardLayout {
   }));
 
   return {
-    isDefault: false,
-    generatedAt: result.data.generatedAt,
-    aiSummary: result.data.aiSummary,
-    basis: result.data.basis,
     items,
+    explanation: { aiSummary: result.data.aiSummary, basis: result.data.basis },
   };
 }

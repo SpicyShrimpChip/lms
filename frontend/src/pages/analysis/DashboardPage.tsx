@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { ChartColumn, Sparkles } from 'lucide-react';
 import { getDashboard } from '@/api';
@@ -25,6 +25,12 @@ function Dashboard() {
   const [courseId, setCourseId] = useState<number | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  // LLM이 만든 배치 JSON은 검증을 통과할 때만 쓰고, 아니면 기본 배치. 받아 올 때만 다시 검사한다
+  const layout = useMemo(
+    () => parseDashboardLayout(data.layout),
+    [data.layout],
+  );
+
   if (data.concepts.length === 0) {
     return (
       <EmptyState
@@ -36,8 +42,6 @@ function Dashboard() {
     );
   }
 
-  // LLM이 만든 배치 JSON은 검증을 통과할 때만 쓰고, 아니면 기본 배치
-  const layout = parseDashboardLayout(data.layout);
   const view = filterDashboard(data, courseId);
   // 고른 개념이 지금 과목에 없으면 가장 약한 개념을 보여 준다
   const selected =

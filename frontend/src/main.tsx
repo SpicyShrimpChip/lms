@@ -19,6 +19,8 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       // 통신 실패 시 1번만 재시도 (기본값은 3번, 트래픽 낭비 방지용)
       retry: 1,
+      // 1분 안에 같은 화면으로 돌아오면 다시 요청하지 않는다 (추가·수정 후에는 invalidate로 바로 갱신)
+      staleTime: 60_000,
     },
   },
 });

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import { FIELD_CLASS } from '../common/fieldClass';
 
 const ACCOUNT_LINKS = [
   { label: '로그인', path: '/login' },
@@ -53,7 +54,7 @@ function Header() {
           <form
             role="search"
             onSubmit={handleSearch}
-            className="flex h-9 items-center gap-1.5 rounded-md border border-input-border px-2.5 focus-within:border-primary"
+            className={`flex h-9 items-center gap-1.5 px-2.5 ${FIELD_CLASS}`}
           >
             <label htmlFor="global-search" className="sr-only">
               검색

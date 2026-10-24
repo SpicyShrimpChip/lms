@@ -1,10 +1,6 @@
 import type { ConceptMastery, DashboardData, StudySummary } from '@/types';
 
-export interface StudyTotals {
-  conversationCount: number;
-  quizCount: number;
-  quizCorrectCount: number;
-}
+type StudyTotals = Omit<StudySummary, 'courseId' | 'courseName'>;
 
 // 여러 과목의 학습량을 더한다 ("전체" 탭)
 export function sumSummaries(summaries: StudySummary[]): StudyTotals {

@@ -24,7 +24,7 @@ const valid = {
 describe('parseDashboardLayout', () => {
   it('검증을 통과하면 순서대로 정렬하고 빠진 영역은 기본 순서로 뒤에 붙인다', () => {
     const layout = parseDashboardLayout(valid);
-    expect(layout.isDefault).toBe(false);
+    expect(layout.explanation?.basis.weaknessCount).toBe(3);
     expect(layout.items.map((item) => item.component)).toEqual([
       'recommendation',
       'conceptDetail',

@@ -22,16 +22,22 @@ function save(courses: Course[]) {
   }
 }
 
-let courses = load();
+// 처음 쓸 때 읽는다 (VITE_USE_MOCK=false면 앱 시작 때 저장소를 건드리지 않음)
+let cache: Course[] | null = null;
+const getAll = () => (cache ??= load());
+const setAll = (next: Course[]) => {
+  cache = next;
+  save(next);
+};
 
 export function mockGetCourses(): Promise<Course[]> {
-  return mockDelay([...courses]);
+  return mockDelay([...getAll()]);
 }
 
 export function mockCreateCourse(input: CourseInput): Promise<Course> {
+  const courses = getAll();
   const course = { ...input, id: Math.max(0, ...courses.map((c) => c.id)) + 1 };
-  courses = [...courses, course];
-  save(courses);
+  setAll([...courses, course]);
   return mockDelay(course);
 }
 
@@ -39,17 +45,16 @@ export function mockUpdateCourse(
   id: number,
   input: CourseInput,
 ): Promise<Course> {
+  const courses = getAll();
   if (!courses.some((course) => course.id === id)) {
     return Promise.reject(new ApiError('과목을 찾을 수 없어요.', 404));
   }
   const updated = { ...input, id };
-  courses = courses.map((course) => (course.id === id ? updated : course));
-  save(courses);
+  setAll(courses.map((course) => (course.id === id ? updated : course)));
   return mockDelay(updated);
 }
 
 export function mockDeleteCourse(id: number): Promise<void> {
-  courses = courses.filter((course) => course.id !== id);
-  save(courses);
+  setAll(getAll().filter((course) => course.id !== id));
   return mockDelay(undefined);
 }
