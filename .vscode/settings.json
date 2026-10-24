@@ -8,6 +8,9 @@
     "source.fixAll.eslint": "explicit"
   },
 
+  // 모노레포: 루트에서 열어도 frontend/eslint.config.js를 찾도록 지정
+  "eslint.workingDirectories": ["frontend"],
+
   // Mac, Windows 간 호환성 최적화
   "editor.tabSize": 2,
   "files.eol": "\n",
@@ -20,8 +23,8 @@
 
   // 네스팅 규칙
   "explorer.fileNesting.patterns": {
-    "README.md": "README-ko.md",
-    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .npmrc, .gitignore, renovate.json5",
+    "README.md": "README.en.md",
+    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .npmrc, .gitignore",
     "vite.config.ts": "vite.config.ts.timestamp-*, index.html",
     "eslint.config.js": ".prettierrc, eslint.config.*, prettier.config.*",
     "tsconfig.json": "tsconfig.*.json, tsconfig.node.json",
