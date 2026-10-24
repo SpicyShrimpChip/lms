@@ -58,24 +58,24 @@
   --color-line-strong: #c3c9d6;
 }
 
-/* 다크모드 값: 파란기 없는 따뜻한 회색 바탕(포인트 색만 블루·퍼플 유지). 글자·바탕 쌍은 모두 대비 4.5:1 이상 */
+/* 다크모드 값: 살짝 차가운 어두운 회색 바탕 + 밝은 화면에서 파란색이던 자리는 블루를 옅게 섞은 색(GitHub·토스 방식). 글자·바탕 쌍은 모두 대비 4.5:1 이상 */
 :root.dark {
   color-scheme: dark;
 
-  --color-brand: #1f1e1d;
+  --color-brand: #0f1324;
 
-  --color-heading: #faf9f5;
-  --color-heading-soft: #dedcd3;
+  --color-heading: #f0f2f5;
+  --color-heading-soft: #9db8f2;
 
   /* 어두운 바탕에서는 버튼을 밝은 파랑으로, 버튼 글자를 어둡게 바꾼다 */
   --color-primary: #7aa5f5;
   --color-primary-hover: #a3c2f8;
   --color-on-primary: #0b1020;
-  --color-primary-soft: #30302e;
-  --color-primary-pill: #3a3a37;
-  --color-primary-pill-hover: #45443f;
+  --color-primary-soft: #222937; /* primary 12% + surface */
+  --color-primary-pill: #2a3448; /* primary 20% */
+  --color-primary-pill-hover: #323f59; /* primary 28% */
 
-  --color-footer: #1f1e1d;
+  --color-footer: #1b1f27;
 
   --color-ai: #eaa8f7;
   --color-ai-soft: #2a1630;
@@ -89,13 +89,13 @@
 
   --color-danger: #fca5a5;
 
-  --color-surface: #262624;
-  --color-surface-muted: #2d2d2b;
-  --color-ink: #ecebe6;
-  --color-ink-soft: #c2c0b6;
-  --color-ink-muted: #a3a199;
-  --color-line: #3e3e3a;
-  --color-line-strong: #4f4e49;
+  --color-surface: #16181d;
+  --color-surface-muted: #1e2128;
+  --color-ink: #e6e8ec;
+  --color-ink-soft: #b4b9c3;
+  --color-ink-muted: #959ba7;
+  --color-line: #2d313a;
+  --color-line-strong: #3d424d;
 }
 
 @layer base {
