@@ -25,7 +25,7 @@ type ButtonProps = BaseProps &
 const VARIANT_CLASS: Record<ButtonVariant, string> = {
   primary: 'rounded-lg bg-primary text-on-primary hover:bg-primary-hover',
   secondary:
-    'rounded-lg border border-line-strong bg-surface text-heading-soft hover:bg-surface-muted',
+    'rounded-lg border border-line-strong bg-surface-raised text-heading-soft hover:bg-surface-muted',
   pill: 'rounded-full bg-primary-pill text-heading hover:bg-primary-pill-hover',
 };
 

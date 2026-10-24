@@ -27,7 +27,7 @@ function MaterialUploadPage() {
               type="file"
               accept=".pdf,.txt,.md"
               required
-              className="text-body file:mr-3 file:rounded-md file:border file:border-input-border file:bg-surface file:px-3 file:py-1.5 file:text-body file:text-ink-soft"
+              className="text-body file:mr-3 file:rounded-md file:border file:border-input-border file:bg-surface-raised file:px-3 file:py-1.5 file:text-body file:text-ink-soft"
             />
           </FormRow>
           <FormRow label="자료 제목" htmlFor="material-title" required>

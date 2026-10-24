@@ -16,8 +16,8 @@
   /* 페이지 본문 최대 폭 (1200px) → max-w-page */
   --container-page: 75rem;
 
-  /* GNB·로고 바탕과 그 위 글자 (두 모드 모두 짙은 네이비) */
-  --color-brand: #0d1b57;
+  /* GNB·로고 바탕과 그 위 글자. 버튼 파랑(primary)과 같은 색 계열의 짙은 파랑 */
+  --color-brand: #0f2163;
   --color-on-brand: #ffffff;
   --color-on-brand-hover: #cddcf7;
 
@@ -25,18 +25,22 @@
   --color-heading: #0d1b57;
   --color-heading-soft: #1f3a8a;
 
-  --color-primary: #2b67d1;
+  /* 버튼·링크·선택 표시·점수 막대. 상아 바탕에 맞춰 채도를 살짝 낮춘 파랑 (흰 글자 5.2:1, 상아 바탕 위 글자 4.8:1) */
+  --color-primary: #3168d2;
   --color-primary-hover: #1f3a8a;
   --color-on-primary: #ffffff;
   --color-primary-soft: #e8effc;
   --color-primary-pill: #cddcf7;
   --color-primary-pill-hover: #b9cdf2;
 
-  --color-footer: #a7b2c5;
+  /* 푸터: 상아 바탕보다 한 단계 짙은 베이지 (글자는 heading) */
+  --color-footer: #e9e2d2;
 
   /* 메인 첫 화면 띠 배경과 그 위에 올라온 카드 바탕 */
-  --color-hero: #e8effc;
+  --color-hero: #f3eee2;
   --color-surface-raised: #ffffff;
+  /* 큰 안내 상자(3단계 카드, 서비스 소개 상자) 바탕. 작은 강조(아이콘 상자, 선택 상태)는 primary-soft */
+  --color-section: #f3eee2;
 
   /* AI가 만든 콘텐츠에만 쓴다 (버튼·점수에는 쓰지 않는다) */
   --color-ai: #86198f;
@@ -52,14 +56,14 @@
   /* 오류 메시지에만 쓴다 */
   --color-danger: #b91c1c;
 
-  /* 바탕·본문 글자·보조 글자·구분선 */
-  --color-surface: #ffffff;
-  --color-surface-muted: #f5f7fb;
+  /* 바탕·본문 글자·보조 글자·구분선. 사이트 바탕은 연한 상아색, 카드·입력칸은 surface-raised(흰색) */
+  --color-surface: #f9f6ee;
+  --color-surface-muted: #f3eee3;
   --color-ink: #1c2333;
   --color-ink-soft: #3d4760;
   --color-ink-muted: #4a5468;
-  --color-line: #d9dfeb;
-  --color-line-strong: #c3c9d6;
+  --color-line: #e4ddcd;
+  --color-line-strong: #d3c9b4;
   /* 입력칸·검색칸 테두리 (바탕 대비 3:1 이상, WCAG 1.4.11) */
   --color-input-border: #7c8598;
 }
@@ -88,6 +92,7 @@
   /* 어두운 모드는 위에 올라온 면일수록 밝게: 띠(hero) < 카드(raised) */
   --color-hero: #1a1d24;
   --color-surface-raised: #1e2128;
+  --color-section: #222937;
 
   --color-ai: #eaa8f7;
   --color-ai-soft: #2a1630;

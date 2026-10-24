@@ -24,14 +24,14 @@ function Gnb() {
                 aria-current={active ? 'page' : undefined}
                 className={`block py-4 text-base font-medium text-on-brand ${
                   active
-                    ? 'border-b-3 border-primary pb-3.25'
+                    ? 'border-b-3 border-on-brand-hover pb-3.25'
                     : 'hover:text-on-brand-hover'
                 }`}
               >
                 {group.label}
               </Link>
               {/* 휴대폰 폭에서는 호버가 없어 하위 메뉴를 숨기고 대메뉴 링크로 이동한다 */}
-              <ul className="invisible absolute max-md:hidden top-full left-1/2 z-10 min-w-40 -translate-x-1/2 rounded-b-lg border border-t-0 border-line bg-surface py-2 opacity-0 shadow-sm transition-opacity group-has-[:focus-visible]:visible group-has-[:focus-visible]:opacity-100 group-hover:visible group-hover:opacity-100 motion-reduce:transition-none">
+              <ul className="invisible absolute max-md:hidden top-full left-1/2 z-10 min-w-40 -translate-x-1/2 rounded-b-lg border border-t-0 border-line bg-surface-raised py-2 opacity-0 shadow-sm transition-opacity group-has-[:focus-visible]:visible group-has-[:focus-visible]:opacity-100 group-hover:visible group-hover:opacity-100 motion-reduce:transition-none">
                 {group.children.map((child) => (
                   <li key={child.path}>
                     <Link
