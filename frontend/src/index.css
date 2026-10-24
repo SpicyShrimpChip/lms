@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* 화면 모드를 바꿀 때 색이 서서히 바뀌게 하는 토큰 등록. 색 토큰을 추가하면 이 파일에도 같이 추가한다 */
+@import './styles/theme-transition.css';
 
 /* 다크모드는 <html class="dark">로 켠다 (index.html 스크립트와 useThemeStore가 붙이고 뗀다) */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -149,8 +151,8 @@
     transition-timing-function: var(--default-transition-timing-function);
   }
 
-  /* 화면 모드를 바꾸는 순간에는 전환을 끈다. 안 그러면 버튼만 천천히 바뀌고 배경은 바로 바뀐다 */
-  .theme-switching,
+  /* 화면 모드를 바꾸는 동안에는 요소별 전환을 끈다. 색 토큰이 :root에서 서서히 바뀌므로(styles/theme-transition.css)
+     요소 전환까지 겹치면 변수가 바뀔 때마다 전환이 다시 시작돼 한 박자씩 늦게 따라온다. :root 자신은 제외한다 */
   .theme-switching * {
     transition: none !important;
   }

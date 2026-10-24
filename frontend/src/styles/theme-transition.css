@@ -1,0 +1,207 @@
+/* 화면 모드를 바꿀 때 색이 서서히 바뀌도록 색 토큰을 <color> 타입으로 등록하고 :root에서 전환한다.
+ * 새 --color-* 토큰을 index.css에 추가하면 여기에도 같이 추가한다 (빠뜨리면 그 색만 서서히 안 바뀌고 즉시 바뀐다).
+ * 처음 값(initial-value)은 라이트 값이고, 실제 값은 index.css의 @theme와 :root.dark가 정한다.
+ * 시간(250ms)은 constants/motion.ts의 MOTION_DURATION.base와 맞춘다. */
+
+@property --color-brand {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #0f2163;
+}
+@property --color-on-brand {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --color-on-brand-hover {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #cddcf7;
+}
+@property --color-heading {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #0d1b57;
+}
+@property --color-heading-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1f3a8a;
+}
+@property --color-primary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #3168d2;
+}
+@property --color-primary-hover {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1f3a8a;
+}
+@property --color-on-primary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --color-primary-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e8effc;
+}
+@property --color-primary-pill {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #cddcf7;
+}
+@property --color-primary-pill-hover {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #b9cdf2;
+}
+@property --color-footer {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e9e2d2;
+}
+@property --color-hero {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f3eee2;
+}
+@property --color-surface-raised {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --color-section {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f3eee2;
+}
+@property --color-ai {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #86198f;
+}
+@property --color-ai-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fbf4fe;
+}
+@property --color-ai-border {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e9b8f5;
+}
+@property --color-ai-chip {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f5e1fb;
+}
+@property --color-ai-chip-hover {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #efd0f9;
+}
+@property --color-strength {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #166534;
+}
+@property --color-strength-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #dcfce7;
+}
+@property --color-weakness {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #9a3412;
+}
+@property --color-weakness-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffedd5;
+}
+@property --color-danger {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #b91c1c;
+}
+@property --color-surface {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f9f6ee;
+}
+@property --color-surface-muted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f3eee3;
+}
+@property --color-ink {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1c2333;
+}
+@property --color-ink-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #3d4760;
+}
+@property --color-ink-muted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #4a5468;
+}
+@property --color-line {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e4ddcd;
+}
+@property --color-line-strong {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d3c9b4;
+}
+@property --color-input-border {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #7c8598;
+}
+
+:root {
+  transition:
+    --color-brand 250ms var(--default-transition-timing-function),
+    --color-on-brand 250ms var(--default-transition-timing-function),
+    --color-on-brand-hover 250ms var(--default-transition-timing-function),
+    --color-heading 250ms var(--default-transition-timing-function),
+    --color-heading-soft 250ms var(--default-transition-timing-function),
+    --color-primary 250ms var(--default-transition-timing-function),
+    --color-primary-hover 250ms var(--default-transition-timing-function),
+    --color-on-primary 250ms var(--default-transition-timing-function),
+    --color-primary-soft 250ms var(--default-transition-timing-function),
+    --color-primary-pill 250ms var(--default-transition-timing-function),
+    --color-primary-pill-hover 250ms var(--default-transition-timing-function),
+    --color-footer 250ms var(--default-transition-timing-function),
+    --color-hero 250ms var(--default-transition-timing-function),
+    --color-surface-raised 250ms var(--default-transition-timing-function),
+    --color-section 250ms var(--default-transition-timing-function),
+    --color-ai 250ms var(--default-transition-timing-function),
+    --color-ai-soft 250ms var(--default-transition-timing-function),
+    --color-ai-border 250ms var(--default-transition-timing-function),
+    --color-ai-chip 250ms var(--default-transition-timing-function),
+    --color-ai-chip-hover 250ms var(--default-transition-timing-function),
+    --color-strength 250ms var(--default-transition-timing-function),
+    --color-strength-soft 250ms var(--default-transition-timing-function),
+    --color-weakness 250ms var(--default-transition-timing-function),
+    --color-weakness-soft 250ms var(--default-transition-timing-function),
+    --color-danger 250ms var(--default-transition-timing-function),
+    --color-surface 250ms var(--default-transition-timing-function),
+    --color-surface-muted 250ms var(--default-transition-timing-function),
+    --color-ink 250ms var(--default-transition-timing-function),
+    --color-ink-soft 250ms var(--default-transition-timing-function),
+    --color-ink-muted 250ms var(--default-transition-timing-function),
+    --color-line 250ms var(--default-transition-timing-function),
+    --color-line-strong 250ms var(--default-transition-timing-function),
+    --color-input-border 250ms var(--default-transition-timing-function);
+}

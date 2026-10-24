@@ -54,7 +54,9 @@ src/
 - `main.tsx`에서 `LazyMotion`(필요한 기능만, `strict`)과 `MotionConfig reducedMotion="user"`로 감쌌다. 그래서 컴포넌트에서는 `motion.div` 대신 **`import * as m from 'motion/react-m'`의 `m.div`**를 쓴다. `motion.div`를 쓰면 번들이 커지고 `strict`에서 오류가 난다.
 - 나타나고 사라지는 요소(펼침 패널, 말풍선, 결과 문구)는 `AnimatePresence` + `m.*`. 단순한 색·그림자 전환은 CSS(`index.css`가 링크·버튼·입력칸에 기본으로 걸어 둔다)로 충분하다.
 - 페이지 전환은 `PageTransition`(본문 페이드인), 코드 불러오는 동안은 `NavigationProgress`(화면 위 진행 막대).
-- 화면 모드를 바꿀 때는 `theme-switching` 클래스로 전환을 잠깐 꺼서 버튼만 늦게 바뀌지 않게 한다 (`useThemeStore`의 `applyTheme`).
+- 화면 모드를 바꿀 때 색은 서서히 바뀐다. 색 토큰(`--color-*`)을 `src/styles/theme-transition.css`에서 `@property`(`<color>` 타입)로 등록하고 `:root`에서 `transition`을 걸어서, 토큰을 쓰는 모든 요소가 함께 따라온다(JS API 없이 CSS만). 그동안 `theme-switching` 클래스(300ms)가 요소별 전환을 꺼서 한 박자씩 늦게 따라오지 않게 한다(`useThemeStore`의 `applyTheme`).
+- **색 토큰을 추가하면 `styles/theme-transition.css`에도 같은 이름을 등록하고 `transition` 목록에 넣는다.** 빠뜨려도 오류는 없지만 그 색만 서서히 안 바뀌고 즉시 바뀐다. 이 파일의 색 부분은 `index.css`의 `@theme` 값에서 만든 것이다(초기값은 라이트 값).
+- Motion으로 움직이는 요소(`ThemeToggle`의 선택 표시)는 CSS 전환이 아니라서 `theme-switching`의 영향을 받지 않는다. 같은 이유로, 화면 모드와 함께 움직여야 하는 요소는 CSS 전환보다 Motion을 쓴다.
 - "동작 줄이기"를 켠 기기에서는 CSS 움직임이 사실상 꺼지고(`index.css`), Motion은 이동·회전(transform) 움직임을 건너뛴다. 새 움직임도 이 설정에서 정보를 잃지 않아야 한다(움직임으로만 알려 주지 않는다).
 
 ## 백엔드 연동
@@ -129,7 +131,7 @@ Tailwind 4 `@theme`에 아래 이름으로 등록한다(`src/index.css`). Tailwi
 - **색만으로 의미를 전달하지 않는다.** AI 요소에는 반짝이 아이콘과 "AI" 글자를, 강점에는 체크 아이콘과 "강점", 보완 필요에는 느낌표 아이콘과 "보완 필요"를 항상 함께 붙인다. AI 요소가 있는 화면에는 "이 표시가 있는 내용은 AI가 작성했어요" 안내를 둔다.
 - 약점에는 빨강을 쓰지 않는다(적록색약, "실패" 느낌). 빨강(`danger`)은 파싱 실패·입력 오류 같은 오류에만 쓴다.
 - **컴포넌트에 색 코드(`text-[#…]`, `bg-white`, `text-white`)를 직접 쓰지 않는다.** 바탕·글자·구분선도 `surface`, `ink`, `line` 계열 토큰만 쓴다. 버튼 글자는 `on-primary`, GNB 글자는 `on-brand`.
-- **다크모드:** 표의 값은 밝은 모드 기준이고, 어두운 값은 `src/index.css`의 `:root.dark`에서 같은 토큰을 다시 정의한다. 컴포넌트에 `dark:` 클래스를 붙이지 않는다. 새 토큰을 추가하면 어두운 값도 함께 넣고, 글자·바탕 쌍의 대비 4.5:1을 확인한다. 모드는 상단바의 화면 모드 버튼(기기 설정 / 밝게 / 어둡게, `useThemeStore`)으로 바꾸고, 기본값은 기기 설정을 따른다.
+- **다크모드:** 표의 값은 밝은 모드 기준이고, 어두운 값은 `src/index.css`의 `:root.dark`에서 같은 토큰을 다시 정의한다. 컴포넌트에 `dark:` 클래스를 붙이지 않는다. 새 토큰을 추가하면 어두운 값도 함께 넣고(그리고 `styles/theme-transition.css`에 등록하고), 글자·바탕 쌍의 대비 4.5:1을 확인한다. 모드는 상단바의 화면 모드 버튼(기기 설정 / 밝게 / 어둡게, `useThemeStore`)으로 바꾸고, 기본값은 기기 설정을 따른다.
 - 페이지 본문 폭은 `max-w-page`(1200px), 자주 쓰는 글자 크기는 `text-body`(15px)·`text-caption`(13px)·`text-display`(40px) 토큰을 쓴다.
 
 - 폰트: Pretendard (대체: Noto Sans KR, 시스템 폰트)
