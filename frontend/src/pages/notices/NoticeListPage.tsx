@@ -1,13 +1,15 @@
 import { Link } from 'react-router-dom';
-import { BoardTable, SubPage, type BoardColumn } from '@/components';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import {
+  AsyncBoundary,
+  BoardTable,
+  SubPage,
+  type BoardColumn,
+} from '@/components';
+import { getNotices } from '@/api';
+import type { Notice } from '@/types';
 
-interface NoticeRow {
-  id: number;
-  title: string;
-  createdAt: string;
-}
-
-const COLUMNS: BoardColumn<NoticeRow>[] = [
+const COLUMNS: BoardColumn<Notice>[] = [
   {
     key: 'id',
     label: '번호',
@@ -31,8 +33,21 @@ const COLUMNS: BoardColumn<NoticeRow>[] = [
   },
 ];
 
-// TODO: 공지사항 API가 준비되면 React Query로 목록을 불러온다
-const notices: NoticeRow[] = [];
+function NoticeTable() {
+  const { data: notices } = useSuspenseQuery({
+    queryKey: ['notices'],
+    queryFn: getNotices,
+  });
+
+  return (
+    <BoardTable
+      columns={COLUMNS}
+      rows={notices}
+      getRowKey={(row) => row.id}
+      emptyMessage="아직 등록된 공지사항이 없어요."
+    />
+  );
+}
 
 function NoticeListPage() {
   return (
@@ -41,12 +56,9 @@ function NoticeListPage() {
       description="서비스 소식과 안내를 알려 드려요"
       breadcrumb={['커뮤니티', '공지사항']}
     >
-      <BoardTable
-        columns={COLUMNS}
-        rows={notices}
-        getRowKey={(row) => row.id}
-        emptyMessage="아직 등록된 공지사항이 없어요."
-      />
+      <AsyncBoundary>
+        <NoticeTable />
+      </AsyncBoundary>
     </SubPage>
   );
 }

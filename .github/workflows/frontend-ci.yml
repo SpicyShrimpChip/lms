@@ -38,5 +38,8 @@ jobs:
       - name: ESLint 검사
         run: npm run lint
 
+      - name: 테스트
+        run: npm test
+
       - name: 빌드 확인
         run: npm run build
