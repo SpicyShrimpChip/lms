@@ -11,14 +11,14 @@
 
 ## 레포 구조 (모노레포, GitHub 조직 소유, 초기 비공개)
 ```
-frontend/   React 18 + TypeScript + Vite (팀 보일러플레이트 기반) → frontend/CLAUDE.md
+frontend/   React 19 + TypeScript + Vite (팀 보일러플레이트 기반) → frontend/CLAUDE.md
 backend/    Spring Boot + Java 17 + Gradle → backend/CLAUDE.md
 docs/       인수인계 문서, 요구사항 정의서, API 명세, WBS, 회의록
 .github/    워크플로는 여기에만 둔다 (frontend-ci.yml, backend-ci.yml, paths 필터 사용)
 ```
 
 ## 확정 사항
-- 프론트: React 18, TypeScript, Vite, Tailwind CSS, React Router v6, React Query, Zustand, Axios
+- 프론트: React 19, TypeScript 6, Vite 8, Tailwind CSS 4, React Router 7, React Query(TanStack Query 5), Zustand 5, Axios (메이저 버전 고정, 세부 버전은 `frontend/package-lock.json` 기준)
 - 백엔드: Spring Boot 3.x, Java 17, Gradle, Spring Security
 - 대화 가져오기 1단계 지원: ChatGPT, Claude 공식 내보내기 파일
 - 협업: GitHub 조직 + 모노레포, 기능 브랜치 → PR → 상대방 리뷰 후 main 머지
