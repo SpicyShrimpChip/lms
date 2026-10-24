@@ -1,17 +1,22 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { ChartColumn, Sparkles } from 'lucide-react';
 import { getDashboard } from '@/api';
 import { AsyncBoundary, EmptyState, SubPage } from '@/components';
-import { filterDashboard, pickWeakestConcept } from '@/utils';
+import type { DashboardComponentId } from '@/types';
+import {
+  filterDashboard,
+  parseDashboardLayout,
+  pickWeakestConcept,
+} from '@/utils';
 import ConceptDetailPanel from './components/ConceptDetailPanel';
 import CourseFilter from './components/CourseFilter';
 import CourseSharePanel from './components/CourseSharePanel';
+import LayoutSummary from './components/LayoutSummary';
 import MasteryPanel from './components/MasteryPanel';
 import RecommendationPanel from './components/RecommendationPanel';
 import StudySummaryPanel from './components/StudySummaryPanel';
 
-// TODO: 배치 JSON(zod 검증)으로 영역 순서를 바꾸는 동적 배치는 다음 PR
 function Dashboard() {
   const { data } = useSuspenseQuery({
     queryKey: ['dashboard'],
@@ -31,11 +36,51 @@ function Dashboard() {
     );
   }
 
+  // LLM이 만든 배치 JSON은 검증을 통과할 때만 쓰고, 아니면 기본 배치
+  const layout = parseDashboardLayout(data.layout);
   const view = filterDashboard(data, courseId);
   // 고른 개념이 지금 과목에 없으면 가장 약한 개념을 보여 준다
   const selected =
     view.concepts.find((item) => item.conceptId === selectedId) ??
     pickWeakestConcept(view.concepts);
+
+  // 영역 id → 화면. 배치 JSON에는 이 id만 올 수 있다
+  const renderComponent = (
+    id: DashboardComponentId,
+    reason: string | null,
+  ): ReactNode => {
+    switch (id) {
+      case 'summary':
+        return (
+          <StudySummaryPanel summaries={view.summaries} layoutReason={reason} />
+        );
+      case 'mastery':
+        return (
+          <MasteryPanel
+            concepts={view.concepts}
+            selectedId={selected?.conceptId ?? null}
+            onSelect={setSelectedId}
+            layoutReason={reason}
+          />
+        );
+      case 'conceptDetail':
+        return <ConceptDetailPanel concept={selected} layoutReason={reason} />;
+      case 'recommendation':
+        return (
+          <RecommendationPanel
+            recommendations={view.recommendations}
+            concepts={data.concepts}
+            summaries={data.summaries}
+            layoutReason={reason}
+          />
+        );
+      case 'courseShare':
+        // 과목 하나를 고르면 비중은 의미가 없어 숨긴다
+        return courseId === null ? (
+          <CourseSharePanel summaries={data.summaries} layoutReason={reason} />
+        ) : null;
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -51,26 +96,21 @@ function Dashboard() {
         </p>
       </div>
 
-      <StudySummaryPanel summaries={view.summaries} />
+      <LayoutSummary layout={layout} />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <MasteryPanel
-          concepts={view.concepts}
-          selectedId={selected?.conceptId ?? null}
-          onSelect={setSelectedId}
-        />
-        <ConceptDetailPanel concept={selected} />
-      </div>
-
-      <div
-        className={`grid grid-cols-1 gap-6 ${courseId === null ? 'lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]' : ''}`}
-      >
-        <RecommendationPanel
-          recommendations={view.recommendations}
-          concepts={data.concepts}
-          summaries={data.summaries}
-        />
-        {courseId === null && <CourseSharePanel summaries={data.summaries} />}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {layout.items.map((item) => {
+          const content = renderComponent(item.component, item.aiReason);
+          if (!content) return null;
+          return (
+            <div
+              key={item.component}
+              className={item.size === 'wide' ? 'lg:col-span-2' : undefined}
+            >
+              {content}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

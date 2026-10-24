@@ -2,14 +2,23 @@ import type { StudySummary } from '@/types';
 import Panel from './Panel';
 
 // 과목별 공부 비중 (분석한 대화 수 기준)
-function CourseSharePanel({ summaries }: { summaries: StudySummary[] }) {
+interface CourseSharePanelProps {
+  summaries: StudySummary[];
+  layoutReason?: string | null;
+}
+
+function CourseSharePanel({ summaries, layoutReason }: CourseSharePanelProps) {
   const total = summaries.reduce(
     (sum, item) => sum + item.conversationCount,
     0,
   );
 
   return (
-    <Panel title="과목별 공부 비중" description="분석한 대화 수 기준이에요.">
+    <Panel
+      title="과목별 공부 비중"
+      description="분석한 대화 수 기준이에요."
+      layoutReason={layoutReason}
+    >
       <ul className="flex flex-col gap-3">
         {summaries.map((item) => {
           const share =

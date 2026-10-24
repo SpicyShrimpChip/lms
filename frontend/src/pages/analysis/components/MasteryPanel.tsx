@@ -6,13 +6,20 @@ interface MasteryPanelProps {
   concepts: ConceptMastery[];
   selectedId: string | null;
   onSelect: (conceptId: string) => void;
+  layoutReason?: string | null;
 }
 
 // 개념별 숙련도 막대. 점수는 코드가 계산한 값이라 파랑(primary)으로 칠한다
-function MasteryPanel({ concepts, selectedId, onSelect }: MasteryPanelProps) {
+function MasteryPanel({
+  concepts,
+  selectedId,
+  onSelect,
+  layoutReason,
+}: MasteryPanelProps) {
   return (
     <Panel
       title="개념별 숙련도"
+      layoutReason={layoutReason}
       // TODO(미결): 숙련도 산식이 확정되면 계산 방식 안내 문구를 구체화
       description="대화 분류 결과와 퀴즈 결과를 정해진 규칙으로 계산한 점수예요. 개념을 누르면 판단 근거를 볼 수 있어요."
     >
