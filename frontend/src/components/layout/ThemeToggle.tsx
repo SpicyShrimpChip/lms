@@ -31,7 +31,7 @@ function ThemeToggle() {
         initial={false}
         animate={{ x: selectedIndex * BUTTON_WIDTH }}
         transition={MOTION_TRANSITION}
-        className="absolute top-px left-0.5 size-8 rounded bg-primary-soft"
+        className="absolute top-px left-0.5 size-8 rounded bg-primary-pill"
       />
       {OPTIONS.map(({ value, label, icon: Icon }) => {
         const selected = preference === value;
