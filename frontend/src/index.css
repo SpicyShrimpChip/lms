@@ -5,12 +5,21 @@
   --font-sans:
     'Pretendard Variable', Pretendard, 'Noto Sans KR', system-ui, sans-serif;
 
+  /* 글자 크기: 본문 보조(15px), 배지·캡션(13px), 메인 큰 제목(40px) */
+  --text-body: 0.9375rem;
+  --text-caption: 0.8125rem;
+  --text-display: 2.5rem;
+
+  /* 페이지 본문 최대 폭 (1200px) → max-w-page */
+  --container-page: 75rem;
+
   --color-navy-900: #0d1b57;
   --color-navy-700: #1f3a8a;
 
   --color-primary: #2b67d1;
   --color-primary-soft: #e8effc;
   --color-primary-pill: #cddcf7;
+  --color-primary-pill-hover: #b9cdf2;
 
   --color-footer: #a7b2c5;
 
@@ -28,18 +37,20 @@
   /* 오류 메시지에만 쓴다 */
   --color-danger: #b91c1c;
 
-  /* 본문 글자·보조 글자·구분선 */
+  /* 바탕·본문 글자·보조 글자·구분선 (다크모드를 붙이면 이 값들만 바꾼다) */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f5f7fb;
   --color-ink: #1c2333;
   --color-ink-soft: #3d4760;
   --color-ink-muted: #4a5468;
   --color-line: #d9dfeb;
-  --color-surface-muted: #f5f7fb;
+  --color-line-strong: #c3c9d6;
 }
 
 @layer base {
   body {
     /* 한국어는 어절 단위로 줄바꿈한다 */
-    @apply bg-white font-sans break-keep text-ink antialiased;
+    @apply bg-surface font-sans break-keep text-ink antialiased;
   }
 
   :focus-visible {

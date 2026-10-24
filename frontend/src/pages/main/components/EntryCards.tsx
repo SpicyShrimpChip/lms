@@ -21,7 +21,7 @@ function EntryCard({
   badge,
 }: EntryCardProps) {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-primary-pill bg-white p-8">
+    <div className="flex flex-col gap-4 rounded-2xl border border-primary-pill bg-surface p-8">
       <div className="flex items-center justify-between gap-3">
         <div className="flex size-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
           {icon}
@@ -44,14 +44,14 @@ function EntryCard({
 function EntryCards() {
   return (
     <section className="bg-primary-soft">
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-10 px-6 pt-16 pb-18">
+      <div className="mx-auto flex max-w-page flex-col gap-10 px-6 pt-16 pb-18">
         <div className="flex flex-col items-center gap-3.5 text-center">
-          <h1 className="text-3xl leading-snug font-bold text-navy-900 md:text-[40px]">
+          <h1 className="text-3xl leading-snug font-bold text-navy-900 md:text-display">
             AI와 공부한 기록에서
             <br />
             아는 것과 모르는 것을 찾아 드려요
           </h1>
-          <p className="max-w-[640px] text-lg leading-relaxed text-ink-soft">
+          <p className="max-w-160 text-lg leading-relaxed text-ink-soft">
             학습 자료와 생성형 AI 대화를 함께 분석해 개념별 강점과 보완할 점을
             보여 주고, 공부할 순서를 다시 짜 드려요.
           </p>
