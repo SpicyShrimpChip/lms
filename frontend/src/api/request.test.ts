@@ -1,0 +1,49 @@
+import { AxiosError, AxiosHeaders } from 'axios';
+import { describe, expect, it } from 'vitest';
+import { ApiError, toApiError, unwrap } from './request';
+
+describe('unwrap', () => {
+  it('성공 응답이면 data만 돌려준다', () => {
+    expect(unwrap({ success: true, message: '', data: [1, 2] })).toEqual([
+      1, 2,
+    ]);
+  });
+
+  it('실패 응답이면 서버 메시지로 ApiError를 던진다', () => {
+    expect(() =>
+      unwrap({ success: false, message: '과목을 찾을 수 없어요.', data: null }),
+    ).toThrow(new ApiError('과목을 찾을 수 없어요.'));
+  });
+
+  it('실패 응답에 메시지가 없으면 기본 문구를 쓴다', () => {
+    expect(() => unwrap({ success: false, message: '', data: null })).toThrow(
+      /요청을 처리하지 못했어요/,
+    );
+  });
+});
+
+describe('toApiError', () => {
+  const config = { headers: new AxiosHeaders() };
+
+  it('서버가 보낸 오류 메시지와 상태 코드를 담는다', () => {
+    const error = new AxiosError('fail', 'ERR_BAD_REQUEST', config, null, {
+      status: 400,
+      statusText: 'Bad Request',
+      headers: {},
+      config,
+      data: { success: false, message: '파일 형식을 확인해 주세요.' },
+    });
+    const result = toApiError(error);
+    expect(result.message).toBe('파일 형식을 확인해 주세요.');
+    expect(result.status).toBe(400);
+  });
+
+  it('응답이 없으면(네트워크 오류) 연결 안내 문구를 쓴다', () => {
+    const error = new AxiosError('Network Error', 'ERR_NETWORK', config);
+    expect(toApiError(error).message).toMatch(/서버에 연결하지 못했어요/);
+  });
+
+  it('알 수 없는 오류도 ApiError로 바꾼다', () => {
+    expect(toApiError(new Error('boom'))).toBeInstanceOf(ApiError);
+  });
+});

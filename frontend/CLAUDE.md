@@ -18,10 +18,12 @@ TanStack Query 5(서버 상태), Zustand 5(클라이언트 UI 상태만), Axios,
 ```bash
 npm run dev      # 개발 서버 (http://localhost:5173)
 npm run lint     # ESLint
+npm test         # Vitest (src/**/*.test.ts)
 npm run build    # 타입 체크 + 빌드
 ```
 
-작업을 마치면 `npm run lint && npm run build`가 통과해야 한다.
+작업을 마치면 `npm run lint && npm test && npm run build`가 통과해야 한다.
+테스트는 화면이 아니라 틀리면 안 되는 로직(대화 파싱·마스킹, 점수 계산, API 응답 처리)에 쓴다.
 
 ## 폴더 구조 (보일러플레이트 기준)
 
@@ -46,9 +48,11 @@ src/
 
 ## 백엔드 연동
 
-- 환경변수: `VITE_API_BASE_URL`, `VITE_USE_MOCK`
-- `VITE_USE_MOCK=true`면 API 함수가 `mocks/` 데이터를 반환한다. 백엔드가 준비된 API부터 하나씩 실제 호출로 바꾼다.
-- 백엔드 공통 응답 형식: `{ success: boolean, message: string, data: T }`
+- 환경변수: `VITE_API_BASE_URL`(기본 `/api`), `VITE_USE_MOCK`. 팀 공유 값은 `.env.development`(커밋), 내 PC에서만 바꿀 값은 `.env.development.local`(커밋 안 됨)
+- 요청 경로는 항상 `/api/...`. 개발 중에는 Vite 프록시가 `localhost:8080`으로, 배포 때는 Vercel rewrite가 백엔드로 넘긴다. 그래서 백엔드 컨트롤러 경로도 `/api`로 시작한다
+- `VITE_USE_MOCK=true`면 API 함수가 `mocks/` 데이터를 반환한다. 백엔드가 준비된 API부터 하나씩 실제 호출로 바꾼다. 예시: `api/notices.api.ts`
+- 백엔드 공통 응답 형식: `{ success: boolean, message: string, data: T }` (`types/api.ts`의 `ApiResponse<T>`)
+- API 함수는 `api/request.ts`의 `request<T>()`로 요청한다. 성공하면 `data`만 돌려주고, 실패하면 화면에 보여 줄 문구를 담은 `ApiError`를 던진다(`AsyncBoundary`가 받는다)
 
 ## 주요 화면 (GNB 5개 + 드롭다운)
 
