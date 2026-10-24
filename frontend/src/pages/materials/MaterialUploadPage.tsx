@@ -14,7 +14,7 @@ function MaterialUploadPage() {
       breadcrumb={['학습자료', '자료 올리기']}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        <div className="border-t-2 border-navy-700">
+        <div className="border-t-2 border-heading-soft">
           <FormRow
             label="자료 파일"
             htmlFor="material-file"
@@ -42,7 +42,7 @@ function MaterialUploadPage() {
         <div className="flex justify-center">
           <button
             type="submit"
-            className="rounded-lg bg-primary px-8 py-3 font-medium text-white hover:bg-navy-700"
+            className="rounded-lg bg-primary px-8 py-3 font-medium text-on-primary hover:bg-primary-hover"
           >
             자료 올리기
           </button>

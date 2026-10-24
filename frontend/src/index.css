@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* 다크모드는 <html class="dark">로 켠다 (index.html 스크립트와 useThemeStore가 붙이고 뗀다) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* 색·폰트 토큰. 값과 쓰는 곳은 frontend/CLAUDE.md "색 규칙" 표가 기준이다 */
 @theme {
   --font-sans:
@@ -13,10 +16,18 @@
   /* 페이지 본문 최대 폭 (1200px) → max-w-page */
   --container-page: 75rem;
 
-  --color-navy-900: #0d1b57;
-  --color-navy-700: #1f3a8a;
+  /* GNB·로고 바탕과 그 위 글자 (두 모드 모두 짙은 네이비) */
+  --color-brand: #0d1b57;
+  --color-on-brand: #ffffff;
+  --color-on-brand-hover: #cddcf7;
+
+  /* 페이지 제목, 섹션 제목·표 상단선·보조 링크 */
+  --color-heading: #0d1b57;
+  --color-heading-soft: #1f3a8a;
 
   --color-primary: #2b67d1;
+  --color-primary-hover: #1f3a8a;
+  --color-on-primary: #ffffff;
   --color-primary-soft: #e8effc;
   --color-primary-pill: #cddcf7;
   --color-primary-pill-hover: #b9cdf2;
@@ -37,7 +48,7 @@
   /* 오류 메시지에만 쓴다 */
   --color-danger: #b91c1c;
 
-  /* 바탕·본문 글자·보조 글자·구분선 (다크모드를 붙이면 이 값들만 바꾼다) */
+  /* 바탕·본문 글자·보조 글자·구분선 */
   --color-surface: #ffffff;
   --color-surface-muted: #f5f7fb;
   --color-ink: #1c2333;
@@ -47,7 +58,51 @@
   --color-line-strong: #c3c9d6;
 }
 
+/* 다크모드 값. 글자·바탕 쌍은 모두 대비 4.5:1 이상으로 맞췄다 */
+:root.dark {
+  color-scheme: dark;
+
+  --color-brand: #0a1440;
+
+  --color-heading: #eef2fb;
+  --color-heading-soft: #a9c1f5;
+
+  /* 어두운 바탕에서는 버튼을 밝은 파랑으로, 버튼 글자를 어둡게 바꾼다 */
+  --color-primary: #7aa5f5;
+  --color-primary-hover: #a3c2f8;
+  --color-on-primary: #0b1020;
+  --color-primary-soft: #16244a;
+  --color-primary-pill: #22346a;
+  --color-primary-pill-hover: #2c4180;
+
+  --color-footer: #161d2c;
+
+  --color-ai: #eaa8f7;
+  --color-ai-soft: #2a1630;
+  --color-ai-border: #5c2b66;
+  --color-ai-chip: #3b1d44;
+
+  --color-strength: #86efac;
+  --color-strength-soft: #12301f;
+  --color-weakness: #fdba74;
+  --color-weakness-soft: #3a2412;
+
+  --color-danger: #fca5a5;
+
+  --color-surface: #0f1420;
+  --color-surface-muted: #171e2e;
+  --color-ink: #e6e9f0;
+  --color-ink-soft: #b8c0d0;
+  --color-ink-muted: #9aa3b5;
+  --color-line: #2a3347;
+  --color-line-strong: #3a4459;
+}
+
 @layer base {
+  :root {
+    color-scheme: light;
+  }
+
   body {
     /* 한국어는 어절 단위로 줄바꿈한다 */
     @apply bg-surface font-sans break-keep text-ink antialiased;

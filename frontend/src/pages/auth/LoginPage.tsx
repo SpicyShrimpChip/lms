@@ -39,7 +39,7 @@ function LoginPage() {
         </div>
         <button
           type="submit"
-          className="mt-2 rounded-lg bg-primary py-3 font-medium text-white hover:bg-navy-700"
+          className="mt-2 rounded-lg bg-primary py-3 font-medium text-on-primary hover:bg-primary-hover"
         >
           로그인
         </button>
@@ -47,7 +47,7 @@ function LoginPage() {
           아직 계정이 없나요?{' '}
           <Link
             to="/signup"
-            className="font-medium text-navy-700 underline-offset-4 hover:underline"
+            className="font-medium text-heading-soft underline-offset-4 hover:underline"
           >
             회원가입
           </Link>

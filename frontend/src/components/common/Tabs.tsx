@@ -57,8 +57,8 @@ function Tabs({ label, tabs }: TabsProps) {
               onKeyDown={(e) => handleKeyDown(e, index)}
               className={`-mb-px border-b-3 px-4 py-3 font-medium ${
                 selected
-                  ? 'border-primary text-navy-900'
-                  : 'border-transparent text-ink-muted hover:text-navy-900'
+                  ? 'border-primary text-heading'
+                  : 'border-transparent text-ink-muted hover:text-heading'
               }`}
             >
               {tab.label}

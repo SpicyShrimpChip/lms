@@ -19,14 +19,14 @@ function ConversationImportPage() {
             aria-current={index === 0 ? 'step' : undefined}
             className={`flex items-center gap-2.5 rounded-xl border px-4 py-3 text-body ${
               index === 0
-                ? 'border-primary bg-primary-soft font-bold text-navy-900'
+                ? 'border-primary bg-primary-soft font-bold text-heading'
                 : 'border-line text-ink-muted'
             }`}
           >
             <span
               className={`flex size-6 shrink-0 items-center justify-center rounded-full text-caption font-bold ${
                 index === 0
-                  ? 'bg-primary text-white'
+                  ? 'bg-primary text-on-primary'
                   : 'bg-surface-muted text-ink-muted'
               }`}
             >
@@ -42,7 +42,7 @@ function ConversationImportPage() {
         className="flex flex-col gap-5 rounded-2xl border border-line p-6 md:p-8"
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="import-file" className="text-xl font-bold text-navy-700">
+          <h2 id="import-file" className="text-xl font-bold text-heading-soft">
             대화 내보내기 파일 고르기
           </h2>
           <AiBadge label="AI 분석" />
@@ -52,7 +52,7 @@ function ConversationImportPage() {
           className="flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed border-line-strong px-6 py-12 text-center hover:border-primary hover:bg-primary-soft"
         >
           <Upload size={28} className="text-primary" aria-hidden="true" />
-          <span className="font-medium text-navy-900">
+          <span className="font-medium text-heading">
             내보내기 파일을 여기에 놓거나 눌러서 고르세요
           </span>
           <span className="text-body text-ink-muted">
@@ -68,7 +68,7 @@ function ConversationImportPage() {
         <div className="flex items-start gap-3 rounded-xl bg-surface-muted p-4">
           <Lock
             size={20}
-            className="mt-0.5 shrink-0 text-navy-700"
+            className="mt-0.5 shrink-0 text-heading-soft"
             aria-hidden="true"
           />
           <p className="text-body leading-relaxed text-ink-soft">

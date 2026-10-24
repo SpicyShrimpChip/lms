@@ -11,7 +11,7 @@ function Gnb() {
   const { pathname } = useLocation();
 
   return (
-    <nav aria-label="주 메뉴" className="bg-navy-900">
+    <nav aria-label="주 메뉴" className="bg-brand">
       <ul className="mx-auto flex max-w-page flex-wrap justify-center gap-x-14 gap-y-1 px-6">
         {MENU.map((group) => {
           const active = isActiveGroup(group, pathname);
@@ -22,10 +22,10 @@ function Gnb() {
               <Link
                 to={group.path}
                 aria-current={active ? 'page' : undefined}
-                className={`block py-4 text-base font-medium text-white ${
+                className={`block py-4 text-base font-medium text-on-brand ${
                   active
                     ? 'border-b-3 border-primary pb-3.25'
-                    : 'hover:text-primary-pill'
+                    : 'hover:text-on-brand-hover'
                 }`}
               >
                 {group.label}
@@ -36,7 +36,7 @@ function Gnb() {
                   <li key={child.path}>
                     <Link
                       to={child.path}
-                      className="block px-4 py-2 text-sm whitespace-nowrap text-ink-soft hover:bg-primary-soft hover:text-navy-900"
+                      className="block px-4 py-2 text-sm whitespace-nowrap text-ink-soft hover:bg-primary-soft hover:text-heading"
                     >
                       {child.label}
                     </Link>

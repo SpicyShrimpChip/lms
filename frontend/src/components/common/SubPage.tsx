@@ -29,9 +29,7 @@ function SubPage({ title, description, breadcrumb, children }: SubPageProps) {
             ))}
           </ol>
         </nav>
-        <h1 className="text-3xl font-bold text-navy-900 md:text-4xl">
-          {title}
-        </h1>
+        <h1 className="text-3xl font-bold text-heading md:text-4xl">{title}</h1>
         {description && <p className="text-ink-soft">{description}</p>}
       </div>
       {children}

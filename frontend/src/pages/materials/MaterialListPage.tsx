@@ -13,7 +13,7 @@ function MaterialListPage() {
       <div className="flex justify-end">
         <Link
           to="/materials/upload"
-          className="rounded-lg bg-primary px-5 py-2.5 font-medium text-white hover:bg-navy-700"
+          className="rounded-lg bg-primary px-5 py-2.5 font-medium text-on-primary hover:bg-primary-hover"
         >
           자료 올리기
         </Link>

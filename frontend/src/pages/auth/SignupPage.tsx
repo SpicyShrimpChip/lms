@@ -22,7 +22,7 @@ function SignupPage() {
   return (
     <SubPage title="회원가입" breadcrumb={['회원가입']}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-        <div className="border-t-2 border-navy-700">
+        <div className="border-t-2 border-heading-soft">
           <FormRow label="이메일" htmlFor="signup-email" required>
             <TextInput
               id="signup-email"
@@ -63,7 +63,9 @@ function SignupPage() {
         </div>
 
         <fieldset className="flex flex-col gap-3 rounded-2xl border border-line p-6">
-          <legend className="px-2 font-bold text-navy-700">약관 동의</legend>
+          <legend className="px-2 font-bold text-heading-soft">
+            약관 동의
+          </legend>
           {AGREEMENTS.map((item) => (
             <div key={item.id} className="flex items-start gap-3">
               <input
@@ -96,7 +98,7 @@ function SignupPage() {
         <div className="flex justify-center">
           <button
             type="submit"
-            className="rounded-lg bg-primary px-8 py-3 font-medium text-white hover:bg-navy-700"
+            className="rounded-lg bg-primary px-8 py-3 font-medium text-on-primary hover:bg-primary-hover"
           >
             가입하기
           </button>
