@@ -49,6 +49,7 @@ function MaterialDetailPage() {
           {
             id: 'video',
             label: 'AI 요약 영상',
+            badge: '준비 중',
             content: (
               // TODO(미결): AI 요약 영상 기능의 우선순위 확정 전까지 자리만 둔다
               <EmptyState

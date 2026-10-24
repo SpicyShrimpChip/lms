@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom';
-import { SubPage } from '@/components';
+import { Button, SubPage } from '@/components';
 
 const PRINCIPLES = [
   {
@@ -54,18 +53,12 @@ function AboutPage() {
       </section>
 
       <div className="flex flex-wrap justify-center gap-3">
-        <Link
-          to="/analysis/import"
-          className="rounded-lg bg-primary px-6 py-3 font-medium text-on-primary hover:bg-primary-hover"
-        >
+        <Button to="/analysis/import" size="lg">
           대화 가져오기
-        </Link>
-        <Link
-          to="/materials/upload"
-          className="rounded-lg border border-line-strong bg-surface px-6 py-3 font-medium text-heading-soft hover:bg-surface-muted"
-        >
+        </Button>
+        <Button to="/materials/upload" variant="secondary" size="lg">
           자료 올리기
-        </Link>
+        </Button>
       </div>
     </SubPage>
   );

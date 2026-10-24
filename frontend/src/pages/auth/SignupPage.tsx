@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react';
-import { FormRow, SubPage, TextInput } from '@/components';
+import { Button, FormRow, SubPage, TextInput } from '@/components';
 
 const AGREEMENTS = [
   { id: 'agree-terms', label: '서비스 이용약관 동의', required: true },
@@ -96,12 +96,9 @@ function SignupPage() {
         </fieldset>
 
         <div className="flex justify-center">
-          <button
-            type="submit"
-            className="rounded-lg bg-primary px-8 py-3 font-medium text-on-primary hover:bg-primary-hover"
-          >
+          <Button type="submit" size="lg">
             가입하기
-          </button>
+          </Button>
         </div>
       </form>
     </SubPage>

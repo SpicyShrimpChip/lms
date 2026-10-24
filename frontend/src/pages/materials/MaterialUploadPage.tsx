@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react';
-import { FormRow, SubPage, TextInput } from '@/components';
+import { Button, FormRow, SubPage, TextInput } from '@/components';
 
 function MaterialUploadPage() {
   // TODO: 업로드 API가 준비되면 파일 형식·크기를 검사하고 전송한다
@@ -40,12 +40,9 @@ function MaterialUploadPage() {
           </FormRow>
         </div>
         <div className="flex justify-center">
-          <button
-            type="submit"
-            className="rounded-lg bg-primary px-8 py-3 font-medium text-on-primary hover:bg-primary-hover"
-          >
+          <Button type="submit" size="lg">
             자료 올리기
-          </button>
+          </Button>
         </div>
       </form>
     </SubPage>
