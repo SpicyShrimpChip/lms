@@ -1,0 +1,47 @@
+{
+  // 에디터 기본 설정
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+
+  // 저장 시 ESLint의 자동 수정 기능도 함께 작동
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // Mac, Windows 간 호환성 최적화
+  "editor.tabSize": 2,
+  "files.eol": "\n",
+
+  // 파일 네스팅 활성화
+  "explorer.fileNesting.enabled": true,
+
+  // 기본 상태: 접어두기
+  "explorer.fileNesting.expand": false,
+
+  // 네스팅 규칙
+  "explorer.fileNesting.patterns": {
+    "README.md": "README-ko.md",
+    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .npmrc, .gitignore, renovate.json5",
+    "vite.config.ts": "vite.config.ts.timestamp-*, index.html",
+    "eslint.config.js": ".prettierrc, eslint.config.*, prettier.config.*",
+    "tsconfig.json": "tsconfig.*.json, tsconfig.node.json",
+    ".env": ".env.*",
+    ".gitignore": ".gitattributes"
+  },
+
+  // 기본 포맷터로 Prettier 사용 명시
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // json5 파일을 jsonc로 읽도록 설정(renovate)
+  "files.associations": {
+    "*.json5": "jsonc",
+    "renovate.json*": "jsonc"
+  },
+  // renovate.json5의 자동완성을 도와주는 공식 스키마 문서
+  "json.schemas": [
+    {
+      "fileMatch": ["renovate.json5"],
+      "url": "https://docs.renovatebot.com/renovate-schema.json"
+    }
+  ]
+}

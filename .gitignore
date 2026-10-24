@@ -1,0 +1,26 @@
+# 환경변수·비밀값 (절대 커밋 금지)
+.env
+.env.local
+.env.*.local
+# .env.development 등은 공유용(비밀값 없이 URL·플래그만)으로 커밋한다
+*.pem
+*.key
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# frontend
+frontend/node_modules/
+frontend/dist/
+
+# backend
+backend/build/
+backend/.gradle/
+backend/out/
+backend/uploads/
+*.log

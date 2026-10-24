@@ -1,0 +1,26 @@
+{
+  "extends": ["config:best-practices"], // 글로벌 표준 의존성 관리(Dependency Management) 프리셋 확장
+
+  "timezone": "Asia/Seoul", // 봇의 기준 시간대를 한국으로 설정
+  "schedule": ["before 9am on monday"], // 매주 월요일 9시 전에만 묶어서 배달
+  "labels": ["dependencies"], // 봇 생성 PR의 자동 생성 라벨
+  
+  "packageRules": [
+    {
+      // TypeScript Package Rules
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchPackagePrefixes": ["@types/"],
+      "groupName": "definitelyTyped (types)",
+      // TS package 업데이트는 서비스 로직 영향 X -> 봇 자동 merge
+      "automerge": true
+    },
+    {
+      // 프론트엔드 핵심 인프라 rule
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchPackageNames": ["react", "react-dom"],
+      "matchPackagePrefixes": ["eslint", "@eslint", "prettier", "tailwindcss"],
+      // React, ESLint, Tailwind 관련 작은 업데이트는 PR 1개로 묶음
+      "groupName": "core & linting packages"
+    }
+  ]
+}

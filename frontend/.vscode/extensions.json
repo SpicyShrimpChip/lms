@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint", // ESLint 규칙 실시간 검사
+    "esbenp.prettier-vscode", // Prettier 코드 자동 정렬
+    "bradlc.vscode-tailwindcss", // Tailwind CSS 자동완성 및 미리보기
+    "usernamehw.errorlens", // 코드 라인 옆에 즉시 에러/경고 표시 (생산성 향상)
+    "yoavbls.pretty-ts-errors", // 복잡한 TypeScript 에러를 예쁘고 읽기 쉽게 표시
+    "mhutchie.git-graph", // Git 브랜치와 커밋 내역을 시각적인 그래프로 확인
+    "eamodio.gitlens", // 코드 라인별 작성자와 커밋 히스토리 즉시 추적
+    "github.vscode-github-actions" //  GitHub Actions 자동완성 및 문법 검사
+  ]
+}
