@@ -6,7 +6,12 @@ import {
 } from '@tanstack/react-query';
 import { BookMarked } from 'lucide-react';
 import { deleteCourse, getCourses } from '@/api';
-import { AsyncBoundary, EmptyState, SubPage } from '@/components';
+import {
+  AsyncBoundary,
+  ConfirmDialog,
+  EmptyState,
+  SubPage,
+} from '@/components';
 import type { Course } from '@/types';
 import { compareSemesterDesc } from '@/utils';
 import CourseCard from './components/CourseCard';
@@ -19,17 +24,18 @@ function CourseManager() {
     queryFn: getCourses,
   });
   const [editing, setEditing] = useState<Course | null>(null);
+  const [deleting, setDeleting] = useState<Course | null>(null);
 
   const removal = useMutation({
     mutationFn: deleteCourse,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['courses'] }),
   });
 
-  const handleDelete = (course: Course) => {
-    // TODO: 공통 확인 창 컴포넌트가 생기면 교체
-    if (!window.confirm(`'${course.name}' 과목을 삭제할까요?`)) return;
-    if (editing?.id === course.id) setEditing(null);
-    removal.mutate(course.id);
+  const confirmDelete = () => {
+    if (!deleting) return;
+    if (editing?.id === deleting.id) setEditing(null);
+    removal.mutate(deleting.id);
+    setDeleting(null);
   };
 
   const sorted = [...courses].sort(
@@ -72,13 +78,22 @@ function CourseManager() {
                   setEditing(course);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                onDelete={() => handleDelete(course)}
+                onDelete={() => setDeleting(course)}
                 deleting={removal.isPending && removal.variables === course.id}
               />
             ))}
           </ul>
         )}
       </section>
+
+      <ConfirmDialog
+        open={deleting !== null}
+        title={`'${deleting?.name ?? ''}' 과목을 삭제할까요?`}
+        description="삭제한 과목은 되돌릴 수 없어요."
+        confirmLabel="삭제하기"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleting(null)}
+      />
     </>
   );
 }
