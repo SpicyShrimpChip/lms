@@ -7,6 +7,8 @@ API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, �
 
 ## 0. 백엔드 시작 순서 (프론트 완성을 기다리지 않고 바로 시작)
 
+이 절은 **참고용 제안**이다. 순서, 구조, 방식은 백엔드 담당이 정하고, 바뀌면 이 문서를 고쳐 주면 된다. 기술 명세서·요구사항 정의서를 쓸 때는 아래 API 목록과 3번 문서를 가져다 써도 된다.
+
 프론트는 `VITE_USE_MOCK=true`로 가짜 데이터를 쓰고 있어서, 백엔드가 먼저 만들어도 서로 막히지 않는다. API 하나가 생길 때마다 프론트가 그 API만 실제 호출로 바꾼다. 중간 심사(11/6)에서 실제 동작하는 AI 분석을 보여 줘야 하므로 아래 순서로 시작하기를 제안한다.
 
 | 순서 | 할 일                                                                        | 끝났다고 보는 기준                                                                                                 |
@@ -31,12 +33,14 @@ API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, �
 **프로젝트 만들기**
 
 - 팀이 정한 건 Spring Boot **3.x**인데, Spring Initializr(start.spring.io)는 2026-10-25 기준 4.x만 보여 준다. 4.x로 만들면 의존성 이름이 달라서 `backend/CLAUDE.md`와 맞지 않는다. 그래서 Initializr에서 Gradle 프로젝트를 만든 뒤 `build.gradle`의 `org.springframework.boot` 플러그인 버전을 `3.5.6`으로 직접 바꾸는 방법을 제안한다. 4.x로 가고 싶으면 먼저 알려 주기.
-- 의존성: `spring-boot-starter-web`, `-validation`, `-data-jpa`, `-security`, `org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9`, Lombok, H2(`runtimeOnly`), `mysql-connector-j`(`runtimeOnly`), 테스트 `spring-boot-starter-test`
+- 의존성: `spring-boot-starter-web`, `-validation`, `-data-jpa`, `-security`, `org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9`, Lombok, H2(`runtimeOnly`), DB 드라이버(`runtimeOnly`, 아래 DB 참고), 테스트 `spring-boot-starter-test`
 - 기본 패키지는 `com.ailms.backend`를 제안한다. 폴더 구조는 `backend/CLAUDE.md`를 따른다.
 - 내 PC의 JDK가 17이 아니어도 `tasks.withType(JavaCompile) { options.release = 17 }`로 Java 17 문법만 쓰게 맞출 수 있다. CI는 Java 17(temurin)으로 돌린다.
 - `gradlew` 줄바꿈이 윈도우에서 바뀌면 리눅스(CI)에서 실행이 안 된다. `backend/.gitattributes`에 `gradlew text eol=lf`를 넣는다.
 
 **설정 (`application.yaml`)**
+
+- **DB는 MySQL로 시작하는 것을 잠정안으로 한다(`mysql-connector-j`).** 10/27 멘토링에서 MySQL로 갈지, 챗봇 검색용으로 벡터 DB(Qdrant)를 쓸지 물어볼 예정이라 최종은 그 뒤에 정한다. 회원·자료·퀴즈는 어느 쪽이든 관계형 DB에 들어가므로, JPA로 쓰고 DB 전용 문법(특정 DB 전용 함수, JSON 타입 등)을 피하면 나중에 바꿔도 부담이 적다.
 
 - 포트 8080, 로컬 DB는 H2 메모리 `jdbc:h2:mem:lms;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1`
 - JPA: `ddl-auto: create-drop`, `defer-datasource-initialization: true`, `open-in-view: false`. 샘플 데이터는 `data.sql`로 넣고 `sql.init.mode: always`
