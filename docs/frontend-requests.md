@@ -3,7 +3,26 @@
 프론트(변지환)가 지금까지 만든 화면 기준으로, 백엔드(김주미)가 알아야 할 내용을 모은 문서다.
 API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, 바뀌면 이 문서와 프론트 목업을 같이 고친다.
 
-최종 수정: 2026-10-25 (학습 대시보드 목업·동적 배치 추가)
+최종 수정: 2026-10-25 (백엔드 시작 순서, 인증·대화 가져오기·퀴즈 API 제안 추가)
+
+## 0. 백엔드 시작 순서 (프론트 완성을 기다리지 않고 바로 시작)
+
+프론트는 `VITE_USE_MOCK=true`로 가짜 데이터를 쓰고 있어서, 백엔드가 먼저 만들어도 서로 막히지 않는다. API 하나가 생길 때마다 프론트가 그 API만 실제 호출로 바꾼다. 중간 심사(11/6)에서 실제 동작하는 AI 분석을 보여 줘야 하므로 아래 순서로 시작하기를 제안한다.
+
+| 순서 | 할 일                                                                        | 끝났다고 보는 기준                                                                                                 |
+| ---- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 1    | 프로젝트 세팅: 패키지 구조, `ApiResponse`, 전역 예외 처리, Swagger, H2       | `GET /api/notices`가 실제로 응답하고, 프론트 `.env.development.local`에서 `VITE_USE_MOCK=false`로 공지 목록이 뜬다 |
+| 2    | 인증 (회원가입·로그인·토큰 갱신·로그아웃)                                    | 로그인한 사용자만 `/api/**`를 쓸 수 있다                                                                           |
+| 3    | 내 과목 API (아래 3번 문서 그대로)                                           | 프론트 `/courses` 화면이 실제 API로 동작한다                                                                       |
+| 4    | 자료 올리기 API + 파일 저장 인터페이스(로컬 구현부터)                        | 프론트 `/materials/upload`가 실제 API로 동작한다                                                                   |
+| 5    | `global/llm` 인터페이스 + mock 구현체, 숙련도 점수 계산 클래스, 대시보드 API | 키 없이도 `GET /api/analysis/dashboard`가 형식에 맞게 응답한다. 그다음 LLM 1개를 실제로 붙인다                     |
+| 6    | 대화 가져오기 API (아래 3번)                                                 | 프론트가 고른 대화를 보내면 저장되고 분석에 쓰인다                                                                 |
+| 7    | 퀴즈 API (아래 3번)                                                          | 풀이·채점 결과가 대시보드 근거(`evidence`)에 보인다                                                                |
+
+- 심사 전에 꼭 필요한 건 **5번의 실제 LLM 호출**과 6번이다. 1~4번은 5번의 바탕이 되므로 작게 끝내고 넘어가도 된다.
+- 한 PR에는 API 하나씩. DTO 모양이 이 문서와 달라지면 **같은 PR에서 이 문서의 해당 부분을 고치고**, PR 설명에 적어 프론트(변지환)에게 알려 주기. 프론트는 그 모양에 맞춰 목업과 타입을 고친다.
+- 막히거나 정해야 하는 게 생기면(예: 숙련도 산식, 자료 형식) 임의로 정하지 말고 코드에 `// TODO(미결): ...`를 남기고 설정값으로 분리한 뒤 PR에 질문을 적는다(루트 `CLAUDE.md`의 미결 사항).
+- 로컬 실행은 `backend/CLAUDE.md`의 명령어를 따르고, 비밀값(JWT 시크릿, LLM 키, DB 비밀번호)은 환경변수로만 쓴다. 이 레포는 나중에 공개되므로 커밋 기록에 비밀값이 한 번이라도 들어가면 안 된다.
 
 ## 1. 개발 환경 연결
 
@@ -74,6 +93,103 @@ semester    = "2026-1" | "2026-summer" | "2026-2" | "2026-winter"
 | POST   | `/api/materials` | `multipart/form-data`: `courseId`, `title`, `file` | `{ id: number, courseId: number, title: string }` |
 
 서버에서도 검사해 주기: 지원 형식·최대 크기(프론트는 임시로 PDF·TXT·MD, 20MB), 제목 1~60자, 본인 과목인지. 형식·크기가 정해지면 알려 주기 (프론트 `constants/materials.ts` 한 곳만 고치면 된다).
+
+### 인증·마이페이지 — 화면 일부만 있음 (제안)
+
+화면: `/login`, `/signup`(비밀번호 4조건 실시간 표시까지 완성, 요청 연결은 아직), 마이페이지(예정: 내 정보, AI 대화 분석 동의 철회, 데이터 삭제). 방식은 `backend/CLAUDE.md`의 JWT access token + HttpOnly 쿠키 refresh token을 따른다.
+
+| 메서드 | 경로                     | 요청 본문                 | 응답 `data`                                          |
+| ------ | ------------------------ | ------------------------- | ---------------------------------------------------- |
+| POST   | `/api/auth/signup`       | `SignupInput`             | `User`                                               |
+| POST   | `/api/auth/login`        | `{ email, password }`     | `{ accessToken: string, user: User }` + refresh 쿠키 |
+| POST   | `/api/auth/refresh`      | - (refresh 쿠키)          | `{ accessToken: string }`                            |
+| POST   | `/api/auth/logout`       | -                         | 없음 (refresh 쿠키 삭제)                             |
+| GET    | `/api/users/me`          | -                         | `User`                                               |
+| PATCH  | `/api/users/me/consents` | `{ aiAnalysis: boolean }` | `User`                                               |
+| DELETE | `/api/users/me`          | -                         | 없음 (탈퇴: 내 모든 데이터 삭제)                     |
+
+```ts
+SignupInput = {
+  email: string,
+  password: string,
+  agreedTerms: true,
+  agreedPrivacy: true,
+  agreedAiAnalysis: boolean,
+};
+User = { id: number, email: string, aiAnalysisConsent: boolean };
+```
+
+- 가입 동의 3가지 중 이용약관·개인정보 수집은 필수, **AI 대화 분석은 선택**이다. 선택 동의를 안 해도 자료로 공부할 수 있어야 한다.
+- 이메일은 중복이면 409 + `message`("이미 가입된 이메일이에요."). 비밀번호 규칙은 5번 참고. 비밀번호는 BCrypt로 해시하고 로그에 남기지 않는다.
+- 로그인 실패 `message`는 이메일이 틀렸는지 비밀번호가 틀렸는지 구분하지 않는다("이메일 또는 비밀번호를 확인해 주세요.").
+- **동의 철회(`aiAnalysis: false`)하면 가져온 대화와 그로부터 계산된 분석 결과를 함께 삭제한다.** 삭제 범위는 아래 대화 가져오기와 같다. 프론트는 철회 전에 확인 창으로 "되돌릴 수 없어요"를 보여 준다.
+- 토큰이 만료돼 401이 오면 프론트가 `/api/auth/refresh`를 한 번 부르고 원래 요청을 다시 보낸다. 갱신에도 실패하면 로그인 화면으로 보낸다.
+
+### 대화 가져오기 — 목업 전 (제안)
+
+화면: `/analysis/import` (학습분석 > AI 대화 가져오기). 프론트가 하는 일: 내보내기 파일 읽기 → 내 과목 키워드로 공부한 대화만 고르기 → 개인정보 가리기 → **사용자가 체크한 대화만** 서버로 전송. 원본 파일과 이미지·첨부 내용은 서버로 가지 않는다(대신 `[이미지]`, `[첨부 파일]` 표시만 남는다).
+
+| 메서드 | 경로                      | 요청 본문            | 응답 `data`                                                   |
+| ------ | ------------------------- | -------------------- | ------------------------------------------------------------- |
+| POST   | `/api/conversations`      | `ConversationImport` | `{ importedCount: number, rejected: RejectedConversation[] }` |
+| GET    | `/api/conversations`      | -                    | `ConversationSummary[]` (내 것만)                             |
+| DELETE | `/api/conversations/{id}` | -                    | 없음                                                          |
+
+```ts
+ConversationImport = { courseId: number, conversations: ImportedConversation[] }
+ImportedConversation = {
+  clientId: string,                  // 프론트가 붙인 대화 id (파일 안의 id). 같은 대화를 다시 보내면 중복 저장하지 않는다
+  source: "chatgpt" | "claude",
+  title: string,
+  createdAt?: string,                // ISO 문자열
+  messages: { role: "user" | "assistant", text: string }[]
+}
+RejectedConversation = { clientId: string, reason: string }  // reason은 사용자에게 보여 줄 문구
+ConversationSummary  = { id: number, courseId: number, source: string, title: string, createdAt: string | null, messageCount: number }
+```
+
+서버에서도 검사해 주기:
+
+- **개인정보 패턴을 한 번 더 검사한다.** 프론트는 이메일·전화번호·주민등록번호·카드번호·키·토큰·IP를 `[이메일]`, `[전화번호]`, `[주민등록번호]`, `[카드번호]`, `[키·토큰]`, `[IP]`처럼 가려서 보낸다. 서버는 이 패턴이 **그대로 남아 있는 대화는 저장하지 않고 `rejected`에 담아** 돌려준다(서버가 몰래 고쳐 저장하지 않는다). 대체 표시(`[이메일]` 등)는 개인정보가 아니므로 통과시킨다.
+- 로그인한 사용자 소유의 `courseId`인지, `source` 값이 허용 목록인지, 역할 값이 `user`/`assistant`인지.
+- 크기 제한: 한 번에 대화 50개, 대화당 메시지 500개, 메시지당 20,000자를 임시 제안값으로 둔다. 서버가 정해도 되고, 정해지면 알려 주기(프론트가 보내기 전에 같은 기준으로 안내한다).
+- 서버 로그에 대화 본문을 남기지 않는다.
+- AI 대화 분석 동의(`User.aiAnalysisConsent`)가 꺼져 있으면 403 + `message`("AI 대화 분석에 동의해야 대화를 가져올 수 있어요.").
+- 대화를 저장한 뒤 분석(개념 분류 → 숙련도 계산 → 대시보드 반영)을 서버가 시작한다. 분석이 오래 걸리면 상태를 알려 줄 방법(예: `GET /api/analysis/status`)은 백엔드가 정해서 알려 주기.
+- 대화 한 건 삭제(`DELETE`)와 동의 철회 때 삭제 범위: 저장된 대화, 그 대화에서 나온 개념 분류·근거(`evidence`), 그 근거로 계산한 점수. 점수는 남은 근거로 다시 계산한다.
+
+### 퀴즈 — 화면 뼈대만 있음 (제안)
+
+화면: `/quizzes`(목록), `/quizzes/{id}`(풀기), `/quizzes/{id}/result`(결과). 퀴즈는 올린 자료로 만든다(자료 → 요약·퀴즈 생성 API는 이 표에 아직 없고, 자료 처리 방식이 정해지면 따로 제안). 올린 본인만 볼 수 있다.
+
+| 메서드 | 경로                            | 요청 본문               | 응답 `data`              |
+| ------ | ------------------------------- | ----------------------- | ------------------------ |
+| GET    | `/api/quizzes`                  | -                       | `QuizSummary[]`          |
+| GET    | `/api/quizzes/{id}`             | -                       | `Quiz` (**정답 미포함**) |
+| POST   | `/api/quizzes/{id}/submissions` | `{ answers: Answer[] }` | `QuizResult`             |
+
+```ts
+QuizSummary = { id: number, title: string, courseId: number, questionCount: number, lastCorrectCount: number | null }
+Quiz        = { id: number, title: string, questions: { id: number, text: string, choices: string[] }[] }
+Answer      = { questionId: number, choiceIndex: number }
+QuizResult  = {
+  submissionId: number,
+  correctCount: number,
+  totalCount: number,
+  results: {
+    questionId: number,
+    correct: boolean,
+    correctChoiceIndex: number,       // 제출 뒤에만 알려 준다
+    conceptIds: string[],             // 이 문제가 다루는 개념 (대시보드 ConceptMastery.conceptId와 같은 값)
+    aiExplanation: string | null      // 해설 (AI 글이므로 필드를 분리, 보라색 표시)
+  }[]
+}
+```
+
+- **채점은 서버 코드가 한다.** LLM은 해설(`aiExplanation`)만 쓰고 정오는 정하지 않는다.
+- 풀이 전 `Quiz` 응답에 정답이 들어가면 안 된다.
+- 제출 결과는 저장해서 대시보드 `evidence`에 `source: "quiz"`, `signal: "quiz_correct" | "quiz_wrong"`으로 나타나게 한다. 숙련도 점수에 어떻게 반영할지(가중치)는 미결이므로 설정값으로 두기.
+- 같은 퀴즈를 여러 번 풀 수 있다. 목록의 `lastCorrectCount`는 가장 최근 제출 기준이다.
 
 ## 4. 11/6 중간 심사 전에 필요한 것
 
@@ -158,7 +274,7 @@ layout = {
 
 ## 5. 정해 주면 프론트가 맞출 것
 
-- **인증 방식:** backend `CLAUDE.md`의 JWT access + HttpOnly 쿠키 refresh 방향이면, 로그인 응답 모양과 토큰 갱신 경로를 알려 주기. 배포 때 같은 출처(rewrite)라 쿠키 설정이 단순해진다.
+- **인증 방식:** 요청·응답 제안은 위 3번 "인증·마이페이지"에 있다. 다른 방식으로 정하면 알려 주기. 배포 때 같은 출처(rewrite)라 쿠키 설정이 단순해진다.
 - **자료 올리기:** 지원 형식(프론트 안: PDF·PPTX·HWP·HWPX), 최대 크기, 원본 보관 여부(루트 `CLAUDE.md` 미결 사항). 텍스트 추출 후보는 PDF·PPTX는 Apache Tika 또는 PDFBox, HWP·HWPX는 hwplib·hwpxlib.
 - **비밀번호 규칙:** 프론트는 임시로 4조건(8자 이상, 영문, 숫자, 특수문자 포함)으로 실시간 표시한다. 서버 규칙과 다르면 가입이 서버에서 거절되므로 확정되면 알려 주기 (프론트는 `utils/password.ts` 한 곳만 고치면 된다). 서버도 같은 규칙으로 검사하고, 거절 사유는 `message`로 사용자에게 보여 줄 문구로 주기.
 - **배포:** 백엔드 주소가 정해지면 Vercel rewrite 대상만 바꾸면 된다.
