@@ -24,7 +24,6 @@ docs/       인수인계 문서, 요구사항 정의서, API 명세, WBS, 회의
 
 - 프론트: React 19, TypeScript 6, Vite 8, Tailwind CSS 4, React Router 7, React Query(TanStack Query 5), Zustand 5, Axios (메이저 버전 고정, 세부 버전은 `frontend/package-lock.json` 기준)
 - 백엔드: Spring Boot 3.x, Java 17, Gradle, Spring Security
-- DB: MySQL (로컬 개발은 H2). 팀 두 명 모두 MySQL 경험이 있어 선택. 챗봇 자료 검색은 벡터 DB 없이 MySQL 전문 검색(ngram)이나 자료를 프롬프트에 넣는 방식으로 시작
 - 대화 가져오기 1단계 지원: ChatGPT, Claude 공식 내보내기 파일
 - 협업: GitHub 조직 + 모노레포, 기능 브랜치 → PR → CI 통과 확인 후 main 머지. 리뷰 승인은 필수가 아니다(두 사람 시간이 맞지 않아 머지가 늦어지지 않도록). 리뷰는 가능할 때 하고, API·DTO처럼 상대 작업에 영향을 주는 변경은 PR에 적고 상대방에게 알린다. 머지된 원격 브랜치는 자동 삭제된다.
 
@@ -32,6 +31,7 @@ docs/       인수인계 문서, 요구사항 정의서, API 명세, WBS, 회의
 
 아래 항목이 필요한 코드는 설정값·인터페이스로 분리하고 `// TODO(미결): ...` 주석을 남긴다.
 
+- DB: MySQL로 시작하는 것을 잠정안으로 한다(로컬 개발은 H2, 팀 두 명 모두 MySQL 경험). 10/27 멘토링에서 MySQL로 갈지 챗봇 검색용 벡터 DB(Qdrant 등)를 쓸지 물어본 뒤 최종 결정. 챗봇 자료 검색은 벡터 DB 없이 MySQL 전문 검색(ngram)이나 자료를 프롬프트에 넣는 방식으로 시작. PostgreSQL(Neon·pgvector)도 검토했으나 익숙하지 않아 보류. 코드는 DB 전용 문법을 피하고 JPA로 쓴다.
 - LLM API 제공사와 모델 수. **GPT·Gemini·Claude 3개 모델이 독립 판단 후 통합하는 구상은 핵심 차별점이므로 삭제하지 말 것.** 단일 모델로 시작하더라도 여러 모델을 붙일 수 있는 구조로 만든다.
 - 개념별 숙련도 점수 산식(대화 분류 결과 + 퀴즈 정답률의 가중치)
 - AWS 세부 서비스 (EC2·S3·RDS 등은 후보일 뿐)
