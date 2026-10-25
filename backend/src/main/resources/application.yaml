@@ -1,0 +1,60 @@
+# 공통 설정 + 기본 프로필(H2 메모리 DB). ./gradlew test는 이 설정으로 돈다.
+# 로컬 MySQL은 application-local.yaml, 운영은 application-prod.yaml. 비밀값은 여기에 쓰지 않는다
+server:
+  port: 8080
+
+spring:
+  application:
+    name: backend
+
+  # backend/.env(커밋 안 됨)가 있으면 DB 비밀번호·JWT 시크릿을 읽는다. 환경변수가 있으면 환경변수가 우선한다
+  config:
+    import: optional:file:.env[.properties]
+
+  datasource:
+    url: jdbc:h2:mem:lms;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+
+  # 테이블은 Flyway 마이그레이션(db/migration)으로만 만들고, Hibernate는 엔티티와 맞는지 검사만 한다
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  # db/seed: 로컬 확인용 샘플 데이터 (운영 프로필에서는 빠진다)
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed
+
+app:
+  # Vite 프록시를 거쳐도 브라우저의 Origin(개발 서버 주소)이 그대로 오므로 개발 서버 주소를 허용해야 한다.
+  # 5173이 이미 쓰이고 있으면 Vite가 5174로 띄운다. 운영은 application-prod.yaml에서 환경변수로만 받는다
+  cors:
+    allowed-origins:
+      - http://localhost:5173
+      - http://localhost:5174
+
+  jwt:
+    # Base64로 인코딩한 32바이트 이상 키. 비어 있고 allow-ephemeral-secret이 true면 실행할 때마다 임시 키를 만든다
+    secret: ${JWT_SECRET:}
+    allow-ephemeral-secret: true
+    issuer: ai-lms
+    access-token-ttl: 15m
+
+  auth:
+    refresh-token-ttl: 14d
+    refresh-cookie:
+      name: refresh_token
+      # 인증 API에만 쿠키가 실리게 한다
+      path: /api/auth
+      # http://localhost 개발 환경에서는 false, 운영(HTTPS)은 true
+      secure: false
+      # 프론트와 API가 같은 출처(Vite 프록시·Vercel rewrite)라 Strict로 충분하다
+      same-site: Strict
+    login-attempt:
+      # 같은 이메일·같은 IP에서 window 동안 max-failures번 틀리면 lock-duration 동안 막는다
+      max-failures: 5
+      window: 15m
+      lock-duration: 15m
+      # 한 IP에서 여러 이메일로 시도하는 경우
+      max-failures-per-ip: 50

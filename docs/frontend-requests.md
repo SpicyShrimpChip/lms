@@ -3,7 +3,7 @@
 프론트(변지환)가 지금까지 만든 화면 기준으로, 백엔드(김주미)가 알아야 할 내용을 모은 문서다.
 API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, 바뀌면 이 문서와 프론트 목업을 같이 고친다.
 
-최종 수정: 2026-10-25 (백엔드 첫 단계 시작 가이드 추가)
+최종 수정: 2026-10-25 (공지 목록·인증 API 구현, SignupInput에 name·passwordConfirm 추가)
 
 ## 0. 백엔드 시작 순서 (프론트 완성을 기다리지 않고 바로 시작)
 
@@ -104,7 +104,7 @@ API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, �
 
 프론트 연결 상태: **목업** = 가짜 데이터로 화면 완성, 실제 API 기다리는 중
 
-### 공지사항 — 목업
+### 공지사항 — 목록 구현됨 (확정: Swagger `공지사항`)
 
 | 메서드 | 경로           | 응답 `data` |
 | ------ | -------------- | ----------- |
@@ -149,36 +149,41 @@ semester    = "2026-1" | "2026-summer" | "2026-2" | "2026-winter"
 
 서버에서도 검사해 주기: 지원 형식·최대 크기(프론트는 임시로 PDF·TXT·MD, 20MB), 제목 1~60자, 본인 과목인지. 형식·크기가 정해지면 알려 주기 (프론트 `constants/materials.ts` 한 곳만 고치면 된다).
 
-### 인증·마이페이지 — 화면 일부만 있음 (제안)
+### 인증·마이페이지 — 가입·로그인·갱신·로그아웃·내 정보 구현됨 (확정: Swagger `인증`, `회원`)
 
-화면: `/login`, `/signup`(비밀번호 4조건 실시간 표시까지 완성, 요청 연결은 아직), 마이페이지(예정: 내 정보, AI 대화 분석 동의 철회, 데이터 삭제). 방식은 `backend/CLAUDE.md`의 JWT access token + HttpOnly 쿠키 refresh token을 따른다.
+화면: `/login`, `/signup`, 마이페이지(내 정보 표시까지 연결. 동의 철회·데이터 삭제는 예정). 방식은 JWT access token(메모리) + HttpOnly 쿠키 refresh token. 자세한 흐름은 `docs/backend-design.md` 5번.
 
-| 메서드 | 경로                     | 요청 본문                 | 응답 `data`                                          |
-| ------ | ------------------------ | ------------------------- | ---------------------------------------------------- |
-| POST   | `/api/auth/signup`       | `SignupInput`             | `User`                                               |
-| POST   | `/api/auth/login`        | `{ email, password }`     | `{ accessToken: string, user: User }` + refresh 쿠키 |
-| POST   | `/api/auth/refresh`      | - (refresh 쿠키)          | `{ accessToken: string }`                            |
-| POST   | `/api/auth/logout`       | -                         | 없음 (refresh 쿠키 삭제)                             |
-| GET    | `/api/users/me`          | -                         | `User`                                               |
-| PATCH  | `/api/users/me/consents` | `{ aiAnalysis: boolean }` | `User`                                               |
-| DELETE | `/api/users/me`          | -                         | 없음 (탈퇴: 내 모든 데이터 삭제)                     |
+| 메서드 | 경로                     | 요청 본문                 | 응답 `data`                                          | 상태   |
+| ------ | ------------------------ | ------------------------- | ---------------------------------------------------- | ------ |
+| POST   | `/api/auth/signup`       | `SignupInput`             | `User` (201)                                         | 구현됨 |
+| POST   | `/api/auth/login`        | `{ email, password }`     | `{ accessToken: string, user: User }` + refresh 쿠키 | 구현됨 |
+| POST   | `/api/auth/refresh`      | - (refresh 쿠키)          | `{ accessToken: string }` + 새 refresh 쿠키          | 구현됨 |
+| POST   | `/api/auth/logout`       | - (refresh 쿠키)          | 없음 (세션 폐기, 쿠키 삭제)                          | 구현됨 |
+| GET    | `/api/users/me`          | -                         | `User`                                               | 구현됨 |
+| PATCH  | `/api/users/me/consents` | `{ aiAnalysis: boolean }` | `User`                                               | 제안   |
+| DELETE | `/api/users/me`          | -                         | 없음 (탈퇴: 내 모든 데이터 삭제)                     | 제안   |
 
 ```ts
+// 화면에 "이름"과 "비밀번호 확인" 칸이 있어 name, passwordConfirm을 추가했다 (2026-10-25)
 SignupInput = {
-  email: string,
+  email: string,            // 서버가 소문자로 바꿔 저장
+  name: string,             // 1~30자
   password: string,
-  agreedTerms: true,
-  agreedPrivacy: true,
+  passwordConfirm: string,  // 서버도 password와 같은지 확인
+  agreedTerms: boolean,     // true여야 함
+  agreedPrivacy: boolean,   // true여야 함
   agreedAiAnalysis: boolean,
 };
-User = { id: number, email: string, aiAnalysisConsent: boolean };
+User = { id: number, email: string, name: string, aiAnalysisConsent: boolean };
 ```
 
 - 가입 동의 3가지 중 이용약관·개인정보 수집은 필수, **AI 대화 분석은 선택**이다. 선택 동의를 안 해도 자료로 공부할 수 있어야 한다.
-- 이메일은 중복이면 409 + `message`("이미 가입된 이메일이에요."). 비밀번호 규칙은 5번 참고. 비밀번호는 BCrypt로 해시하고 로그에 남기지 않는다.
-- 로그인 실패 `message`는 이메일이 틀렸는지 비밀번호가 틀렸는지 구분하지 않는다("이메일 또는 비밀번호를 확인해 주세요.").
+- 이메일은 중복이면 409 + `message`("이미 가입된 이메일이에요."). 비밀번호 규칙은 5번 참고(서버도 같은 4조건, 추가로 72바이트 이하). 비밀번호는 BCrypt로 해시하고 로그에 남기지 않는다.
+- 로그인 실패 `message`는 이메일이 틀렸는지 비밀번호가 틀렸는지 구분하지 않는다("이메일 또는 비밀번호를 확인해 주세요."). 같은 이메일·같은 곳에서 15분에 5번 틀리면 429("로그인 시도가 너무 많아요. N분 뒤 다시 시도해 주세요.").
+- **`/api/auth/login`, `/refresh`, `/logout`은 `X-Requested-With: XMLHttpRequest` 헤더가 있어야 한다**(CSRF 방어, 없으면 403). 프론트 Axios 인스턴스가 모든 요청에 붙인다.
 - **동의 철회(`aiAnalysis: false`)하면 가져온 대화와 그로부터 계산된 분석 결과를 함께 삭제한다.** 삭제 범위는 아래 대화 가져오기와 같다. 프론트는 철회 전에 확인 창으로 "되돌릴 수 없어요"를 보여 준다.
-- 토큰이 만료돼 401이 오면 프론트가 `/api/auth/refresh`를 한 번 부르고 원래 요청을 다시 보낸다. 갱신에도 실패하면 로그인 화면으로 보낸다.
+- 토큰이 만료돼 401이 오면 프론트가 `/api/auth/refresh`를 한 번 부르고 원래 요청을 다시 보낸다(`api/axios.ts`). 갱신에도 실패하면 로그아웃 상태가 되고 로그인 가드가 로그인 화면으로 보낸다.
+- 로그인이 필요한 화면은 `router/RequireAuth.tsx` 아래에 둔다. **`VITE_USE_MOCK=true`(팀 기본값)에서는 가드를 건너뛰어** 백엔드 없이 화면을 개발할 수 있다.
 
 ### 대화 가져오기 — 목업 전 (제안)
 
@@ -331,7 +336,7 @@ layout = {
 
 - **인증 방식:** 요청·응답 제안은 위 3번 "인증·마이페이지"에 있다. 다른 방식으로 정하면 알려 주기. 배포 때 같은 출처(rewrite)라 쿠키 설정이 단순해진다.
 - **자료 올리기:** 지원 형식(프론트 안: PDF·PPTX·HWP·HWPX), 최대 크기, 원본 보관 여부(루트 `CLAUDE.md` 미결 사항). 텍스트 추출 후보는 PDF·PPTX는 Apache Tika 또는 PDFBox, HWP·HWPX는 hwplib·hwpxlib.
-- **비밀번호 규칙:** 프론트는 임시로 4조건(8자 이상, 영문, 숫자, 특수문자 포함)으로 실시간 표시한다. 서버 규칙과 다르면 가입이 서버에서 거절되므로 확정되면 알려 주기 (프론트는 `utils/password.ts` 한 곳만 고치면 된다). 서버도 같은 규칙으로 검사하고, 거절 사유는 `message`로 사용자에게 보여 줄 문구로 주기.
+- **비밀번호 규칙:** 서버도 프론트와 같은 4조건(8자 이상, 영문, 숫자, 특수문자 포함)으로 검사한다(`PasswordPolicy`). 추가로 BCrypt 한도 때문에 72바이트를 넘으면 거절한다(프론트에는 표시 조건이 없고 서버 `message`로 안내). 거절 사유는 어긴 첫 번째 규칙을 `message`로 준다.
 - **배포:** 백엔드 주소가 정해지면 Vercel rewrite 대상만 바꾸면 된다.
 
 ## 6. 이 문서 고치는 법

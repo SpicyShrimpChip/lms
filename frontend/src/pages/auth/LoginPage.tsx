@@ -1,11 +1,37 @@
-import type { FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, type FormEvent } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ME_QUERY_KEY, login } from '@/api';
 import { Button, SubPage, TextInput } from '@/components';
 
+interface LoginLocationState {
+  // 로그인 가드가 넘겨 준 원래 주소
+  from?: string;
+  // 회원가입 직후 넘어온 경우 가입한 이메일
+  signedUpEmail?: string;
+}
+
 function LoginPage() {
-  // TODO: 인증 API가 준비되면 로그인 요청을 보내고 실패 사유를 안내한다
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const state = (useLocation().state ?? {}) as LoginLocationState;
+  const [email, setEmail] = useState(state.signedUpEmail ?? '');
+  const [password, setPassword] = useState('');
+
+  const mutation = useMutation({
+    mutationFn: login,
+    onSuccess: ({ user }) => {
+      // 이전 사용자의 화면 데이터가 남지 않도록 비우고, 받은 내 정보를 넣어 둔다
+      queryClient.clear();
+      queryClient.setQueryData(ME_QUERY_KEY, user);
+      navigate(state.from ?? '/', { replace: true });
+    },
+  });
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (mutation.isPending) return;
+    mutation.mutate({ email: email.trim(), password });
   };
 
   return (
@@ -14,6 +40,11 @@ function LoginPage() {
         onSubmit={handleSubmit}
         className="mx-auto flex w-full max-w-100 flex-col gap-4"
       >
+        {state.signedUpEmail && (
+          <p role="status" className="text-center text-body text-ink-soft">
+            가입이 완료됐어요. 로그인해 주세요.
+          </p>
+        )}
         <div className="flex flex-col gap-1.5">
           <label htmlFor="login-email" className="text-body font-medium">
             이메일
@@ -24,6 +55,8 @@ function LoginPage() {
             autoComplete="email"
             required
             placeholder="name@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -35,9 +68,21 @@ function LoginPage() {
             type="password"
             autoComplete="current-password"
             required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button type="submit" size="lg" className="mt-2">
+        {mutation.isError && (
+          <p role="alert" className="text-center text-body text-danger">
+            {mutation.error.message}
+          </p>
+        )}
+        <Button
+          type="submit"
+          size="lg"
+          className="mt-2"
+          disabled={mutation.isPending}
+        >
           로그인
         </Button>
         <p className="text-center text-body text-ink-soft">

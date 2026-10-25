@@ -1,0 +1,27 @@
+# 운영 설정 (SPRING_PROFILES_ACTIVE=prod). 접속 정보·시크릿·출처는 모두 환경변수로만 받는다
+spring:
+  # 예: jdbc:mysql://<호스트>:3306/ai_lms?characterEncoding=UTF-8
+  # TODO(미결): AWS 세부 서비스(RDS 등)는 정해지지 않았다
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  flyway:
+    user: ${DB_MIGRATION_USERNAME}
+    password: ${DB_MIGRATION_PASSWORD}
+    # 샘플 데이터(db/seed)는 넣지 않는다
+    locations: classpath:db/migration
+
+app:
+  cors:
+    # 쉼표로 여러 출처를 넣을 수 있다 (예: https://a.example.com,https://b.example.com)
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+  jwt:
+    secret: ${JWT_SECRET}
+    allow-ephemeral-secret: false
+
+  auth:
+    refresh-cookie:
+      secure: true
