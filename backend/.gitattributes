@@ -1,0 +1,3 @@
+# 줄바꿈이 바뀌면 리눅스(CI)에서 gradlew가 실행되지 않는다
+gradlew text eol=lf
+*.bat text eol=crlf

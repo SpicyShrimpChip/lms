@@ -1,0 +1,21 @@
+# 운영(MySQL). 접속 정보·비밀값은 환경변수로만 받는다. 값을 이 파일에 직접 쓰지 않는다.
+# 실행: SPRING_PROFILES_ACTIVE=prod
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      # TODO(백엔드): 운영 스키마 관리 방식(직접 SQL, Flyway 등)을 정한다. 지금은 아무것도 바꾸지 않는 none.
+      ddl-auto: none
+  sql:
+    init:
+      # 샘플 데이터(data.sql)는 로컬에서만 넣는다
+      mode: never
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+  storage:
+    local-dir: ${STORAGE_LOCAL_DIR:uploads}
