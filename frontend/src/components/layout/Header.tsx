@@ -4,12 +4,16 @@ import {
   useRef,
   useState,
   type FormEvent,
+  type ReactNode,
 } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Menu, Search, X } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
+import { ME_QUERY_KEY, getMe, logout } from '@/api';
 import { MOTION_DURATION } from '@/constants';
+import { useAuthStore } from '@/store';
 import MobileMenu, { MOBILE_MENU_ID } from './MobileMenu';
 import ThemeToggle from './ThemeToggle';
 import { FIELD_CLASS } from '../common/fieldClass';
@@ -20,8 +24,74 @@ const ACCOUNT_LINKS = [
   { label: '마이페이지', path: '/mypage' },
 ];
 
+const ACCOUNT_LINK_CLASS = 'text-ink-muted hover:text-heading';
+
+// 로그인하면 이름·마이페이지·로그아웃, 아니면 로그인·회원가입·마이페이지
+function useAccountItems(): { key: string; node: ReactNode }[] {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const authenticated = useAuthStore(
+    (state) => state.status === 'authenticated',
+  );
+  const { data: me } = useQuery({
+    queryKey: ME_QUERY_KEY,
+    queryFn: getMe,
+    enabled: authenticated,
+  });
+
+  if (!authenticated) {
+    return ACCOUNT_LINKS.map((link) => ({
+      key: link.path,
+      node: (
+        <Link to={link.path} className={ACCOUNT_LINK_CLASS}>
+          {link.label}
+        </Link>
+      ),
+    }));
+  }
+
+  const handleLogout = async () => {
+    await logout();
+    // 다음 사용자에게 내 데이터가 보이지 않도록 화면 데이터를 모두 비운다
+    queryClient.clear();
+    navigate('/');
+  };
+
+  return [
+    ...(me
+      ? [
+          {
+            key: 'name',
+            node: <span className="font-medium text-heading">{me.name}님</span>,
+          },
+        ]
+      : []),
+    {
+      key: 'mypage',
+      node: (
+        <Link to="/mypage" className={ACCOUNT_LINK_CLASS}>
+          마이페이지
+        </Link>
+      ),
+    },
+    {
+      key: 'logout',
+      node: (
+        <button
+          type="button"
+          onClick={handleLogout}
+          className={ACCOUNT_LINK_CLASS}
+        >
+          로그아웃
+        </button>
+      ),
+    },
+  ];
+}
+
 function Header() {
   const navigate = useNavigate();
+  const accountItems = useAccountItems();
   const [keyword, setKeyword] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -85,19 +155,14 @@ function Header() {
 
         <div className="flex flex-wrap items-center gap-4 text-sm">
           <nav aria-label="계정" className="flex items-center gap-3">
-            {ACCOUNT_LINKS.map((link, index) => (
-              <span key={link.path} className="flex items-center gap-3">
+            {accountItems.map((item, index) => (
+              <span key={item.key} className="flex items-center gap-3">
                 {index > 0 && (
                   <span aria-hidden="true" className="text-line-strong">
                     |
                   </span>
                 )}
-                <Link
-                  to={link.path}
-                  className="text-ink-muted hover:text-heading"
-                >
-                  {link.label}
-                </Link>
+                {item.node}
               </span>
             ))}
           </nav>

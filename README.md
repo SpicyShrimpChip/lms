@@ -44,7 +44,7 @@ AI로 공부하면 대화가 여러 서비스에 흩어지고, 새 대화를 열
 ## 기술 스택
 
 - **Frontend:** React 19, TypeScript 6, Vite 8, Tailwind CSS 4, React Router 7, TanStack Query, Zustand, Axios
-- **Backend:** Spring Boot 3.x, Java 17, Gradle, Spring Security (준비 중)
+- **Backend:** Spring Boot 3.5, Java 17, Gradle, Spring Security(JWT), Spring Data JPA, Flyway, MySQL 8 (테스트용 H2)
 - **LLM:** 제공사 미정. 여러 모델이 각각 판단한 결과를 비교·통합할 수 있는 구조로 설계
 - **개발 환경:** ESLint, Prettier, Husky + lint-staged, GitHub Actions, Renovate
 
@@ -53,7 +53,7 @@ AI로 공부하면 대화가 여러 서비스에 흩어지고, 새 대화를 열
 ```text
 .
 ├── frontend/   React 앱
-├── backend/    Spring Boot API (준비 중)
+├── backend/    Spring Boot API
 ├── docs/       기획·인수인계 문서
 └── .github/    CI 워크플로, Renovate 설정
 ```
@@ -77,7 +77,20 @@ npm run dev
 
 ### Backend
 
-준비 중입니다.
+> JDK 17과 MySQL 8이 필요합니다. 설계는 [`docs/backend-design.md`](docs/backend-design.md)를 참고하세요.
+
+```bash
+cd lms/backend
+./db/configure-local-env.sh # 처음 한 번: 이미 만든 DB·계정으로 backend/.env 생성 (DB·계정까지 새로 만들 때는 ./db/setup-local-mysql.sh)
+./gradlew bootRun           # http://localhost:8080 (로컬 MySQL, 테이블은 Flyway가 자동 생성)
+./gradlew test              # H2 메모리 DB로 테스트
+./gradlew mysqlTest         # 같은 테스트를 로컬 MySQL(ai_lms_test)로 실행
+```
+
+- API 문서(Swagger): http://localhost:8080/swagger-ui/index.html
+- 비밀값(DB 비밀번호, JWT 시크릿)은 `backend/.env`(커밋 안 됨)에만 둡니다. 형식은 `backend/.env.example` 참고.
+- MySQL 없이 띄우려면 `SPRING_PROFILES_ACTIVE=default ./gradlew bootRun` (H2 메모리 DB, 재시작하면 데이터가 사라짐).
+- 프론트에서 실제 API로 확인하려면 `frontend/.env.development.local`에 `VITE_USE_MOCK=false`를 넣습니다.
 
 ## 개발 규칙
 

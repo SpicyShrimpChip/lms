@@ -3,6 +3,7 @@ import { Layout, LoadingFallback } from '@/components';
 import MainPage from '@/pages/main/MainPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import { lazyPage } from './lazyPage';
+import RequireAuth from './RequireAuth';
 
 // 페이지 추가 시 배열 안에 객체로 정리
 /*
@@ -10,6 +11,7 @@ import { lazyPage } from './lazyPage';
 1. ./pages 하위에 페이지 폴더와 파일 생성 (default export, 페이지 전용 컴포넌트는 pages/<페이지>/components/)
 2. 아래 Layout의 children 배열에 lazyPage(() => import(...))로 추가 (GNB 메뉴는 constants/menu.ts)
    - 메인·404만 처음부터 불러오고, 나머지는 처음 방문할 때 코드를 불러온다 (pages/index.ts 같은 한 곳 모음 파일을 거치면 쪼개지지 않는다)
+   - 내 데이터를 보여 주는 화면은 RequireAuth(로그인 가드) 아래에 넣는다
 */
 export const router = createBrowserRouter([
   {
@@ -20,50 +22,68 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <MainPage /> },
 
-      // 학습자료
+      // 로그인이 필요한 화면 (목업 모드에서는 검사하지 않는다)
       {
-        path: 'courses',
-        lazy: lazyPage(() => import('@/pages/courses/CoursePage')),
-      },
-      {
-        path: 'materials',
-        lazy: lazyPage(() => import('@/pages/materials/MaterialListPage')),
-      },
-      {
-        path: 'materials/upload',
-        lazy: lazyPage(() => import('@/pages/materials/MaterialUploadPage')),
-      },
-      {
-        path: 'materials/:materialId',
-        lazy: lazyPage(() => import('@/pages/materials/MaterialDetailPage')),
-      },
+        element: <RequireAuth />,
+        children: [
+          // 학습자료
+          {
+            path: 'courses',
+            lazy: lazyPage(() => import('@/pages/courses/CoursePage')),
+          },
+          {
+            path: 'materials',
+            lazy: lazyPage(() => import('@/pages/materials/MaterialListPage')),
+          },
+          {
+            path: 'materials/upload',
+            lazy: lazyPage(
+              () => import('@/pages/materials/MaterialUploadPage'),
+            ),
+          },
+          {
+            path: 'materials/:materialId',
+            lazy: lazyPage(
+              () => import('@/pages/materials/MaterialDetailPage'),
+            ),
+          },
 
-      // 맞춤학습
-      {
-        path: 'curriculum',
-        lazy: lazyPage(() => import('@/pages/curriculum/CurriculumPage')),
-      },
-      {
-        path: 'quizzes',
-        lazy: lazyPage(() => import('@/pages/quizzes/QuizListPage')),
-      },
-      {
-        path: 'quizzes/:quizId',
-        lazy: lazyPage(() => import('@/pages/quizzes/QuizSolvePage')),
-      },
-      {
-        path: 'quizzes/:quizId/result',
-        lazy: lazyPage(() => import('@/pages/quizzes/QuizResultPage')),
-      },
+          // 맞춤학습
+          {
+            path: 'curriculum',
+            lazy: lazyPage(() => import('@/pages/curriculum/CurriculumPage')),
+          },
+          {
+            path: 'quizzes',
+            lazy: lazyPage(() => import('@/pages/quizzes/QuizListPage')),
+          },
+          {
+            path: 'quizzes/:quizId',
+            lazy: lazyPage(() => import('@/pages/quizzes/QuizSolvePage')),
+          },
+          {
+            path: 'quizzes/:quizId/result',
+            lazy: lazyPage(() => import('@/pages/quizzes/QuizResultPage')),
+          },
 
-      // 학습분석
-      {
-        path: 'analysis',
-        lazy: lazyPage(() => import('@/pages/analysis/DashboardPage')),
-      },
-      {
-        path: 'analysis/import',
-        lazy: lazyPage(() => import('@/pages/analysis/ConversationImportPage')),
+          // 학습분석
+          {
+            path: 'analysis',
+            lazy: lazyPage(() => import('@/pages/analysis/DashboardPage')),
+          },
+          {
+            path: 'analysis/import',
+            lazy: lazyPage(
+              () => import('@/pages/analysis/ConversationImportPage'),
+            ),
+          },
+
+          // 계정
+          {
+            path: 'mypage',
+            lazy: lazyPage(() => import('@/pages/mypage/MyPage')),
+          },
+        ],
       },
 
       // 커뮤니티
@@ -94,10 +114,6 @@ export const router = createBrowserRouter([
       {
         path: 'signup',
         lazy: lazyPage(() => import('@/pages/auth/SignupPage')),
-      },
-      {
-        path: 'mypage',
-        lazy: lazyPage(() => import('@/pages/mypage/MyPage')),
       },
       {
         path: 'search',

@@ -4,6 +4,7 @@ import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LazyMotion, MotionConfig, domAnimation } from 'motion/react';
 import { router } from './router';
+import { restoreSession } from './api/auth.api';
 /*
 @/ 절대경로 적용은 취향 차이!
 엔트리 파일 시각적 응집도를 위해 적용하지 않았음
@@ -25,6 +26,9 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// 새로고침해도 로그인이 유지되도록 Refresh Token 쿠키로 세션을 되살린다 (끝날 때까지 로그인 가드는 기다린다)
+void restoreSession();
 
 createRoot(document.getElementById('root')!).render(
   // 전역 라우팅 인프라 주입 (UI 레이아웃과 라우팅의 관심사 분리)

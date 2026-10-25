@@ -1,0 +1,85 @@
+plugins {
+	id 'java'
+	// 팀 확정 버전은 Spring Boot 3.x (Initializr 기본값 4.x가 아님에 주의)
+	id 'org.springframework.boot' version '3.5.6'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.ailms'
+version = '0.0.1-SNAPSHOT'
+
+// 내 PC의 JDK 버전과 관계없이 Java 17 문법·API로만 컴파일한다 (CI는 Java 17)
+tasks.withType(JavaCompile).configureEach {
+	options.release = 17
+	options.encoding = 'UTF-8'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+
+	// 테이블 구조 변경 이력 관리 (src/main/resources/db/migration)
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-mysql'
+
+	// Access Token(JWT) 서명·검증
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// 테스트·DB 없이 빠르게 띄울 때 쓰는 메모리 DB (기본 프로필)
+	runtimeOnly 'com.h2database:h2'
+	// 로컬(local)·운영(prod) 프로필의 기본 DB. TODO(미결): 벡터 DB 추가 여부는 10/27 멘토링 뒤 결정
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// ./gradlew test: H2 메모리 DB로 실행 (MySQL 없이도 돈다)
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+// ./gradlew mysqlTest: 같은 테스트를 로컬 MySQL의 테스트 전용 DB(ai_lms_test)로 실행한다.
+// 접속 계정·비밀번호는 backend/.env(커밋 안 됨) 또는 환경변수에서 읽고, DB 주소만 테스트 DB로 바꾼다.
+// 테스트는 데이터를 지우므로 이름이 _test로 끝나는 DB가 아니면 시작하지 않는다 (테스트 코드의 TestDatabaseGuard도 한 번 더 막는다)
+def testDbUrl = System.getenv('TEST_DB_URL') ?: 'jdbc:mysql://localhost:3306/ai_lms_test?characterEncoding=UTF-8'
+tasks.register('mysqlTest', Test) {
+	description = '로컬 MySQL 테스트 DB(ai_lms_test)로 전체 테스트를 실행한다'
+	group = 'verification'
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+	useJUnitPlatform()
+	systemProperty 'spring.profiles.active', 'local'
+	environment 'DB_URL', testDbUrl
+	doFirst {
+		def database = (testDbUrl =~ /^jdbc:[a-z]+:\/\/[^\/]+\/([^?;]+)/)
+		if (!database.find() || !database.group(1).endsWith('_test')) {
+			throw new GradleException("mysqlTest는 이름이 _test로 끝나는 DB에서만 실행한다 (서비스 DB 보호): ${testDbUrl}")
+		}
+	}
+	shouldRunAfter tasks.named('test')
+}
+
+// ./gradlew bootRun: 기본은 로컬 MySQL(local 프로필). SPRING_PROFILES_ACTIVE로 바꿀 수 있다
+tasks.named('bootRun') {
+	systemProperty 'spring.profiles.active', System.getenv('SPRING_PROFILES_ACTIVE') ?: 'local'
+}

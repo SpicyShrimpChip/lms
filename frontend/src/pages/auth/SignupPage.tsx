@@ -1,13 +1,35 @@
 import { useState, type FormEvent } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { signup } from '@/api';
 import { Button, FormRow, SubPage, TextInput } from '@/components';
 import { isPasswordValid } from '@/utils';
 import PasswordRules from './components/PasswordRules';
 
-const AGREEMENTS = [
-  { id: 'agree-terms', label: '서비스 이용약관 동의', required: true },
-  { id: 'agree-privacy', label: '개인정보 수집·이용 동의', required: true },
+type AgreementKey = 'agreedTerms' | 'agreedPrivacy' | 'agreedAiAnalysis';
+
+const AGREEMENTS: {
+  id: string;
+  key: AgreementKey;
+  label: string;
+  required: boolean;
+  description?: string;
+}[] = [
+  {
+    id: 'agree-terms',
+    key: 'agreedTerms',
+    label: '서비스 이용약관 동의',
+    required: true,
+  },
+  {
+    id: 'agree-privacy',
+    key: 'agreedPrivacy',
+    label: '개인정보 수집·이용 동의',
+    required: true,
+  },
   {
     id: 'agree-ai',
+    key: 'agreedAiAnalysis',
     label: 'AI 대화 분석 동의',
     required: false,
     description:
@@ -16,14 +38,37 @@ const AGREEMENTS = [
 ];
 
 function SignupPage() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [agreements, setAgreements] = useState<Record<AgreementKey, boolean>>({
+    agreedTerms: false,
+    agreedPrivacy: false,
+    agreedAiAnalysis: false,
+  });
   const mismatch = confirm !== '' && confirm !== password;
 
-  // TODO: 인증 API가 준비되면 가입 요청을 보낸다
+  const mutation = useMutation({
+    mutationFn: signup,
+    onSuccess: (user) => {
+      navigate('/login', { state: { signedUpEmail: user.email } });
+    },
+  });
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isPasswordValid(password) || password !== confirm) return;
+    if (mutation.isPending) return;
+    // 서버에서도 같은 규칙으로 다시 검사한다 (이메일 중복, 비밀번호 규칙, 필수 동의)
+    mutation.mutate({
+      email: email.trim(),
+      name: name.trim(),
+      password,
+      passwordConfirm: confirm,
+      ...agreements,
+    });
   };
 
   return (
@@ -37,6 +82,8 @@ function SignupPage() {
               autoComplete="email"
               required
               placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </FormRow>
           <FormRow label="비밀번호" htmlFor="signup-password" required>
@@ -76,6 +123,9 @@ function SignupPage() {
               type="text"
               autoComplete="name"
               required
+              maxLength={30}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </FormRow>
         </div>
@@ -90,6 +140,13 @@ function SignupPage() {
                 id={item.id}
                 type="checkbox"
                 required={item.required}
+                checked={agreements[item.key]}
+                onChange={(e) =>
+                  setAgreements((prev) => ({
+                    ...prev,
+                    [item.key]: e.target.checked,
+                  }))
+                }
                 className="mt-1 size-4 accent-primary"
               />
               <div className="flex flex-col gap-1">
@@ -113,11 +170,21 @@ function SignupPage() {
           ))}
         </fieldset>
 
+        {mutation.isError && (
+          <p role="alert" className="text-center text-body text-danger">
+            {mutation.error.message}
+          </p>
+        )}
+
         <div className="flex justify-center">
           <Button
             type="submit"
             size="lg"
-            disabled={!isPasswordValid(password) || password !== confirm}
+            disabled={
+              !isPasswordValid(password) ||
+              password !== confirm ||
+              mutation.isPending
+            }
           >
             가입하기
           </Button>
