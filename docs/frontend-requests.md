@@ -3,7 +3,7 @@
 프론트(변지환)가 지금까지 만든 화면 기준으로, 백엔드(김주미)가 알아야 할 내용을 모은 문서다.
 API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, 바뀌면 이 문서와 프론트 목업을 같이 고친다.
 
-최종 수정: 2026-10-25 (백엔드 시작 순서, 인증·대화 가져오기·퀴즈 API 제안 추가)
+최종 수정: 2026-10-25 (백엔드 첫 단계 시작 가이드 추가)
 
 ## 0. 백엔드 시작 순서 (프론트 완성을 기다리지 않고 바로 시작)
 
@@ -23,6 +23,57 @@ API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, �
 - 한 PR에는 API 하나씩. DTO 모양이 이 문서와 달라지면 **같은 PR에서 이 문서의 해당 부분을 고치고**, PR 설명에 적어 프론트(변지환)에게 알려 주기. 프론트는 그 모양에 맞춰 목업과 타입을 고친다.
 - 막히거나 정해야 하는 게 생기면(예: 숙련도 산식, 자료 형식) 임의로 정하지 말고 코드에 `// TODO(미결): ...`를 남기고 설정값으로 분리한 뒤 PR에 질문을 적는다(루트 `CLAUDE.md`의 미결 사항).
 - 로컬 실행은 `backend/CLAUDE.md`의 명령어를 따르고, 비밀값(JWT 시크릿, LLM 키, DB 비밀번호)은 환경변수로만 쓴다. 이 레포는 나중에 공개되므로 커밋 기록에 비밀값이 한 번이라도 들어가면 안 된다.
+
+### 1번(프로젝트 세팅) 시작 가이드 (제안)
+
+바꿔도 되는 제안이다. 처음 시작할 때 막히기 쉬운 곳을 먼저 적어 둔다. 아래 조합(Spring Boot 3.5.6, Gradle 9.8.2, springdoc 2.8.9)으로 공지 API를 만들어 빌드·테스트·실행까지 되는 것을 확인했다.
+
+**프로젝트 만들기**
+
+- 팀이 정한 건 Spring Boot **3.x**인데, Spring Initializr(start.spring.io)는 2026-10-25 기준 4.x만 보여 준다. 4.x로 만들면 의존성 이름이 달라서 `backend/CLAUDE.md`와 맞지 않는다. 그래서 Initializr에서 Gradle 프로젝트를 만든 뒤 `build.gradle`의 `org.springframework.boot` 플러그인 버전을 `3.5.6`으로 직접 바꾸는 방법을 제안한다. 4.x로 가고 싶으면 먼저 알려 주기.
+- 의존성: `spring-boot-starter-web`, `-validation`, `-data-jpa`, `-security`, `org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9`, Lombok, H2(`runtimeOnly`), `mysql-connector-j`(`runtimeOnly`), 테스트 `spring-boot-starter-test`
+- 기본 패키지는 `com.ailms.backend`를 제안한다. 폴더 구조는 `backend/CLAUDE.md`를 따른다.
+- 내 PC의 JDK가 17이 아니어도 `tasks.withType(JavaCompile) { options.release = 17 }`로 Java 17 문법만 쓰게 맞출 수 있다. CI는 Java 17(temurin)으로 돌린다.
+- `gradlew` 줄바꿈이 윈도우에서 바뀌면 리눅스(CI)에서 실행이 안 된다. `backend/.gitattributes`에 `gradlew text eol=lf`를 넣는다.
+
+**설정 (`application.yaml`)**
+
+- 포트 8080, 로컬 DB는 H2 메모리 `jdbc:h2:mem:lms;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1`
+- JPA: `ddl-auto: create-drop`, `defer-datasource-initialization: true`, `open-in-view: false`. 샘플 데이터는 `data.sql`로 넣고 `sql.init.mode: always`
+- 운영은 `application-prod.yaml`에서 DB 주소·계정·CORS 출처를 모두 환경변수(`${DB_URL}` 등)로 받고, `ddl-auto: none`, `sql.init.mode: never`로 둔다. 운영 스키마 관리 방식(직접 SQL, Flyway 등)은 정해지지 않았다.
+- CORS 허용 출처는 설정값(`app.cors.allowed-origins`, 로컬 `http://localhost:5173`)으로 둔다. 같은 출처로 쓰는 동안은 영향이 없다.
+
+**보안 (처음에는 열어 두기)**
+
+- 인증(2번)을 만들기 전에는 `SecurityFilterChain`에서 모든 요청을 열어 두고(`permitAll`) 프론트와 먼저 연결해 보는 것을 제안한다. **이 상태로 배포하면 안 된다.** 2번에서 로그인 필수로 바꾸고, 공지 목록·`/api/auth/**`·Swagger만 연다.
+- `PasswordEncoder`는 BCrypt로 등록해 둔다.
+
+**오류 처리 (`@RestControllerAdvice`)**
+
+모든 오류를 `{ success: false, message, data: null }`로 바꿔 돌려준다. `message`는 사용자에게 그대로 보이므로 아래처럼 쉬운 말로 쓰고, 예외 메시지·스택트레이스는 응답에 넣지 않는다(서버 로그에만).
+
+| 상황                  | 상태 | `message` 예시                                                  |
+| --------------------- | ---- | --------------------------------------------------------------- |
+| 직접 던진 업무 오류   | 코드 | 던질 때 정한 사용자용 문구                                      |
+| 입력 검증 실패        | 400  | DTO 검증 문구 중 첫 번째, 없으면 "입력한 내용을 확인해 주세요." |
+| 요청 본문을 읽지 못함 | 400  | "요청 형식이 올바르지 않아요."                                  |
+| 없는 주소             | 404  | "요청한 주소를 찾을 수 없어요."                                 |
+| 예상하지 못한 오류    | 500  | "서버에서 문제가 생겼어요. 잠시 뒤 다시 시도해 주세요."         |
+
+**첫 API: 공지 목록으로 프론트 연결 확인하기**
+
+- `GET /api/notices` → 최신 공지가 위로(작성일 내림차순, 같으면 id 큰 순). `createdAt`은 `"2026-10-24"` 모양의 날짜 문자열이다(Boot 기본 설정이면 `LocalDate`가 이렇게 나간다).
+- 샘플 3건(프론트 목업과 같다):
+
+| id  | title                                   | createdAt  |
+| --- | --------------------------------------- | ---------- |
+| 3   | AI 대화 가져오기 기능을 준비하고 있어요 | 2026-10-24 |
+| 2   | 개인정보 처리 방식을 안내해 드려요      | 2026-10-20 |
+| 1   | 서비스를 시작했어요                     | 2026-10-15 |
+
+- 확인: 서버를 띄우고 `curl localhost:8080/api/notices`로 위 모양이 나오는지 보고, 프론트 `frontend/.env.development.local`에 `VITE_USE_MOCK=false`를 넣은 뒤 `/notices` 화면에 같은 3건이 뜨면 1번 끝이다.
+- 공통 응답 형식과 오류 처리는 이 API로 처음 검증한다. 테스트는 이 응답 모양(`success`, `message`, `data`)과 없는 주소의 404 형식을 확인하면 충분하다.
+- `.github/workflows/backend-ci.yml`을 `frontend-ci.yml`과 같은 방식(backend 변경이 있을 때만 실행하는 paths 필터)으로 추가해 Java 17에서 `./gradlew build`가 돌게 한다.
 
 ## 1. 개발 환경 연결
 
