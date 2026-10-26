@@ -77,37 +77,39 @@
   --color-input-border: #7c8598;
 }
 
-/* 다크모드 값: 살짝 차가운 어두운 회색 바탕 + 밝은 화면에서 파란색이던 자리는 블루를 옅게 섞은 색(GitHub·토스 방식). 글자·바탕 쌍은 모두 대비 4.5:1 이상 */
+/* 다크모드 값: 시안 v3를 어둡게 옮긴 남색 기가 도는 어두운 바탕 + 밝은 화면에서 파란색이던 자리는 밝은 파랑.
+   위에 올라온 면일수록 밝게(바탕 < 카드 < 연한 칸). 글자·바탕 쌍은 모두 대비 4.5:1 이상 */
 :root.dark {
   color-scheme: dark;
 
-  /* 상단바(surface)와 구분되도록 네이비 기를 남긴다 */
-  --color-brand: #22305e;
+  /* 메인 첫 화면 띠: 바탕보다 파란 기를 더해 띠로 보이게 한다 (위 글자는 흰색 그대로) */
+  --color-brand: #15295a;
+  --color-on-brand: #ffffff;
+  --color-on-brand-hover: #b9cbf5;
 
-  --color-heading: #f0f2f5;
+  --color-heading: #f1f4f9;
   /* 섹션 제목이 링크(primary)처럼 보이지 않도록 파란 기만 살짝 남긴 밝은 회색 */
-  --color-heading-soft: #c9d3e6;
+  --color-heading-soft: #c7d4f0;
 
   /* 어두운 바탕에서는 버튼을 밝은 파랑으로, 버튼 글자를 어둡게 바꾼다 */
   --color-primary: #7aa5f5;
   --color-primary-hover: #a3c2f8;
   --color-on-primary: #0b1020;
-  --color-primary-soft: #222937; /* primary 12% + surface */
-  --color-primary-pill: #2a3448; /* primary 20% */
-  --color-primary-pill-hover: #323f59; /* primary 28% */
+  --color-primary-soft: #1c2a47;
+  --color-primary-pill: #24365a;
+  --color-primary-pill-hover: #2c4069;
 
-  --color-footer: #1b1f27;
+  --color-footer: #121a2a;
 
-  /* 어두운 모드는 위에 올라온 면일수록 밝게: 띠(hero) < 카드(raised) */
-  --color-hero: #1a1d24;
-  --color-surface-raised: #1e2128;
-  --color-section: #222937;
+  --color-hero: #1a2232;
+  --color-surface-raised: #161d2b;
+  --color-section: #1a2232;
 
-  --color-ai: #eaa8f7;
-  --color-ai-soft: #2a1630;
-  --color-ai-border: #5c2b66;
-  --color-ai-chip: #3b1d44;
-  --color-ai-chip-hover: #4a2554;
+  --color-ai: #c4b0ff;
+  --color-ai-soft: #1f1934;
+  --color-ai-border: #3d2f63;
+  --color-ai-chip: #2b2147;
+  --color-ai-chip-hover: #352a57;
 
   --color-strength: #86efac;
   --color-strength-soft: #12301f;
@@ -117,15 +119,15 @@
 
   --color-danger: #fca5a5;
 
-  --color-surface: #16181d;
+  --color-surface: #0f141e;
   /* 카드(surface-raised) 안의 연한 칸·막대 바탕도 보이도록 raised보다 한 단계 밝게 */
-  --color-surface-muted: #272b33;
-  --color-ink: #e6e8ec;
-  --color-ink-soft: #b4b9c3;
-  --color-ink-muted: #959ba7;
-  --color-line: #2d313a;
-  --color-line-strong: #3d424d;
-  --color-input-border: #6b7280;
+  --color-surface-muted: #1c2434;
+  --color-ink: #e6eaf2;
+  --color-ink-soft: #b3bccd;
+  --color-ink-muted: #8e99ad;
+  --color-line: #263045;
+  --color-line-strong: #354159;
+  --color-input-border: #6b7891;
 }
 
 @layer base {
