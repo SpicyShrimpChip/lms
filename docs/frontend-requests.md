@@ -343,6 +343,7 @@ layout = {
 - **자료 올리기:** 지원 형식(프론트 안: PDF·PPTX·HWP·HWPX), 최대 크기, 원본 보관 여부(루트 `CLAUDE.md` 미결 사항). 텍스트 추출 후보는 PDF·PPTX는 Apache Tika 또는 PDFBox, HWP·HWPX는 hwplib·hwpxlib.
 - **비밀번호 규칙:** 서버도 프론트와 같은 4조건(8자 이상, 영문, 숫자, 특수문자 포함)으로 검사한다(`PasswordPolicy`). 추가로 BCrypt 한도 때문에 72바이트를 넘으면 거절한다(프론트에는 표시 조건이 없고 서버 `message`로 안내). 거절 사유는 어긴 첫 번째 규칙을 `message`로 준다.
 - **배포:** 백엔드 주소가 정해지면 Vercel rewrite 대상만 바꾸면 된다.
+- **개인정보처리방침(`/privacy`, 초안):** 서버가 실제로 하는 처리(저장 항목, 보관·삭제, 토큰, 로그에 남기는 것, LLM·호스팅 서비스)를 기준으로 썼다(`frontend/src/pages/privacy/PrivacyPage.tsx`). 서버 동작이 이 문서와 달라지거나 LLM 제공사·호스팅·자료 원본 보관이 정해지면 알려 주기. 같은 PR에서 처리방침도 고친다.
 
 ## 6. 이 문서 고치는 법
 
