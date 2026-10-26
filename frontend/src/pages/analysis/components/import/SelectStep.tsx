@@ -96,7 +96,7 @@ function SelectStep({
       className="flex flex-col gap-6 rounded-2xl border border-line bg-surface-raised p-6 md:p-8"
     >
       <div className="flex flex-col gap-2">
-        <h2 id="import-select" className="text-xl font-bold text-heading-soft">
+        <h2 id="import-select" className="text-xl font-extrabold text-heading">
           공부한 대화 고르기
         </h2>
         <p className="text-body text-ink-soft">
@@ -200,7 +200,7 @@ function CourseGroup({
 
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-end justify-between gap-2 border-b-2 border-heading-soft pb-2">
+      <div className="flex flex-wrap items-end justify-between gap-2 border-b border-line pb-2">
         <h3 id={headingId} className="text-lg font-bold text-heading">
           {course.name}{' '}
           <span className="text-body font-normal text-ink-muted">

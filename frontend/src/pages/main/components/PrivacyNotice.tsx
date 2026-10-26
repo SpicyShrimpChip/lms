@@ -5,11 +5,9 @@ import { Lock } from 'lucide-react';
 function PrivacyNotice() {
   return (
     <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-line px-6 py-5">
-      <Lock
-        size={22}
-        aria-hidden="true"
-        className="shrink-0 text-heading-soft"
-      />
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+        <Lock size={20} aria-hidden="true" />
+      </span>
       <div className="min-w-0 flex-[1_1_420px]">
         <p className="mb-1 font-bold text-heading">
           원본 대화 파일은 서버로 보내지 않아요

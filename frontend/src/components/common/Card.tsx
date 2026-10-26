@@ -7,7 +7,7 @@ interface CardProps {
   children: ReactNode;
 }
 
-// 흰 카드 틀: 바탕(상아)보다 살짝 떠 보이는 surface-raised + 얇은 테두리. 안쪽 여백은 쓰는 곳에서 정한다
+// 흰 카드 틀: 흰 바탕 + 얇은 테두리로 구분한다. 안쪽 여백은 쓰는 곳에서 정한다
 function Card({ as: Tag = 'div', className = '', children }: CardProps) {
   return (
     <Tag

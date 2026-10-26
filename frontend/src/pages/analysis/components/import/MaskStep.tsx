@@ -144,7 +144,7 @@ function MaskStep({
       className="flex flex-col gap-6 rounded-2xl border border-line bg-surface-raised p-6 md:p-8"
     >
       <div className="flex flex-col gap-2">
-        <h2 id="import-mask" className="text-xl font-bold text-heading-soft">
+        <h2 id="import-mask" className="text-xl font-extrabold text-heading">
           가린 내용 확인
         </h2>
         <p className="text-body text-ink-soft">

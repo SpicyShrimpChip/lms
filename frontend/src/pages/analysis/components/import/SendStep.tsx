@@ -104,7 +104,7 @@ function SendStep({ items, onBack, onRestart }: SendStepProps) {
       className="flex flex-col gap-6 rounded-2xl border border-line bg-surface-raised p-6 md:p-8"
     >
       <div className="flex flex-col gap-2">
-        <h2 id="import-send" className="text-xl font-bold text-heading-soft">
+        <h2 id="import-send" className="text-xl font-extrabold text-heading">
           보내기
         </h2>
         <p className="text-body text-ink-soft">
