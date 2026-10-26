@@ -18,6 +18,15 @@ interface MockQuiz extends Omit<Quiz, 'questions'> {
   questions: MockQuestion[];
 }
 
+// 개념 이름은 대시보드 목업(mocks/dashboard.ts)과 같게 맞춘다
+const CONCEPT_NAMES: Record<string, string> = {
+  'public-key': '공개키 암호',
+  'digital-signature': '전자서명',
+  pki: '인증서(PKI)',
+  hash: '해시 함수',
+  paging: '페이징',
+};
+
 const QUIZZES: MockQuiz[] = [
   {
     id: 1,
@@ -194,7 +203,10 @@ export function mockSubmitQuiz(
         choiceIndex,
         correct: choiceIndex === question.answerIndex,
         correctChoiceIndex: question.answerIndex,
-        conceptIds: question.conceptIds,
+        concepts: question.conceptIds.map((conceptId) => ({
+          conceptId,
+          name: CONCEPT_NAMES[conceptId] ?? conceptId,
+        })),
         aiExplanation: question.aiExplanation,
       };
     });
