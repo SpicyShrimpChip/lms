@@ -5,37 +5,7 @@ import { signup } from '@/api';
 import { Button, FormRow, SubPage, TextInput } from '@/components';
 import { isPasswordValid } from '@/utils';
 import PasswordRules from './components/PasswordRules';
-
-type AgreementKey = 'agreedTerms' | 'agreedPrivacy' | 'agreedAiAnalysis';
-
-const AGREEMENTS: {
-  id: string;
-  key: AgreementKey;
-  label: string;
-  required: boolean;
-  description?: string;
-}[] = [
-  {
-    id: 'agree-terms',
-    key: 'agreedTerms',
-    label: '서비스 이용약관 동의',
-    required: true,
-  },
-  {
-    id: 'agree-privacy',
-    key: 'agreedPrivacy',
-    label: '개인정보 수집·이용 동의',
-    required: true,
-  },
-  {
-    id: 'agree-ai',
-    key: 'agreedAiAnalysis',
-    label: 'AI 대화 분석 동의',
-    required: false,
-    description:
-      '가져온 AI 대화를 개념별 분석에 써요. 동의하지 않아도 자료로 공부할 수 있고, 마이페이지에서 언제든 철회할 수 있어요.',
-  },
-];
+import SignupAgreements from './components/SignupAgreements';
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -43,11 +13,9 @@ function SignupPage() {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [agreements, setAgreements] = useState<Record<AgreementKey, boolean>>({
-    agreedTerms: false,
-    agreedPrivacy: false,
-    agreedAiAnalysis: false,
-  });
+  // 이용약관·개인정보 수집·이용 안내 확인(필수)과 AI 대화 분석 동의(선택)
+  const [acknowledged, setAcknowledged] = useState(false);
+  const [aiConsent, setAiConsent] = useState(false);
   const mismatch = confirm !== '' && confirm !== password;
 
   const mutation = useMutation({
@@ -67,7 +35,10 @@ function SignupPage() {
       name: name.trim(),
       password,
       passwordConfirm: confirm,
-      ...agreements,
+      // 안내 확인 하나로 이용약관·개인정보 안내를 함께 확인한다 (서버 필드는 그대로)
+      agreedTerms: acknowledged,
+      agreedPrivacy: acknowledged,
+      agreedAiAnalysis: aiConsent,
     });
   };
 
@@ -130,43 +101,12 @@ function SignupPage() {
           </FormRow>
         </div>
 
-        <fieldset className="flex flex-col gap-3 rounded-2xl border border-line p-6">
-          <legend className="px-2 font-bold text-heading">약관 동의</legend>
-          {AGREEMENTS.map((item) => (
-            <div key={item.id} className="flex items-start gap-3">
-              <input
-                id={item.id}
-                type="checkbox"
-                required={item.required}
-                checked={agreements[item.key]}
-                onChange={(e) =>
-                  setAgreements((prev) => ({
-                    ...prev,
-                    [item.key]: e.target.checked,
-                  }))
-                }
-                className="mt-1 size-4 accent-primary"
-              />
-              <div className="flex flex-col gap-1">
-                <label htmlFor={item.id} className="font-medium">
-                  {item.label}{' '}
-                  <span
-                    className={
-                      item.required ? 'text-primary' : 'text-ink-muted'
-                    }
-                  >
-                    ({item.required ? '필수' : '선택'})
-                  </span>
-                </label>
-                {item.description && (
-                  <p className="text-body leading-relaxed text-ink-soft">
-                    {item.description}
-                  </p>
-                )}
-              </div>
-            </div>
-          ))}
-        </fieldset>
+        <SignupAgreements
+          acknowledged={acknowledged}
+          onAcknowledgedChange={setAcknowledged}
+          aiConsent={aiConsent}
+          onAiConsentChange={setAiConsent}
+        />
 
         {mutation.isError && (
           <p role="alert" className="text-body text-danger">
