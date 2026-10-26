@@ -21,7 +21,7 @@ function PrivacyNotice() {
         to="/privacy"
         className="text-body font-medium text-primary underline-offset-4 hover:underline"
       >
-        개인정보처리방침
+        개인정보 처리방침
       </Link>
     </div>
   );
