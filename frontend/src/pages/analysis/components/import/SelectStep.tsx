@@ -14,6 +14,7 @@ import type { Course } from '@/types';
 import {
   assignToCourses,
   conversationKey,
+  formatDate,
   formatSemester,
   type AssignedConversation,
   type ParsedConversation,
@@ -31,15 +32,6 @@ interface SelectStepProps {
   initialChoices: ConversationChoices | null;
   onBack: () => void;
   onNext: (choices: ConversationChoices) => void;
-}
-
-function formatDate(iso: string | undefined): string | null {
-  if (!iso) return null;
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return null;
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${date.getFullYear()}-${month}-${day}`;
 }
 
 function defaultChoices(assigned: AssignedConversation[]): ConversationChoices {
