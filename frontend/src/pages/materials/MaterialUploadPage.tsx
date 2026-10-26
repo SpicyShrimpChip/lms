@@ -1,14 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Upload } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
 import { getCourses, uploadMaterial } from '@/api';
 import {
   AsyncBoundary,
   Button,
-  Card,
   FormRow,
   SelectInput,
   SubPage,
@@ -28,6 +27,7 @@ import {
 } from '@/utils';
 
 const ACCEPT = MATERIAL_EXTENSIONS.map((ext) => `.${ext}`).join(',');
+const ACCEPT_LABEL = `${MATERIAL_FORMAT_LABEL} · ${MATERIAL_MAX_SIZE_MB}MB까지`;
 
 function MaterialUploadForm() {
   const { data: courses } = useSuspenseQuery({
@@ -39,6 +39,7 @@ function MaterialUploadForm() {
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string>();
   const [agreed, setAgreed] = useState(false);
+  const [dragging, setDragging] = useState(false);
   // 같은 파일을 다시 고를 수 있도록 올린 뒤 파일 입력칸을 새로 그린다
   const [fileInputKey, setFileInputKey] = useState(0);
 
@@ -81,8 +82,8 @@ function MaterialUploadForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <div className="border-t-2 border-heading-soft">
+    <form onSubmit={handleSubmit} className="flex max-w-2xl flex-col gap-8">
+      <div className="flex flex-col gap-6">
         <FormRow label="과목" htmlFor="material-course" required>
           {!hasCourses ? (
             <p className="text-body text-ink-soft">
@@ -98,7 +99,7 @@ function MaterialUploadForm() {
               value={courseId}
               onChange={(e) => setCourseId(e.target.value)}
               disabled={!hasCourses}
-              className="w-full max-w-80"
+              className="w-full"
             >
               <option value="">과목을 골라 주세요</option>
               {courses.map((course) => (
@@ -114,18 +115,45 @@ function MaterialUploadForm() {
           htmlFor="material-file"
           required
           error={fileError ?? ''}
-          hint={`${MATERIAL_FORMAT_LABEL} 파일을 ${MATERIAL_MAX_SIZE_MB}MB까지 올릴 수 있어요.`}
         >
+          {/* 끌어다 놓거나 눌러서 고르는 영역. 실제 입력칸은 화면에서 숨기고 라벨이 대신 눌린다 */}
+          <label
+            htmlFor="material-file"
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragging(false);
+              handleFileChange(e.dataTransfer.files[0]);
+            }}
+            className={`flex cursor-pointer flex-col items-center gap-2.5 rounded-2xl border-2 border-dashed px-6 py-10 text-center hover:border-primary hover:bg-primary-soft ${
+              dragging
+                ? 'border-primary bg-primary-soft'
+                : 'border-line-strong bg-surface-muted'
+            }`}
+          >
+            <span className="flex size-12 items-center justify-center rounded-xl bg-primary text-on-primary">
+              <Upload size={22} aria-hidden="true" />
+            </span>
+            <span className="font-bold text-heading">
+              {file ? file.name : '파일을 끌어다 놓거나 눌러서 고르세요'}
+            </span>
+            <span className="text-caption text-ink-muted">
+              {file ? '다른 파일을 고르려면 다시 눌러 주세요' : ACCEPT_LABEL}
+            </span>
+          </label>
           <input
             key={fileInputKey}
             id="material-file"
             type="file"
             accept={ACCEPT}
-            required
             aria-invalid={fileError ? true : undefined}
             aria-describedby="material-file-error"
             onChange={(e) => handleFileChange(e.target.files?.[0])}
-            className="text-body file:mr-3 file:rounded-md file:border file:border-input-border file:bg-surface-raised file:px-3 file:py-1.5 file:text-body file:text-ink-soft"
+            className="sr-only"
           />
         </FormRow>
         <FormRow label="자료 제목" htmlFor="material-title" required>
@@ -141,8 +169,8 @@ function MaterialUploadForm() {
         </FormRow>
       </div>
 
-      <Card as="section" className="p-5">
-        <h2 className="text-body font-bold text-heading-soft">
+      <section className="rounded-2xl border border-line p-5">
+        <h2 className="text-body font-bold text-heading">
           본인이 이용 권한이 있는 자료만 올려 주세요
         </h2>
         <ul className="mt-2 list-disc pl-5 text-body text-ink-soft">
@@ -161,33 +189,26 @@ function MaterialUploadForm() {
           />
           <span>이 자료를 올릴 권한이 있어요.</span>
         </label>
-      </Card>
+      </section>
 
       <AnimatePresence>
         {mutation.isError && (
-          <m.p
-            {...FADE_UP}
-            role="alert"
-            className="text-center text-body text-danger"
-          >
+          <m.p {...FADE_UP} role="alert" className="text-body text-danger">
             {mutation.error.message}
           </m.p>
         )}
         {mutation.isSuccess && (
-          <m.p
-            {...FADE_UP}
-            role="status"
-            className="text-center text-body text-strength"
-          >
+          <m.p {...FADE_UP} role="status" className="text-body text-strength">
             자료를 올렸어요.
           </m.p>
         )}
       </AnimatePresence>
 
-      <div className="flex justify-center">
+      <div className="flex">
         <Button
           type="submit"
           size="lg"
+          className="w-full"
           disabled={mutation.isPending || !agreed || !file || !hasCourses}
         >
           {mutation.isPending && (

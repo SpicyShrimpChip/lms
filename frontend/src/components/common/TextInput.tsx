@@ -6,7 +6,7 @@ function TextInput({ className = '', ...props }: ComponentProps<'input'>) {
   return (
     <input
       {...props}
-      className={`h-10 px-3 placeholder:text-ink-muted ${FIELD_CLASS} ${className}`}
+      className={`h-11 px-3 placeholder:text-ink-muted ${FIELD_CLASS} ${className}`}
     />
   );
 }

@@ -4,7 +4,7 @@ import { ME_QUERY_KEY, getMe } from '@/api';
 import { AsyncBoundary, EmptyState, SubPage } from '@/components';
 import { useAuthStore } from '@/store';
 
-// 내 정보 (회색 라벨 칸 표, FormRow와 같은 모양)
+// 내 정보 (회색 라벨 칸 표)
 function MyAccount() {
   const { data: me } = useSuspenseQuery({
     queryKey: ME_QUERY_KEY,

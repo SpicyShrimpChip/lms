@@ -76,7 +76,7 @@ function CourseForm({ courses, editing, onDone }: CourseFormProps) {
       <h2 className="text-xl font-bold text-heading-soft">
         {editing ? `'${editing.name}' 수정하기` : '과목 추가'}
       </h2>
-      <div className="border-t-2 border-heading-soft">
+      <div className="flex flex-col gap-6">
         <FormRow
           label="과목 이름"
           htmlFor="course-name"
