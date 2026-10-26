@@ -103,7 +103,6 @@ function CoursePage() {
     <SubPage
       title="내 과목"
       description="이번 학기 과목을 등록하면 공부한 대화를 과목별로 골라 드려요"
-      breadcrumb={['학습자료', '내 과목']}
     >
       <AsyncBoundary>
         <CourseManager />

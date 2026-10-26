@@ -7,7 +7,7 @@
 @property --color-brand {
   syntax: '<color>';
   inherits: true;
-  initial-value: #0f2163;
+  initial-value: #133b9e;
 }
 @property --color-on-brand {
   syntax: '<color>';
@@ -17,27 +17,27 @@
 @property --color-on-brand-hover {
   syntax: '<color>';
   inherits: true;
-  initial-value: #cddcf7;
+  initial-value: #c3d3fb;
 }
 @property --color-heading {
   syntax: '<color>';
   inherits: true;
-  initial-value: #0d1b57;
+  initial-value: #0f1b33;
 }
 @property --color-heading-soft {
   syntax: '<color>';
   inherits: true;
-  initial-value: #1f3a8a;
+  initial-value: #1e3a8a;
 }
 @property --color-primary {
   syntax: '<color>';
   inherits: true;
-  initial-value: #3168d2;
+  initial-value: #1d4ed8;
 }
 @property --color-primary-hover {
   syntax: '<color>';
   inherits: true;
-  initial-value: #1f3a8a;
+  initial-value: #1e40af;
 }
 @property --color-on-primary {
   syntax: '<color>';
@@ -47,27 +47,27 @@
 @property --color-primary-soft {
   syntax: '<color>';
   inherits: true;
-  initial-value: #e8effc;
+  initial-value: #eaf1ff;
 }
 @property --color-primary-pill {
   syntax: '<color>';
   inherits: true;
-  initial-value: #cddcf7;
+  initial-value: #dbe6ff;
 }
 @property --color-primary-pill-hover {
   syntax: '<color>';
   inherits: true;
-  initial-value: #b9cdf2;
+  initial-value: #c7d7fe;
 }
 @property --color-footer {
   syntax: '<color>';
   inherits: true;
-  initial-value: #e9e2d2;
+  initial-value: #eaf1ff;
 }
 @property --color-hero {
   syntax: '<color>';
   inherits: true;
-  initial-value: #f3eee2;
+  initial-value: #f4f7fd;
 }
 @property --color-surface-raised {
   syntax: '<color>';
@@ -77,52 +77,57 @@
 @property --color-section {
   syntax: '<color>';
   inherits: true;
-  initial-value: #f3eee2;
+  initial-value: #f4f7fd;
 }
 @property --color-ai {
   syntax: '<color>';
   inherits: true;
-  initial-value: #86198f;
+  initial-value: #6d28d9;
 }
 @property --color-ai-soft {
   syntax: '<color>';
   inherits: true;
-  initial-value: #fbf4fe;
+  initial-value: #f8f5ff;
 }
 @property --color-ai-border {
   syntax: '<color>';
   inherits: true;
-  initial-value: #e9b8f5;
+  initial-value: #ddd2fb;
 }
 @property --color-ai-chip {
   syntax: '<color>';
   inherits: true;
-  initial-value: #f5e1fb;
+  initial-value: #f3effe;
 }
 @property --color-ai-chip-hover {
   syntax: '<color>';
   inherits: true;
-  initial-value: #efd0f9;
+  initial-value: #e9e0fd;
 }
 @property --color-strength {
   syntax: '<color>';
   inherits: true;
-  initial-value: #166534;
+  initial-value: #15803d;
 }
 @property --color-strength-soft {
   syntax: '<color>';
   inherits: true;
-  initial-value: #dcfce7;
+  initial-value: #e7f6ec;
 }
 @property --color-weakness {
   syntax: '<color>';
   inherits: true;
-  initial-value: #9a3412;
+  initial-value: #c0392b;
 }
 @property --color-weakness-soft {
   syntax: '<color>';
   inherits: true;
-  initial-value: #ffedd5;
+  initial-value: #fdecea;
+}
+@property --color-weakness-bar {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e0574a;
 }
 @property --color-danger {
   syntax: '<color>';
@@ -132,37 +137,37 @@
 @property --color-surface {
   syntax: '<color>';
   inherits: true;
-  initial-value: #f9f6ee;
+  initial-value: #ffffff;
 }
 @property --color-surface-muted {
   syntax: '<color>';
   inherits: true;
-  initial-value: #f3eee3;
+  initial-value: #f4f7fd;
 }
 @property --color-ink {
   syntax: '<color>';
   inherits: true;
-  initial-value: #1c2333;
+  initial-value: #0f1b33;
 }
 @property --color-ink-soft {
   syntax: '<color>';
   inherits: true;
-  initial-value: #3d4760;
+  initial-value: #45526b;
 }
 @property --color-ink-muted {
   syntax: '<color>';
   inherits: true;
-  initial-value: #4a5468;
+  initial-value: #5f6b80;
 }
 @property --color-line {
   syntax: '<color>';
   inherits: true;
-  initial-value: #e4ddcd;
+  initial-value: #e3e9f3;
 }
 @property --color-line-strong {
   syntax: '<color>';
   inherits: true;
-  initial-value: #d3c9b4;
+  initial-value: #c9d3e3;
 }
 @property --color-input-border {
   syntax: '<color>';
@@ -217,6 +222,8 @@
     --color-weakness var(--theme-transition-duration)
       var(--theme-transition-ease),
     --color-weakness-soft var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-weakness-bar var(--theme-transition-duration)
       var(--theme-transition-ease),
     --color-danger var(--theme-transition-duration) var(--theme-transition-ease),
     --color-surface var(--theme-transition-duration)

@@ -11,7 +11,6 @@ function SearchPage() {
     <SubPage
       title="검색"
       description={keyword ? `‘${keyword}’ 검색 결과` : undefined}
-      breadcrumb={['검색']}
     >
       <EmptyState
         icon={<Search size={24} aria-hidden="true" />}

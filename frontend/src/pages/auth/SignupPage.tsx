@@ -72,7 +72,7 @@ function SignupPage() {
   };
 
   return (
-    <SubPage title="회원가입" breadcrumb={['회원가입']}>
+    <SubPage title="회원가입">
       <form onSubmit={handleSubmit} className="flex flex-col gap-8">
         <div className="border-t-2 border-heading-soft">
           <FormRow label="이메일" htmlFor="signup-email" required>

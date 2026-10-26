@@ -131,7 +131,6 @@ function DashboardPage() {
     <SubPage
       title="학습 대시보드"
       description="개념별 숙련도와 그렇게 판단한 근거를 함께 보여 드려요"
-      breadcrumb={['학습분석', '학습 대시보드']}
     >
       <AsyncBoundary>
         <Dashboard />

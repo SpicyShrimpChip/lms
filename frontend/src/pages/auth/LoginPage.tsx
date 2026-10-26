@@ -35,7 +35,7 @@ function LoginPage() {
   };
 
   return (
-    <SubPage title="로그인" breadcrumb={['로그인']}>
+    <SubPage title="로그인">
       <form
         onSubmit={handleSubmit}
         className="mx-auto flex w-full max-w-100 flex-col gap-4"

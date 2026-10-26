@@ -14,19 +14,14 @@ import * as m from 'motion/react-m';
 import { ME_QUERY_KEY, getMe, logout } from '@/api';
 import { MOTION_DURATION } from '@/constants';
 import { useAuthStore } from '@/store';
+import Gnb from './Gnb';
 import MobileMenu, { MOBILE_MENU_ID } from './MobileMenu';
 import ThemeToggle from './ThemeToggle';
 import { FIELD_CLASS } from '../common/fieldClass';
 
-const ACCOUNT_LINKS = [
-  { label: '로그인', path: '/login' },
-  { label: '회원가입', path: '/signup' },
-  { label: '마이페이지', path: '/mypage' },
-];
+const ACCOUNT_LINK_CLASS = 'font-medium text-ink-soft hover:text-heading';
 
-const ACCOUNT_LINK_CLASS = 'text-ink-muted hover:text-heading';
-
-// 로그인하면 이름·마이페이지·로그아웃, 아니면 로그인·회원가입·마이페이지
+// 로그인하면 이름·마이페이지·로그아웃, 아니면 로그인·회원가입(버튼)
 function useAccountItems(): { key: string; node: ReactNode }[] {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -40,14 +35,27 @@ function useAccountItems(): { key: string; node: ReactNode }[] {
   });
 
   if (!authenticated) {
-    return ACCOUNT_LINKS.map((link) => ({
-      key: link.path,
-      node: (
-        <Link to={link.path} className={ACCOUNT_LINK_CLASS}>
-          {link.label}
-        </Link>
-      ),
-    }));
+    return [
+      {
+        key: 'login',
+        node: (
+          <Link to="/login" className={ACCOUNT_LINK_CLASS}>
+            로그인
+          </Link>
+        ),
+      },
+      {
+        key: 'signup',
+        node: (
+          <Link
+            to="/signup"
+            className="rounded-lg bg-primary px-3.5 py-2 font-bold text-on-primary hover:bg-primary-hover"
+          >
+            회원가입
+          </Link>
+        ),
+      },
+    ];
   }
 
   const handleLogout = async () => {
@@ -117,11 +125,12 @@ function Header() {
   };
 
   return (
-    <header className="border-b border-line">
-      <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-3 px-6 py-3.5">
-        <div className="flex items-center justify-between max-md:w-full">
+    // 로고·주 메뉴·검색·계정을 한 줄에 둔다. 좁은 화면에서는 주 메뉴 대신 햄버거 메뉴(MobileMenu)
+    <header className="border-b border-line bg-surface-raised">
+      <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-8 gap-y-3 px-6 max-lg:py-3.5">
+        <div className="flex items-center justify-between max-lg:w-full">
           <Link to="/" className="flex items-center gap-2.5 text-heading">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-on-primary">
               AI
             </span>
             {/* TODO(미결): 서비스 이름 확정 후 교체 */}
@@ -134,7 +143,7 @@ function Header() {
             aria-expanded={menuOpen}
             aria-controls={MOBILE_MENU_ID}
             onClick={() => setMenuOpen((open) => !open)}
-            className="flex size-9 items-center justify-center rounded-md border border-input-border text-heading md:hidden"
+            className="flex size-9 items-center justify-center rounded-md border border-input-border text-heading lg:hidden"
           >
             {/* 아이콘이 바뀔 때 살짝 돌며 나타난다 */}
             <m.span
@@ -153,20 +162,9 @@ function Header() {
           </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 text-sm">
-          <nav aria-label="계정" className="flex items-center gap-3">
-            {accountItems.map((item, index) => (
-              <span key={item.key} className="flex items-center gap-3">
-                {index > 0 && (
-                  <span aria-hidden="true" className="text-line-strong">
-                    |
-                  </span>
-                )}
-                {item.node}
-              </span>
-            ))}
-          </nav>
+        <Gnb />
 
+        <div className="flex flex-wrap items-center gap-4 text-sm">
           <form
             role="search"
             onSubmit={handleSearch}
@@ -191,6 +189,12 @@ function Header() {
               <Search size={16} aria-hidden="true" />
             </button>
           </form>
+
+          <nav aria-label="계정" className="flex items-center gap-4">
+            {accountItems.map((item) => (
+              <span key={item.key}>{item.node}</span>
+            ))}
+          </nav>
 
           <ThemeToggle />
         </div>
