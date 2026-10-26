@@ -5,4 +5,5 @@ export * from './conversations.api';
 export * from './courses.api';
 export * from './notices.api';
 export * from './materials.api';
+export * from './quizzes.api';
 export * from './auth.api';

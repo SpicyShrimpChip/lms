@@ -249,26 +249,29 @@ ConversationSummary  = { id: number, courseId: number, source: string, title: st
 - 대화를 저장한 뒤 분석(개념 분류 → 숙련도 계산 → 대시보드 반영)을 서버가 시작한다. 분석이 오래 걸리면 상태를 알려 줄 방법(예: `GET /api/analysis/status`)은 백엔드가 정해서 알려 주기.
 - 대화 한 건 삭제(`DELETE`)와 동의 철회 때 삭제 범위: 저장된 대화, 그 대화에서 나온 개념 분류·근거(`evidence`), 그 근거로 계산한 점수. 점수는 남은 근거로 다시 계산한다.
 
-### 퀴즈 — 화면 뼈대만 있음 (제안)
+### 퀴즈 — 목업 (제안)
 
 화면: `/quizzes`(목록), `/quizzes/{id}`(풀기), `/quizzes/{id}/result`(결과). 퀴즈는 올린 자료로 만든다(자료 → 요약·퀴즈 생성 API는 이 표에 아직 없고, 자료 처리 방식이 정해지면 따로 제안). 올린 본인만 볼 수 있다.
 
-| 메서드 | 경로                            | 요청 본문               | 응답 `data`              |
-| ------ | ------------------------------- | ----------------------- | ------------------------ |
-| GET    | `/api/quizzes`                  | -                       | `QuizSummary[]`          |
-| GET    | `/api/quizzes/{id}`             | -                       | `Quiz` (**정답 미포함**) |
-| POST   | `/api/quizzes/{id}/submissions` | `{ answers: Answer[] }` | `QuizResult`             |
+| 메서드 | 경로                                   | 요청 본문               | 응답 `data`                               |
+| ------ | -------------------------------------- | ----------------------- | ----------------------------------------- |
+| GET    | `/api/quizzes`                         | -                       | `QuizSummary[]`                           |
+| GET    | `/api/quizzes/{id}`                    | -                       | `Quiz` (**정답 미포함**)                  |
+| POST   | `/api/quizzes/{id}/submissions`        | `{ answers: Answer[] }` | `QuizResult`                              |
+| GET    | `/api/quizzes/{id}/submissions/latest` | -                       | `QuizResult \| null` (안 풀었으면 `null`) |
 
 ```ts
-QuizSummary = { id: number, title: string, courseId: number, questionCount: number, lastCorrectCount: number | null }
-Quiz        = { id: number, title: string, questions: { id: number, text: string, choices: string[] }[] }
+QuizSummary = { id: number, title: string, courseId: number, materialId: number | null, questionCount: number, lastCorrectCount: number | null }
+Quiz        = { id: number, title: string, courseId: number, materialId: number | null, questions: { id: number, text: string, choices: string[] }[] }
 Answer      = { questionId: number, choiceIndex: number }
 QuizResult  = {
   submissionId: number,
+  submittedAt: string,                // ISO 문자열
   correctCount: number,
   totalCount: number,
   results: {
     questionId: number,
+    choiceIndex: number,              // 사용자가 고른 보기 (안 고르면 -1)
     correct: boolean,
     correctChoiceIndex: number,       // 제출 뒤에만 알려 준다
     conceptIds: string[],             // 이 문제가 다루는 개념 (대시보드 ConceptMastery.conceptId와 같은 값)
@@ -281,6 +284,8 @@ QuizResult  = {
 - 풀이 전 `Quiz` 응답에 정답이 들어가면 안 된다.
 - 제출 결과는 저장해서 대시보드 `evidence`에 `source: "quiz"`, `signal: "quiz_correct" | "quiz_wrong"`으로 나타나게 한다. 숙련도 점수에 어떻게 반영할지(가중치)는 미결이므로 설정값으로 두기.
 - 같은 퀴즈를 여러 번 풀 수 있다. 목록의 `lastCorrectCount`는 가장 최근 제출 기준이다.
+- `materialId`: 그 퀴즈를 만든 자료(자료 상세의 퀴즈 탭이 이 값으로 거른다). 약점 개념으로 만든 퀴즈처럼 자료가 없으면 `null`.
+- `/submissions/latest`: 결과 화면을 새로고침하거나 목록에서 "결과 보기"로 들어올 때 쓴다.
 
 ## 4. 11/6 중간 심사 전에 필요한 것
 
