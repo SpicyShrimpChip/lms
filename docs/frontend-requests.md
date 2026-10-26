@@ -3,7 +3,7 @@
 프론트(변지환)가 지금까지 만든 화면 기준으로, 백엔드(김주미)가 알아야 할 내용을 모은 문서다.
 API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, 바뀌면 이 문서와 프론트 목업을 같이 고친다.
 
-최종 수정: 2026-10-27 (대화 가져오기 화면·목업 완성, 대시보드 배치 영역에 `conceptTable` 추가)
+최종 수정: 2026-10-27 (자료 목록·상세·삭제 제안 추가, 대화 가져오기 안내가 자료 절에 잘못 들어간 것 바로잡음)
 
 ## 0. 백엔드 시작 순서 (프론트 완성을 기다리지 않고 바로 시작)
 
@@ -139,7 +139,7 @@ semester    = "2026-1" | "2026-summer" | "2026-2" | "2026-winter"
 - 같은 사용자·같은 학기·같은 이름 과목은 거절 (409 + 사용자용 `message`)
 - 다른 사용자의 과목은 조회·수정·삭제 불가
 
-### 자료 올리기 — 목업
+### 자료 — 올리기·목록·상세·삭제 목업 (제안)
 
 화면: `/materials/upload` (학습자료 > 자료 올리기). 과목은 내 과목에서 고르고, 저작권 고지 확인 체크를 해야 올릴 수 있다.
 
@@ -147,10 +147,34 @@ semester    = "2026-1" | "2026-summer" | "2026-2" | "2026-winter"
 | ------ | ---------------- | -------------------------------------------------- | ------------------------------------------------- |
 | POST   | `/api/materials` | `multipart/form-data`: `courseId`, `title`, `file` | `{ id: number, courseId: number, title: string }` |
 
-- 프론트는 **과목마다 요청을 따로** 보내고, 한 과목에 대화가 50개를 넘으면 50개씩 나눠 차례로 보낸다(`utils/conversation/send.ts`). 한 요청이 실패하면 거기서 멈추고 `message`를 보여 준다. 크기 제한이 정해지면 알려 주기.
-- 목업(`mocks/conversations.ts`)은 개인정보 패턴이 남은 대화를 `rejected`로 돌려주는 서버 동작을 흉내 낸다.
-
 서버에서도 검사해 주기: 지원 형식·최대 크기(프론트는 임시로 PDF·TXT·MD, 20MB), 제목 1~60자, 본인 과목인지. 형식·크기가 정해지면 알려 주기 (프론트 `constants/materials.ts` 한 곳만 고치면 된다).
+
+화면: `/materials`(목록, 과목별로 묶음), `/materials/{id}`(상세: 요약 / 핵심 개념 / 퀴즈 탭). 올린 본인만 볼 수 있다.
+
+| 메서드 | 경로                  | 요청 본문 | 응답 `data`         |
+| ------ | --------------------- | --------- | ------------------- |
+| GET    | `/api/materials`      | -         | `MaterialSummary[]` |
+| GET    | `/api/materials/{id}` | -         | `MaterialDetail`    |
+| DELETE | `/api/materials/{id}` | -         | 없음                |
+
+```ts
+MaterialSummary = {
+  id: number, courseId: number, title: string,
+  fileName: string,                       // 올린 파일 이름 (원본 보관 여부와 별개로 이름은 보여 준다)
+  createdAt: string,                      // ISO
+  status: "processing" | "ready" | "failed", // 올린 뒤 AI가 요약·개념·퀴즈를 만드는 중 / 완료 / 글을 못 뽑음
+  quizCount: number
+}
+MaterialDetail = MaterialSummary & {
+  aiSummary: string | null,               // AI가 쓴 요약 (보라색 AI 표시). 만드는 중이면 null
+  concepts: { conceptId: string, name: string, aiDescription: string | null }[]
+  // conceptId는 학습 대시보드 ConceptMastery.conceptId와 같은 값으로 맞춰 주기 (자료 상세 → 학습 분석 연결)
+}
+```
+
+- 올리기 응답 뒤 처리가 오래 걸리면 `status: "processing"`으로 두고, 끝나면 `ready`로 바꿔 주기. 프론트는 목록·상세에서 "요약 만드는 중"을 보여 준다.
+- 삭제 범위: 자료, 그 자료로 만든 요약·개념·퀴즈, 퀴즈 결과에서 나온 근거(`evidence`). 점수는 남은 근거로 다시 계산한다(동의 철회와 같은 규칙).
+- 목업(`mocks/materials.ts`)은 시연 과목 샘플 자료 3개로 시작하고, 올린 자료는 `processing` 상태로 남는다(파일 내용을 읽지 않음).
 
 ### 인증·마이페이지 — 가입·로그인·갱신·로그아웃·내 정보 구현됨 (확정: Swagger `인증`, `회원`)
 
@@ -211,6 +235,9 @@ ImportedConversation = {
 RejectedConversation = { clientId: string, reason: string }  // reason은 사용자에게 보여 줄 문구
 ConversationSummary  = { id: number, courseId: number, source: string, title: string, createdAt: string | null, messageCount: number }
 ```
+
+- 프론트는 **과목마다 요청을 따로** 보내고, 한 과목에 대화가 50개를 넘으면 50개씩 나눠 차례로 보낸다(`utils/conversation/send.ts`). 한 요청이 실패하면 거기서 멈추고 `message`를 보여 준다. 크기 제한이 정해지면 알려 주기.
+- 목업(`mocks/conversations.ts`)은 개인정보 패턴이 남은 대화를 `rejected`로 돌려주는 서버 동작을 흉내 낸다.
 
 서버에서도 검사해 주기:
 

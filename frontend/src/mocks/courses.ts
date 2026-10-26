@@ -5,12 +5,29 @@ import { mockDelay } from './delay';
 // 목업 전용 저장소. 새로고침해도 등록한 과목이 남도록 브라우저에 저장한다 (실제 데이터는 서버에 저장)
 const STORAGE_KEY = 'ai-lms-mock-courses';
 
+// 처음 열었을 때 보여 줄 시연 과목 (mocks/dashboard.ts·materials.ts의 courseId 1·2와 같다).
+// 한 번이라도 과목을 바꾸면 저장된 목록을 쓴다
+const SAMPLE: Course[] = [
+  {
+    id: 1,
+    name: '정보보호개론',
+    semester: '2026-2',
+    keywords: ['암호', '공개키', '해시', '전자서명', '인증서'],
+  },
+  {
+    id: 2,
+    name: '운영체제',
+    semester: '2026-2',
+    keywords: ['프로세스', '스케줄링', '페이징'],
+  },
+];
+
 function load(): Course[] {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? (JSON.parse(saved) as Course[]) : [];
+    return saved ? (JSON.parse(saved) as Course[]) : SAMPLE;
   } catch {
-    return [];
+    return SAMPLE;
   }
 }
 
