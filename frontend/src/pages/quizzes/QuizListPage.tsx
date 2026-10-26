@@ -7,7 +7,6 @@ function QuizListPage() {
     <SubPage
       title="퀴즈"
       description="자료와 약점 개념을 바탕으로 만든 퀴즈를 풀어 보세요"
-      breadcrumb={['맞춤학습', '퀴즈']}
     >
       <EmptyState
         icon={<ListChecks size={24} aria-hidden="true" />}

@@ -79,7 +79,6 @@ function ConversationImportPage() {
     <SubPage
       title="AI 대화 가져오기"
       description="ChatGPT, Claude와 공부한 대화를 가져와 개념별로 분석해요"
-      breadcrumb={['학습분석', 'AI 대화 가져오기']}
     >
       <ImportSteps current={step} />
 

@@ -4,7 +4,7 @@ import { EmptyState, SubPage } from '@/components';
 // TODO: 채점 결과가 준비되면 정답률과 틀린 문제, 숙련도 반영 안내를 보여 준다
 function QuizResultPage() {
   return (
-    <SubPage title="퀴즈 결과" breadcrumb={['맞춤학습', '퀴즈', '퀴즈 결과']}>
+    <SubPage title="퀴즈 결과">
       <EmptyState
         icon={<ListChecks size={24} aria-hidden="true" />}
         title="결과를 찾을 수 없어요"

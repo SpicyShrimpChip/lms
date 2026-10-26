@@ -46,7 +46,6 @@ function MyPage() {
     <SubPage
       title="마이페이지"
       description="내 정보와 동의 상태, 저장된 데이터를 관리해요"
-      breadcrumb={['마이페이지']}
     >
       {authenticated ? (
         <AsyncBoundary>

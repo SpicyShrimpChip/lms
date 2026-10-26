@@ -51,11 +51,7 @@ function NoticeTable() {
 
 function NoticeListPage() {
   return (
-    <SubPage
-      title="공지사항"
-      description="서비스 소식과 안내를 알려 드려요"
-      breadcrumb={['커뮤니티', '공지사항']}
-    >
+    <SubPage title="공지사항" description="서비스 소식과 안내를 알려 드려요">
       <AsyncBoundary>
         <NoticeTable />
       </AsyncBoundary>

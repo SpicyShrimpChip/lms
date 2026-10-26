@@ -8,7 +8,6 @@ function MaterialListPage() {
     <SubPage
       title="내 학습자료"
       description="올린 자료에서 요약, 핵심 개념, 퀴즈를 만들어요"
-      breadcrumb={['학습자료', '내 학습자료']}
     >
       <EmptyState
         icon={<FileText size={24} aria-hidden="true" />}

@@ -7,7 +7,6 @@ function CurriculumPage() {
     <SubPage
       title="맞춤 커리큘럼"
       description="지금 이해 정도에 맞춰 공부할 순서를 추천해요"
-      breadcrumb={['맞춤학습', '맞춤 커리큘럼']}
     >
       <EmptyState
         icon={<Route size={24} aria-hidden="true" />}

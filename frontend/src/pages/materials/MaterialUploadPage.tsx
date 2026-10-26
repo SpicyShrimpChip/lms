@@ -209,7 +209,6 @@ function MaterialUploadPage() {
     <SubPage
       title="자료 올리기"
       description="공부할 자료를 올리면 요약과 핵심 개념을 정리해 드려요"
-      breadcrumb={['학습자료', '자료 올리기']}
     >
       <AsyncBoundary>
         <MaterialUploadForm />
