@@ -126,7 +126,7 @@ function Header() {
 
   return (
     // 로고·주 메뉴·검색·계정을 한 줄에 둔다. 좁은 화면에서는 주 메뉴 대신 햄버거 메뉴(MobileMenu)
-    <header className="border-b border-line bg-surface-raised">
+    <header className="border-b border-line bg-surface-raised print:hidden">
       <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-8 gap-y-3 px-6 max-lg:py-3.5">
         <div className="flex items-center justify-between max-lg:w-full">
           <Link to="/" className="flex items-center gap-2.5 text-heading">

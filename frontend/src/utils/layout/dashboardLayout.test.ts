@@ -31,8 +31,9 @@ describe('parseDashboardLayout', () => {
       'summary',
       'mastery',
       'courseShare',
+      'conceptTable',
     ]);
-    expect(layout.items.map((item) => item.order)).toEqual([1, 2, 3, 4, 5]);
+    expect(layout.items.map((item) => item.order)).toEqual([1, 2, 3, 4, 5, 6]);
     expect(layout.items[2].aiReason).toBeNull();
   });
 

@@ -89,9 +89,10 @@ src/
 ## 대시보드 동적 배치
 
 - 배치 JSON은 `unknown`으로 받아 zod 스키마로 검증한 뒤에만 사용한다 (`utils/layout/dashboardLayout.ts`의 `parseDashboardLayout`).
-- 허용 영역 id: `summary`, `mastery`, `conceptDetail`, `recommendation`, `courseShare`. 크기는 `wide`(한 줄 전체) / `normal`(넓은 화면에서 반 칸).
+- 허용 영역 id: `summary`, `mastery`(개념 3개 이상이면 방사형 그래프 포함, wide면 그래프와 막대를 나란히), `conceptDetail`, `recommendation`, `courseShare`, `conceptTable`(개념별 상세 결과 표). 크기는 `wide`(한 줄 전체) / `normal`(넓은 화면에서 반 칸).
 - 없는 id, 같은 영역·같은 순서 번호 중복, 80자를 넘거나 빈 이유, 형식이 다른 숫자는 검증에서 거르고 **기본 배치**(`DEFAULT_LAYOUT`)로 보여 준다. 배치에서 빠진 영역은 기본 순서로 뒤에 붙인다.
-- 각 영역 제목 오른쪽 "이 자리인 이유" 말풍선(AI, 보라색)으로 이유를 보여 준다. 마우스를 올리거나 키보드로 가면 뜨고, 클릭·탭하면 고정, Esc·바깥 클릭으로 닫힌다(휴대폰·키보드 사용자도 볼 수 있게 호버만 쓰지 않는다). 그리고 맨 위에 전체 이유와 **배치할 때 본 숫자**(코드, 파란색)를 나란히 보여 준다.
+- 각 영역 제목 오른쪽 "이 자리인 이유" 말풍선(AI, 보라색)으로 이유를 보여 준다. 마우스를 올리거나 키보드로 가면 뜨고, 클릭·탭하면 고정, Esc·바깥 클릭으로 닫힌다(휴대폰·키보드 사용자도 볼 수 있게 호버만 쓰지 않는다). 그리고 맨 위 한 줄 띠(`LayoutSummary`)에 전체 이유와 **배치할 때 본 숫자**(코드, 파란색)를 나란히 보여 주고, **"기본 배치로 보기"**로 사용자가 AI 배치를 끌 수 있다.
+- "PDF로 받기"는 브라우저 인쇄(`window.print()`)를 연다. 상단바·푸터·버튼은 `print:hidden`으로 인쇄에서 뺀다.
 - 새 영역을 추가하려면 `DashboardComponentId` 타입, `DASHBOARD_COMPONENT_IDS`, `DEFAULT_LAYOUT`, `DashboardPage`의 `renderComponent`를 함께 고친다.
 - 목업에서는 주소에 `?layout=b`, `?layout=invalid`, `?layout=none`을 붙여 다른 배치·검증 실패·배치 없음을 확인할 수 있다.
 

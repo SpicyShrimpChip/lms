@@ -3,7 +3,7 @@
 프론트(변지환)가 지금까지 만든 화면 기준으로, 백엔드(김주미)가 알아야 할 내용을 모은 문서다.
 API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, 바뀌면 이 문서와 프론트 목업을 같이 고친다.
 
-최종 수정: 2026-10-27 (대화 가져오기 화면·목업 완성, 과목별·50개씩 나눠 보냄)
+최종 수정: 2026-10-27 (대화 가져오기 화면·목업 완성, 대시보드 배치 영역에 `conceptTable` 추가)
 
 ## 0. 백엔드 시작 순서 (프론트 완성을 기다리지 않고 바로 시작)
 
@@ -169,12 +169,12 @@ semester    = "2026-1" | "2026-summer" | "2026-2" | "2026-winter"
 ```ts
 // 화면에 "이름"과 "비밀번호 확인" 칸이 있어 name, passwordConfirm을 추가했다 (2026-10-25)
 SignupInput = {
-  email: string,            // 서버가 소문자로 바꿔 저장
-  name: string,             // 1~30자
+  email: string, // 서버가 소문자로 바꿔 저장
+  name: string, // 1~30자
   password: string,
-  passwordConfirm: string,  // 서버도 password와 같은지 확인
-  agreedTerms: boolean,     // true여야 함
-  agreedPrivacy: boolean,   // true여야 함
+  passwordConfirm: string, // 서버도 password와 같은지 확인
+  agreedTerms: boolean, // true여야 함
+  agreedPrivacy: boolean, // true여야 함
   agreedAiAnalysis: boolean,
 };
 User = { id: number, email: string, name: string, aiAnalysisConsent: boolean };
@@ -322,7 +322,8 @@ layout = {
         "mastery" |
         "conceptDetail" |
         "recommendation" |
-        "courseShare",
+        "courseShare" |
+        "conceptTable", // 10/27 추가: 개념별 상세 결과 표
       order: number, // 1부터, 겹치지 않게
       size: "wide" | "normal",
       aiReason: string, // 이 위치·크기인 이유 (AI), 80자까지
@@ -331,6 +332,7 @@ layout = {
 };
 ```
 
+- **영역 id에 `conceptTable`(개념별 상세 결과 표)이 10/27에 추가됐다.** 서버 검증의 허용 목록에도 넣어 주기. 배치에서 빠진 영역은 프론트가 기본 순서로 뒤에 붙이므로 모든 영역을 다 넣지 않아도 된다.
 - **AI에게는 코드가 계산한 숫자만 주고 이유를 쓰게 하기.** 프론트는 이유 옆에 `basis` 숫자를 같이 보여 주므로, AI가 숫자를 지어내면 사용자가 바로 알아챈다.
 - **매번 AI를 부르지 않기.** 새 대화·퀴즈 결과가 들어왔을 때만 새로 만들고, 만든 배치를 저장해 두었다가 대시보드 요청 때 같이 보낸다. `basis`도 그때 값을 저장해야 이유와 숫자가 어긋나지 않는다.
 - 저장 방법 제안(백엔드가 정할 부분): 사용자별로 만들 때마다 한 줄씩 쌓는 표 하나. `id`, `user_id`, `layout_json`(위 JSON 전체를 TEXT로, H2와 함께 쓰므로 DB 전용 JSON 타입은 피함), `model`(어떤 모델이 만들었는지), `created_at`. 지난 배치가 남아 있으면 2단계 "약점 변화 추이"에도 쓸 수 있다.

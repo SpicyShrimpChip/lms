@@ -49,6 +49,7 @@ export const DEFAULT_LAYOUT: DashboardLayout = {
     { component: 'conceptDetail', order: 3, size: 'normal', aiReason: null },
     { component: 'recommendation', order: 4, size: 'normal', aiReason: null },
     { component: 'courseShare', order: 5, size: 'normal', aiReason: null },
+    { component: 'conceptTable', order: 6, size: 'wide', aiReason: null },
   ],
 };
 
