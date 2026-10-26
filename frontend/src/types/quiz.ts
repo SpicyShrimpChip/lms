@@ -25,6 +25,11 @@ export interface Quiz {
   questions: QuizQuestion[];
 }
 
+export interface QuizConcept {
+  conceptId: string;
+  name: string;
+}
+
 export interface QuizAnswer {
   questionId: number;
   choiceIndex: number;
@@ -42,8 +47,8 @@ export interface QuizResult {
     choiceIndex: number; // 내가 고른 답
     correct: boolean;
     correctChoiceIndex: number; // 제출 뒤에만 알려 준다
-    // 이 문제가 다루는 개념 (대시보드 ConceptMastery.conceptId와 같은 값)
-    conceptIds: string[];
+    // 이 문제가 다루는 개념. conceptId는 대시보드 ConceptMastery.conceptId와 같은 값
+    concepts: QuizConcept[];
     aiExplanation: string | null;
   }[];
 }

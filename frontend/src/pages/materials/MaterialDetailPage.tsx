@@ -19,7 +19,6 @@ import {
   AsyncBoundary,
   Button,
   Card,
-  Chip,
   EmptyState,
   SubPage,
   Tabs,
@@ -27,6 +26,7 @@ import {
 import { useCourses } from '@/hooks';
 import type { MaterialDetail } from '@/types';
 import { formatDate } from '@/utils';
+import QuizCard from '@/pages/quizzes/components/QuizCard';
 
 // 요약·개념·퀴즈를 아직 만들고 있거나 만들지 못한 자료는 탭마다 같은 안내를 보여 준다
 function NotReady({ status }: { status: MaterialDetail['status'] }) {
@@ -130,35 +130,7 @@ function QuizTab({ material }: { material: MaterialDetail }) {
   return (
     <ul className="flex flex-col gap-3">
       {mine.map((quiz) => (
-        <Card
-          as="li"
-          key={quiz.id}
-          className="flex flex-wrap items-center justify-between gap-4 p-5"
-        >
-          <div className="flex flex-col gap-1.5">
-            <p className="font-bold text-heading">{quiz.title}</p>
-            <p className="flex flex-wrap items-center gap-2 text-caption text-ink-muted">
-              <span>{quiz.questionCount}문제</span>
-              {quiz.lastCorrectCount === null ? (
-                <span>아직 안 풀었어요</span>
-              ) : (
-                <Chip tone="primary">
-                  지난번 {quiz.lastCorrectCount}/{quiz.questionCount} 맞힘
-                </Chip>
-              )}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            {quiz.lastCorrectCount !== null && (
-              <Button to={`/quizzes/${quiz.id}/result`} variant="secondary">
-                결과 보기
-              </Button>
-            )}
-            <Button to={`/quizzes/${quiz.id}`}>
-              {quiz.lastCorrectCount === null ? '풀기' : '다시 풀기'}
-            </Button>
-          </div>
-        </Card>
+        <QuizCard key={quiz.id} quiz={quiz} />
       ))}
     </ul>
   );

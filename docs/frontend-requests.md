@@ -274,7 +274,7 @@ QuizResult  = {
     choiceIndex: number,              // 사용자가 고른 보기 (안 고르면 -1)
     correct: boolean,
     correctChoiceIndex: number,       // 제출 뒤에만 알려 준다
-    conceptIds: string[],             // 이 문제가 다루는 개념 (대시보드 ConceptMastery.conceptId와 같은 값)
+    concepts: { conceptId: string, name: string }[], // 이 문제가 다루는 개념 (conceptId는 대시보드 ConceptMastery.conceptId와 같은 값, 이름은 결과 화면 표시용)
     aiExplanation: string | null      // 해설 (AI 글이므로 필드를 분리, 보라색 표시)
   }[]
 }
