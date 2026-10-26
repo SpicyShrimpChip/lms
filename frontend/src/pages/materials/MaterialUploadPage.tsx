@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link, useNavigate } from 'react-router-dom';
 import { LoaderCircle } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
-import { uploadMaterial } from '@/api';
+import { MATERIALS_QUERY_KEY, uploadMaterial } from '@/api';
 import {
   AsyncBoundary,
   Button,
@@ -38,17 +38,15 @@ function MaterialUploadForm() {
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string>();
   const [agreed, setAgreed] = useState(false);
-  // 같은 파일을 다시 고를 수 있도록 올린 뒤 파일 입력칸을 새로 그린다
-  const [fileInputKey, setFileInputKey] = useState(0);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
+  // 올리면 목록을 새로 받고, 요약이 만들어지는 과정을 볼 수 있게 자료 상세로 옮겨 간다
   const mutation = useMutation({
     mutationFn: uploadMaterial,
-    onSuccess: () => {
-      setCourseId('');
-      setTitle('');
-      setFile(null);
-      setAgreed(false);
-      setFileInputKey((key) => key + 1);
+    onSuccess: (material) => {
+      void queryClient.invalidateQueries({ queryKey: MATERIALS_QUERY_KEY });
+      navigate(`/materials/${material.id}`);
     },
   });
 
@@ -115,7 +113,6 @@ function MaterialUploadForm() {
           error={fileError ?? ''}
         >
           <FileDropZone
-            key={fileInputKey}
             id="material-file"
             accept={ACCEPT}
             title={file ? file.name : '파일을 끌어다 놓거나 눌러서 고르세요'}
@@ -166,11 +163,6 @@ function MaterialUploadForm() {
         {mutation.isError && (
           <m.p {...FADE_UP} role="alert" className="text-body text-danger">
             {mutation.error.message}
-          </m.p>
-        )}
-        {mutation.isSuccess && (
-          <m.p {...FADE_UP} role="status" className="text-body text-strength">
-            자료를 올렸어요.
           </m.p>
         )}
       </AnimatePresence>
