@@ -1,6 +1,7 @@
 export * from './axios';
 export * from './request';
 export * from './analysis.api';
+export * from './conversations.api';
 export * from './courses.api';
 export * from './notices.api';
 export * from './materials.api';
