@@ -71,9 +71,9 @@ function CourseForm({ courses, editing, onDone }: CourseFormProps) {
     <form
       onSubmit={handleSubmit}
       aria-label={editing ? '과목 수정' : '과목 추가'}
-      className="flex flex-col gap-5"
+      className="flex max-w-2xl flex-col gap-5"
     >
-      <h2 className="text-xl font-bold text-heading-soft">
+      <h2 className="text-xl font-extrabold text-heading">
         {editing ? `'${editing.name}' 수정하기` : '과목 추가'}
       </h2>
       <div className="flex flex-col gap-6">
@@ -121,12 +121,12 @@ function CourseForm({ courses, editing, onDone }: CourseFormProps) {
       </div>
 
       {mutation.isError && (
-        <p role="alert" className="text-center text-body text-danger">
+        <p role="alert" className="text-body text-danger">
           {mutation.error.message}
         </p>
       )}
 
-      <div className="flex justify-center gap-3">
+      <div className="flex gap-3">
         {editing && (
           <Button variant="secondary" size="lg" onClick={onDone}>
             취소

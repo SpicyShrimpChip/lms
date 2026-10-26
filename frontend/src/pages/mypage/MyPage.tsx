@@ -4,7 +4,7 @@ import { ME_QUERY_KEY, getMe } from '@/api';
 import { AsyncBoundary, EmptyState, SubPage } from '@/components';
 import { useAuthStore } from '@/store';
 
-// 내 정보 (회색 라벨 칸 표)
+// 내 정보: 흰 카드 안에 항목 이름과 값을 한 줄씩
 function MyAccount() {
   const { data: me } = useSuspenseQuery({
     queryKey: ME_QUERY_KEY,
@@ -20,16 +20,14 @@ function MyAccount() {
   ];
 
   return (
-    <dl className="border-t-2 border-heading-soft">
+    <dl className="flex max-w-2xl flex-col divide-y divide-line rounded-2xl border border-line px-6">
       {rows.map((row) => (
         <div
           key={row.label}
-          className="grid grid-cols-1 border-b border-line md:grid-cols-[180px_minmax(0,1fr)]"
+          className="flex flex-wrap justify-between gap-x-6 gap-y-1 py-4"
         >
-          <dt className="bg-surface-muted px-4 py-3 text-body font-medium text-ink-soft md:py-4">
-            {row.label}
-          </dt>
-          <dd className="px-4 py-3 text-body md:py-4">{row.value}</dd>
+          <dt className="text-body text-ink-soft">{row.label}</dt>
+          <dd className="text-body font-bold text-heading">{row.value}</dd>
         </div>
       ))}
     </dl>

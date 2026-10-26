@@ -12,9 +12,10 @@ interface ImportStepsProps {
   current: number;
 }
 
+// 번호 원과 단계 이름을 한 줄로. 지난 단계는 체크, 지금 단계는 파랑으로 채운다
 function ImportSteps({ current }: ImportStepsProps) {
   return (
-    <ol className="grid grid-cols-2 gap-3 md:grid-cols-4">
+    <ol className="flex flex-wrap items-center gap-x-3 gap-y-2">
       {IMPORT_STEPS.map((step, index) => {
         const done = index < current;
         const active = index === current;
@@ -22,25 +23,39 @@ function ImportSteps({ current }: ImportStepsProps) {
           <li
             key={step}
             aria-current={active ? 'step' : undefined}
-            className={`flex items-center gap-2.5 rounded-xl border px-4 py-3 text-body ${
-              active
-                ? 'border-primary bg-primary-soft font-bold text-heading'
-                : done
-                  ? 'border-line text-heading-soft'
-                  : 'border-line text-ink-muted'
-            }`}
+            className="flex items-center gap-3"
           >
-            <span
-              className={`flex size-6 shrink-0 items-center justify-center rounded-full text-caption font-bold ${
-                active || done
-                  ? 'bg-primary text-on-primary'
-                  : 'bg-surface-muted text-ink-muted'
-              }`}
-            >
-              {done ? <Check size={14} aria-hidden="true" /> : index + 1}
+            {index > 0 && (
+              <span
+                aria-hidden="true"
+                className={`h-0.5 w-6 rounded-full ${done || active ? 'bg-primary' : 'bg-line'}`}
+              />
+            )}
+            <span className="flex items-center gap-2">
+              <span
+                className={`flex size-7 shrink-0 items-center justify-center rounded-full text-caption font-bold ${
+                  active
+                    ? 'bg-primary text-on-primary'
+                    : done
+                      ? 'bg-primary-soft text-primary'
+                      : 'bg-surface-muted text-ink-muted'
+                }`}
+              >
+                {done ? <Check size={14} aria-hidden="true" /> : index + 1}
+              </span>
+              <span
+                className={`text-body ${
+                  active
+                    ? 'font-bold text-heading'
+                    : done
+                      ? 'text-ink-soft'
+                      : 'text-ink-muted'
+                }`}
+              >
+                {step}
+                {done && <span className="sr-only">(완료)</span>}
+              </span>
             </span>
-            {step}
-            {done && <span className="sr-only">(완료)</span>}
           </li>
         );
       })}

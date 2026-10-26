@@ -38,15 +38,18 @@ function LoginPage() {
     <SubPage title="로그인">
       <form
         onSubmit={handleSubmit}
-        className="mx-auto flex w-full max-w-100 flex-col gap-4"
+        className="flex w-full max-w-md flex-col gap-5"
       >
         {state.signedUpEmail && (
-          <p role="status" className="text-center text-body text-ink-soft">
+          <p role="status" className="text-body text-ink-soft">
             가입이 완료됐어요. 로그인해 주세요.
           </p>
         )}
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="login-email" className="text-body font-medium">
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor="login-email"
+            className="text-body font-bold text-heading"
+          >
             이메일
           </label>
           <TextInput
@@ -59,8 +62,11 @@ function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="login-password" className="text-body font-medium">
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor="login-password"
+            className="text-body font-bold text-heading"
+          >
             비밀번호
           </label>
           <TextInput
@@ -73,7 +79,7 @@ function LoginPage() {
           />
         </div>
         {mutation.isError && (
-          <p role="alert" className="text-center text-body text-danger">
+          <p role="alert" className="text-body text-danger">
             {mutation.error.message}
           </p>
         )}
@@ -85,7 +91,7 @@ function LoginPage() {
         >
           로그인
         </Button>
-        <p className="text-center text-body text-ink-soft">
+        <p className="text-body text-ink-soft">
           아직 계정이 없나요?{' '}
           <Link
             to="/signup"

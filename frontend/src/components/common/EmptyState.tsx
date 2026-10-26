@@ -11,7 +11,7 @@ interface EmptyStateProps {
 
 function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-line-strong px-6 py-14 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-2xl bg-surface-muted px-6 py-14 text-center">
       {icon && (
         <div className="flex size-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
           {icon}

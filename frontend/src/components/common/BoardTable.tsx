@@ -15,7 +15,7 @@ interface BoardTableProps<T> {
   emptyMessage: string;
 }
 
-// 게시판 표: 네이비 상단선 2px, 넓은 표는 상자 안에서 가로 스크롤
+// 게시판 표: 진한 상단선 2px, 넓은 표는 상자 안에서 가로 스크롤
 function BoardTable<T>({
   columns,
   rows,
@@ -24,14 +24,14 @@ function BoardTable<T>({
 }: BoardTableProps<T>) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-130 border-collapse border-t-2 border-heading-soft text-body">
+      <table className="w-full min-w-130 border-collapse border-t-2 border-heading text-body">
         <thead>
           <tr className="bg-surface-muted">
             {columns.map((column) => (
               <th
                 key={column.key}
                 scope="col"
-                className={`border-b border-line px-4 py-3 text-left font-medium text-ink-soft ${column.widthClass ?? ''}`}
+                className={`border-b border-line px-4 py-3 text-left text-caption font-bold text-ink-soft ${column.widthClass ?? ''}`}
               >
                 {column.label}
               </th>

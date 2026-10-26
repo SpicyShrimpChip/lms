@@ -131,9 +131,7 @@ function SignupPage() {
         </div>
 
         <fieldset className="flex flex-col gap-3 rounded-2xl border border-line p-6">
-          <legend className="px-2 font-bold text-heading-soft">
-            약관 동의
-          </legend>
+          <legend className="px-2 font-bold text-heading">약관 동의</legend>
           {AGREEMENTS.map((item) => (
             <div key={item.id} className="flex items-start gap-3">
               <input
@@ -171,15 +169,16 @@ function SignupPage() {
         </fieldset>
 
         {mutation.isError && (
-          <p role="alert" className="text-center text-body text-danger">
+          <p role="alert" className="text-body text-danger">
             {mutation.error.message}
           </p>
         )}
 
-        <div className="flex justify-center">
+        <div className="flex">
           <Button
             type="submit"
             size="lg"
+            className="w-full"
             disabled={
               !isPasswordValid(password) ||
               password !== confirm ||

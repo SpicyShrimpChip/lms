@@ -38,7 +38,7 @@ function FileStep({ imported, onLoaded, onNext }: FileStepProps) {
       aria-labelledby="import-file"
       className="flex flex-col gap-5 rounded-2xl border border-line bg-surface-raised p-6 md:p-8"
     >
-      <h2 id="import-file" className="text-xl font-bold text-heading-soft">
+      <h2 id="import-file" className="text-xl font-extrabold text-heading">
         대화 내보내기 파일 고르기
       </h2>
 
@@ -123,7 +123,7 @@ function FileStep({ imported, onLoaded, onNext }: FileStepProps) {
       <div className="flex items-start gap-3 rounded-xl bg-surface-muted p-4">
         <Lock
           size={20}
-          className="mt-0.5 shrink-0 text-heading-soft"
+          className="mt-0.5 shrink-0 text-primary"
           aria-hidden="true"
         />
         <p className="text-body leading-relaxed text-ink-soft">

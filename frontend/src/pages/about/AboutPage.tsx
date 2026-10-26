@@ -25,7 +25,7 @@ function AboutPage() {
       description="AI와 공부한 기록에서 아는 것과 모르는 것을 찾아 드려요"
     >
       <section className="flex flex-col gap-3 rounded-2xl bg-section p-6 md:p-8">
-        <h2 className="text-xl font-bold text-heading-soft">왜 만들었나요</h2>
+        <h2 className="text-xl font-extrabold text-heading">왜 만들었나요</h2>
         <p className="leading-relaxed text-ink-soft">
           AI로 공부하면 대화가 여러 서비스에 흩어지고, 새 대화를 열 때마다 같은
           배경 설명을 반복하게 돼요. 공부는 많이 했는데 무엇을 알고 어디가
@@ -35,7 +35,7 @@ function AboutPage() {
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-xl font-bold text-heading-soft">이렇게 지켜요</h2>
+        <h2 className="text-xl font-extrabold text-heading">이렇게 지켜요</h2>
         <ul className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {PRINCIPLES.map((item) => (
             <li
@@ -51,7 +51,7 @@ function AboutPage() {
         </ul>
       </section>
 
-      <div className="flex flex-wrap justify-center gap-3">
+      <div className="flex flex-wrap gap-3">
         <Button to="/analysis/import" size="lg">
           대화 가져오기
         </Button>
