@@ -14,7 +14,7 @@ const SAMPLE_CONCEPTS: { name: string; score: number; level: MasteryLevel }[] =
 function SampleCard() {
   return (
     <figure className="m-0 min-w-0 flex-[1_1_420px]">
-      <div className="flex flex-col gap-5 rounded-2xl bg-surface-raised p-6 shadow-2xl shadow-heading/30">
+      <div className="flex flex-col gap-5 rounded-2xl bg-surface-raised p-6 shadow-2xl shadow-brand/40">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <div>
             <p className="text-caption font-medium text-ink-muted">
@@ -79,7 +79,7 @@ function Hero() {
           <div className="mt-9 flex flex-wrap gap-2.5">
             <Link
               to="/materials/upload"
-              className="inline-flex h-13 items-center rounded-xl bg-surface-raised px-6 font-extrabold text-brand hover:bg-primary-soft"
+              className="inline-flex h-13 items-center rounded-xl bg-on-brand px-6 font-extrabold text-brand hover:bg-on-brand-hover"
             >
               자료 올리고 시작하기
             </Link>

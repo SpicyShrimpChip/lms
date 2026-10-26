@@ -42,7 +42,7 @@ function QuickLinks() {
       className="relative mx-auto -mt-14 max-w-page px-6"
     >
       {/* 칸 사이 1px 틈으로 구분선을 그린다 (열 수가 바뀌어도 선이 맞는다) */}
-      <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl bg-line shadow-xl shadow-heading/10 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl bg-line shadow-xl shadow-brand/10 sm:grid-cols-2 lg:grid-cols-4">
         {LINKS.map((link) => (
           <li key={link.title} className="bg-surface-raised">
             <Link
