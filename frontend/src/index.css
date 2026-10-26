@@ -65,6 +65,9 @@
   /* 오류 메시지에만 쓴다 */
   --color-danger: #b91c1c;
 
+  /* 확인 창 뒤를 어둡게 덮는 막 (투명도는 쓰는 곳에서 정한다). 글자색(heading)을 쓰면 어두운 모드에서 밝게 덮인다 */
+  --color-overlay: #0f1b33;
+
   /* 바탕·본문 글자·보조 글자·구분선. 사이트 바탕은 흰색, 표 머리·연한 칸은 surface-muted(옅은 파랑 회색) */
   --color-surface: #ffffff;
   --color-surface-muted: #f4f7fd;
@@ -118,6 +121,8 @@
   --color-weakness-bar: #f08378;
 
   --color-danger: #fca5a5;
+
+  --color-overlay: #000000;
 
   --color-surface: #0f141e;
   /* 카드(surface-raised) 안의 연한 칸·막대 바탕도 보이도록 raised보다 한 단계 밝게 */

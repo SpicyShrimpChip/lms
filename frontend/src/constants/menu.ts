@@ -1,4 +1,4 @@
-// GNB 메뉴 구성. 경로는 router와 같은 값을 쓴다
+// 상단바 주 메뉴 구성. 경로는 router와 같은 값을 쓴다
 export interface MenuItem {
   label: string;
   path: string;
