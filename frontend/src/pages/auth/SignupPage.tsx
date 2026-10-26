@@ -73,8 +73,8 @@ function SignupPage() {
 
   return (
     <SubPage title="회원가입">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-        <div className="border-t-2 border-heading-soft">
+      <form onSubmit={handleSubmit} className="flex max-w-xl flex-col gap-8">
+        <div className="flex flex-col gap-6">
           <FormRow label="이메일" htmlFor="signup-email" required>
             <TextInput
               id="signup-email"
