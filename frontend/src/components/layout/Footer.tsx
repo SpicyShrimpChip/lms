@@ -14,7 +14,7 @@ function Footer() {
             서비스 소개
           </Link>
           <Link to="/privacy" className="font-bold hover:underline">
-            개인정보처리방침
+            개인정보 처리방침
           </Link>
         </nav>
       </div>
