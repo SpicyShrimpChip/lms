@@ -10,6 +10,7 @@ export { default as ConfirmDialog } from './ConfirmDialog';
 export { default as Chip } from './Chip';
 export { default as SubPage } from './SubPage';
 export { default as EmptyState } from './EmptyState';
+export { default as FileDropZone } from './FileDropZone';
 export { default as Tabs, type TabItem } from './Tabs';
 export { default as FormRow } from './FormRow';
 export { default as LevelBadge } from './LevelBadge';

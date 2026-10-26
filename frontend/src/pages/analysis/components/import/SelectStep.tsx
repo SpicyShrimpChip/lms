@@ -1,9 +1,15 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useSuspenseQuery } from '@tanstack/react-query';
 import { BookMarked, SearchX } from 'lucide-react';
-import { getCourses } from '@/api';
-import { Button, Chip, EmptyState, SelectInput, TextInput } from '@/components';
+import {
+  Button,
+  Card,
+  Chip,
+  EmptyState,
+  SelectInput,
+  TextInput,
+} from '@/components';
+import { useCourses } from '@/hooks';
 import type { Course } from '@/types';
 import {
   assignToCourses,
@@ -53,10 +59,7 @@ function SelectStep({
   onBack,
   onNext,
 }: SelectStepProps) {
-  const { data: courses } = useSuspenseQuery({
-    queryKey: ['courses'],
-    queryFn: getCourses,
-  });
+  const { data: courses } = useCourses();
   const { assigned, unmatchedCount } = useMemo(
     () => assignToCourses(conversations, courses),
     [conversations, courses],
@@ -91,9 +94,10 @@ function SelectStep({
   );
 
   return (
-    <section
+    <Card
+      as="section"
       aria-labelledby="import-select"
-      className="flex flex-col gap-6 rounded-2xl border border-line bg-surface-raised p-6 md:p-8"
+      className="flex flex-col gap-6 p-6 md:p-8"
     >
       <div className="flex flex-col gap-2">
         <h2 id="import-select" className="text-xl font-extrabold text-heading">
@@ -171,7 +175,7 @@ function SelectStep({
           다음: 가린 내용 확인 ({selectedCount}개)
         </Button>
       </div>
-    </section>
+    </Card>
   );
 }
 

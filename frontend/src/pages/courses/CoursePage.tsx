@@ -1,11 +1,8 @@
 import { useState } from 'react';
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BookMarked } from 'lucide-react';
-import { deleteCourse, getCourses } from '@/api';
+import { COURSES_QUERY_KEY, deleteCourse } from '@/api';
+import { useCourses } from '@/hooks';
 import {
   AsyncBoundary,
   ConfirmDialog,
@@ -19,16 +16,14 @@ import CourseForm from './components/CourseForm';
 
 function CourseManager() {
   const queryClient = useQueryClient();
-  const { data: courses } = useSuspenseQuery({
-    queryKey: ['courses'],
-    queryFn: getCourses,
-  });
+  const { data: courses } = useCourses();
   const [editing, setEditing] = useState<Course | null>(null);
   const [deleting, setDeleting] = useState<Course | null>(null);
 
   const removal = useMutation({
     mutationFn: deleteCourse,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['courses'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: COURSES_QUERY_KEY }),
   });
 
   const confirmDelete = () => {

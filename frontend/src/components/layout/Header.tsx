@@ -7,12 +7,13 @@ import {
   type ReactNode,
 } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Menu, Search, X } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
-import { ME_QUERY_KEY, getMe, logout } from '@/api';
+import { logout } from '@/api';
 import { MOTION_DURATION } from '@/constants';
+import { useMe } from '@/hooks';
 import { useAuthStore } from '@/store';
 import Gnb from './Gnb';
 import MobileMenu, { MOBILE_MENU_ID } from './MobileMenu';
@@ -28,11 +29,7 @@ function useAccountItems(): { key: string; node: ReactNode }[] {
   const authenticated = useAuthStore(
     (state) => state.status === 'authenticated',
   );
-  const { data: me } = useQuery({
-    queryKey: ME_QUERY_KEY,
-    queryFn: getMe,
-    enabled: authenticated,
-  });
+  const { data: me } = useMe();
 
   if (!authenticated) {
     return [

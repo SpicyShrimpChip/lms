@@ -53,7 +53,7 @@ function MasteryPanel({
                   </span>
                   <ScoreBar
                     value={concept.score}
-                    tone={concept.level === 'weakness' ? 'weakness' : 'primary'}
+                    level={concept.level}
                     className="min-w-24 flex-1"
                   />
                   <span className="w-14 shrink-0 text-right font-bold text-heading">

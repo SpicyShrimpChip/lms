@@ -36,10 +36,7 @@ function SampleCard() {
                   </span>
                 </span>
               </div>
-              <ScoreBar
-                value={concept.score}
-                tone={concept.level === 'weakness' ? 'weakness' : 'primary'}
-              />
+              <ScoreBar value={concept.score} level={concept.level} />
             </li>
           ))}
         </ul>

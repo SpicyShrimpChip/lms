@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createCourse, updateCourse } from '@/api';
+import { COURSES_QUERY_KEY, createCourse, updateCourse } from '@/api';
 import { Button, FormRow, SelectInput, TextInput } from '@/components';
 import type { Course, CourseInput } from '@/types';
 import {
@@ -35,7 +35,7 @@ function CourseForm({ courses, editing, onDone }: CourseFormProps) {
       editing ? updateCourse(editing.id, input) : createCourse(input),
     onSuccess: () => {
       // 목록은 뒤에서 다시 불러오고, 폼은 바로 비운다
-      void queryClient.invalidateQueries({ queryKey: ['courses'] });
+      void queryClient.invalidateQueries({ queryKey: COURSES_QUERY_KEY });
       setName('');
       setKeywords([]);
       onDone();
