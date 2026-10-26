@@ -178,7 +178,7 @@ MaterialDetail = MaterialSummary & {
 
 ### 인증·마이페이지 — 가입·로그인·갱신·로그아웃·내 정보 구현됨 (확정: Swagger `인증`, `회원`)
 
-화면: `/login`, `/signup`, 마이페이지(내 정보 표시까지 연결. 동의 철회·데이터 삭제는 예정). 방식은 JWT access token(메모리) + HttpOnly 쿠키 refresh token. 자세한 흐름은 `docs/backend-design.md` 5번.
+화면: `/login`, `/signup`, 마이페이지(내 정보 표시까지 연결. AI 대화 분석 동의 철회·다시 동의, 탈퇴 화면은 아래 제안 API로 만들어 둠). 방식은 JWT access token(메모리) + HttpOnly 쿠키 refresh token. 자세한 흐름은 `docs/backend-design.md` 5번.
 
 | 메서드 | 경로                     | 요청 본문                 | 응답 `data`                                          | 상태   |
 | ------ | ------------------------ | ------------------------- | ---------------------------------------------------- | ------ |
@@ -210,6 +210,8 @@ User = { id: number, email: string, name: string, aiAnalysisConsent: boolean };
 - 로그인 실패 `message`는 이메일이 틀렸는지 비밀번호가 틀렸는지 구분하지 않는다("이메일 또는 비밀번호를 확인해 주세요."). 같은 이메일·같은 곳에서 15분에 5번 틀리면 429("로그인 시도가 너무 많아요. N분 뒤 다시 시도해 주세요.").
 - **`/api/auth/login`, `/refresh`, `/logout`은 `X-Requested-With: XMLHttpRequest` 헤더가 있어야 한다**(CSRF 방어, 없으면 403). 프론트 Axios 인스턴스가 모든 요청에 붙인다.
 - **동의 철회(`aiAnalysis: false`)하면 가져온 대화와 그로부터 계산된 분석 결과를 함께 삭제한다.** 삭제 범위는 아래 대화 가져오기와 같다. 프론트는 철회 전에 확인 창으로 "되돌릴 수 없어요"를 보여 준다.
+- **탈퇴(`DELETE /api/users/me`)는 내 모든 데이터를 지운다:** 계정, 과목, 자료와 그로부터 만든 요약·개념·퀴즈, 퀴즈 결과, 가져온 대화, 분석 결과(근거·점수·배치). refresh 토큰도 모두 폐기하고 쿠키를 지운다. 프론트는 확인 창을 거친 뒤 부르고, 성공하면 화면 데이터를 비우고 첫 화면으로 간다.
+- 동의를 다시 켜는 것(`aiAnalysis: true`)도 같은 API로 받는다. 동의 시각을 새로 기록한다.
 - 토큰이 만료돼 401이 오면 프론트가 `/api/auth/refresh`를 한 번 부르고 원래 요청을 다시 보낸다(`api/axios.ts`). 갱신에도 실패하면 로그아웃 상태가 되고 로그인 가드가 로그인 화면으로 보낸다.
 - 로그인이 필요한 화면은 `router/RequireAuth.tsx` 아래에 둔다. **`VITE_USE_MOCK=true`(팀 기본값)에서는 가드를 건너뛰어** 백엔드 없이 화면을 개발할 수 있다.
 

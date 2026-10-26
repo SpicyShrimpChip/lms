@@ -36,6 +36,23 @@ export function getMe(): Promise<User> {
   return request<User>({ method: 'GET', url: '/users/me' });
 }
 
+// AI 대화 분석 동의를 바꾼다. 철회(false)하면 서버가 가져온 대화와 그로부터 계산한 분석 결과를 함께 지운다
+// TODO: 백엔드 API가 준비되면 경로·필드명을 맞춘다 (제안: docs/frontend-requests.md "인증·마이페이지")
+export function updateAiConsent(aiAnalysis: boolean): Promise<User> {
+  return request<User>({
+    method: 'PATCH',
+    url: '/users/me/consents',
+    data: { aiAnalysis },
+  });
+}
+
+// 탈퇴: 서버가 내 모든 데이터를 지운다. 성공하면 브라우저 쪽 세션도 지운다
+// TODO: 백엔드 API가 준비되면 경로를 맞춘다 (제안: docs/frontend-requests.md "인증·마이페이지")
+export async function deleteAccount(): Promise<void> {
+  await request<null>({ method: 'DELETE', url: '/users/me' });
+  useAuthStore.getState().clearSession();
+}
+
 // 새로고침 뒤 Refresh Token 쿠키로 로그인 상태를 되살린다. 로그인한 적이 없으면 요청하지 않는다
 export async function restoreSession(): Promise<void> {
   const { clearSession } = useAuthStore.getState();
