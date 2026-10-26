@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <footer className="bg-footer">
+    <footer className="bg-footer print:hidden">
       <div className="mx-auto flex max-w-page flex-wrap justify-between gap-4 px-6 py-8 text-sm text-heading">
         <div className="flex flex-col gap-1.5">
           <span className="font-bold">ai-lms</span>

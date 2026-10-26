@@ -1,18 +1,20 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { ChartColumn, Sparkles } from 'lucide-react';
+import { ChartColumn, Download, Sparkles } from 'lucide-react';
 import * as m from 'motion/react-m';
 import { getDashboard } from '@/api';
 import { FADE_UP } from '@/constants';
-import { AsyncBoundary, EmptyState, SubPage } from '@/components';
+import { AsyncBoundary, Button, EmptyState, SubPage } from '@/components';
 import type { DashboardComponentId } from '@/types';
 import {
+  DEFAULT_LAYOUT,
   filterDashboard,
   parseDashboardLayout,
   pickWeakestConcept,
 } from '@/utils';
 import ConceptDetailPanel from './components/ConceptDetailPanel';
 import CourseFilter from './components/CourseFilter';
+import ConceptTablePanel from './components/ConceptTablePanel';
 import CourseSharePanel from './components/CourseSharePanel';
 import LayoutSummary from './components/LayoutSummary';
 import MasteryPanel from './components/MasteryPanel';
@@ -26,12 +28,15 @@ function Dashboard() {
   });
   const [courseId, setCourseId] = useState<number | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  // AI 배치 대신 기본 배치로 보기 (사용자가 고른 경우)
+  const [usingDefault, setUsingDefault] = useState(false);
 
   // LLM이 만든 배치 JSON은 검증을 통과할 때만 쓰고, 아니면 기본 배치. 받아 올 때만 다시 검사한다
-  const layout = useMemo(
+  const aiLayout = useMemo(
     () => parseDashboardLayout(data.layout),
     [data.layout],
   );
+  const layout = usingDefault ? DEFAULT_LAYOUT : aiLayout;
 
   if (data.concepts.length === 0) {
     return (
@@ -54,6 +59,7 @@ function Dashboard() {
   const renderComponent = (
     id: DashboardComponentId,
     reason: string | null,
+    wide: boolean,
   ): ReactNode => {
     switch (id) {
       case 'summary':
@@ -67,6 +73,7 @@ function Dashboard() {
             selectedId={selected?.conceptId ?? null}
             onSelect={setSelectedId}
             layoutReason={reason}
+            wide={wide}
           />
         );
       case 'conceptDetail':
@@ -85,6 +92,14 @@ function Dashboard() {
         return courseId === null ? (
           <CourseSharePanel summaries={data.summaries} layoutReason={reason} />
         ) : null;
+      case 'conceptTable':
+        return (
+          <ConceptTablePanel
+            concepts={view.concepts}
+            summaries={data.summaries}
+            layoutReason={reason}
+          />
+        );
     }
   };
 
@@ -96,17 +111,32 @@ function Dashboard() {
           selected={courseId}
           onSelect={setCourseId}
         />
-        <p className="flex items-center gap-1.5 text-caption text-ai">
-          <Sparkles size={14} aria-hidden="true" />
-          AI 표시가 있는 내용은 AI가 작성했어요
-        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="flex items-center gap-1.5 text-caption text-ai">
+            <Sparkles size={14} aria-hidden="true" />
+            AI 표시가 있는 내용은 AI가 작성했어요
+          </p>
+          {/* 브라우저 인쇄 창에서 "PDF로 저장"을 고르면 이 화면을 PDF로 받을 수 있다 (상단바·버튼은 인쇄에서 빠진다) */}
+          <Button onClick={() => window.print()} className="print:hidden">
+            <Download size={16} aria-hidden="true" />
+            PDF로 받기
+          </Button>
+        </div>
       </div>
 
-      <LayoutSummary layout={layout} />
+      <LayoutSummary
+        layout={aiLayout}
+        usingDefault={usingDefault}
+        onToggleDefault={() => setUsingDefault((value) => !value)}
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {layout.items.map((item, index) => {
-          const content = renderComponent(item.component, item.aiReason);
+          const content = renderComponent(
+            item.component,
+            item.aiReason,
+            item.size === 'wide',
+          );
           if (!content) return null;
           return (
             // 영역이 위에서부터 차례로 나타난다 (과목 탭을 바꿔도 영역은 다시 그려지지 않아 처음에만 보인다)

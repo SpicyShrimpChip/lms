@@ -50,6 +50,7 @@ export const DASHBOARD_COMPONENT_IDS = [
   'conceptDetail',
   'recommendation',
   'courseShare',
+  'conceptTable',
 ] as const;
 
 export type DashboardComponentId = (typeof DASHBOARD_COMPONENT_IDS)[number];

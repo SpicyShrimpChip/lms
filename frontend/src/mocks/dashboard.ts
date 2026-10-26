@@ -278,14 +278,21 @@ const LAYOUTS: Record<string, unknown> = {
         aiReason: '전체 학습량은 참고용이라 아래쪽에 두었어요.',
       },
       {
-        component: 'courseShare',
+        component: 'conceptTable',
         order: 5,
+        size: 'wide',
+        aiReason:
+          '개념이 9개라 표 한 장으로 모아 낮은 점수부터 비교하게 했어요.',
+      },
+      {
+        component: 'courseShare',
+        order: 6,
         size: 'normal',
         aiReason: '과목이 2개뿐이라 비중은 맨 아래에 작게 보여 드려요.',
       },
     ],
   },
-  // B: 전체를 먼저 훑어보는 배치 (다른 사용자 예시)
+  // B: 전체를 먼저 훑어보는 배치 (다른 사용자 예시). 상세 표를 넣지 않아도 기본 순서로 뒤에 붙는다
   b: {
     generatedAt: '2026-10-25T14:00:00',
     aiSummary:
