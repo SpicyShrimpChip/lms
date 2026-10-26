@@ -127,6 +127,7 @@ Tailwind 4 `@theme`에 아래 이름으로 등록한다(`src/index.css`). Tailwi
 | `strength` / `strength-soft`                   | `#15803d` / `#e7f6ec`                         | 강점 표시                                                      |
 | `weakness` / `weakness-soft` / `weakness-bar`  | `#c0392b` / `#fdecea` / `#e0574a`             | 보완 필요 표시 / 그 바탕 / 보완 필요 개념의 점수 막대          |
 | `danger`                                       | `#b91c1c`                                     | 오류 메시지만                                                  |
+| `overlay`                                      | `#0f1b33` (다크 `#000000`)                    | 확인 창 뒤를 덮는 막 (`backdrop:bg-overlay/50`)                |
 
 - **바탕은 흰색, 넓은 면은 옅은 파랑, 강조는 파랑.** 바탕은 흰색, 넓은 면(띠, 큰 상자, 푸터)은 옅은 파랑(`surface-muted`·`section`·`footer`)으로 나누고, 누를 수 있거나 선택된 것만 파랑(`primary` 계열)으로 칠한다. 카드는 흰색에 테두리(`line`)로 구분한다.
 

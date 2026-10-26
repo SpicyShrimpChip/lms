@@ -50,20 +50,24 @@ function FileStep({ imported, onLoaded, onNext }: FileStepProps) {
         }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
-        className={`flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed px-6 py-12 text-center hover:border-primary hover:bg-primary-soft ${
-          dragging ? 'border-primary bg-primary-soft' : 'border-line-strong'
+        className={`flex cursor-pointer flex-col items-center gap-2.5 rounded-2xl border-2 border-dashed px-6 py-10 text-center hover:border-primary hover:bg-primary-soft ${
+          dragging
+            ? 'border-primary bg-primary-soft'
+            : 'border-line-strong bg-surface-muted'
         }`}
       >
-        {reading ? (
-          <LoaderCircle
-            size={28}
-            className="animate-spin text-primary"
-            aria-hidden="true"
-          />
-        ) : (
-          <Upload size={28} className="text-primary" aria-hidden="true" />
-        )}
-        <span className="font-medium text-heading">
+        <span className="flex size-12 items-center justify-center rounded-xl bg-primary text-on-primary">
+          {reading ? (
+            <LoaderCircle
+              size={22}
+              className="animate-spin"
+              aria-hidden="true"
+            />
+          ) : (
+            <Upload size={22} aria-hidden="true" />
+          )}
+        </span>
+        <span className="font-bold text-heading">
           {reading
             ? '파일을 읽는 중이에요'
             : 'conversations.json을 여기에 놓거나 눌러서 고르세요'}

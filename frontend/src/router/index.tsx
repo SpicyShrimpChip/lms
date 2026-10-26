@@ -9,7 +9,7 @@ import RequireAuth from './RequireAuth';
 /*
 <페이지 추가 시>
 1. ./pages 하위에 페이지 폴더와 파일 생성 (default export, 페이지 전용 컴포넌트는 pages/<페이지>/components/)
-2. 아래 Layout의 children 배열에 lazyPage(() => import(...))로 추가 (GNB 메뉴는 constants/menu.ts)
+2. 아래 Layout의 children 배열에 lazyPage(() => import(...))로 추가 (주 메뉴는 constants/menu.ts)
    - 메인·404만 처음부터 불러오고, 나머지는 처음 방문할 때 코드를 불러온다 (pages/index.ts 같은 한 곳 모음 파일을 거치면 쪼개지지 않는다)
    - 내 데이터를 보여 주는 화면은 RequireAuth(로그인 가드) 아래에 넣는다
 */

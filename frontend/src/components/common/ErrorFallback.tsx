@@ -16,7 +16,7 @@ export default function ErrorFallback({
   return (
     <div
       role="alert"
-      className="flex flex-col items-center gap-3 rounded-2xl border border-line px-6 py-14 text-center"
+      className="flex flex-col items-center gap-3 rounded-2xl bg-surface-muted px-6 py-14 text-center"
     >
       <CircleAlert size={28} aria-hidden="true" className="text-danger" />
       <p className="text-lg font-bold text-heading">내용을 불러오지 못했어요</p>

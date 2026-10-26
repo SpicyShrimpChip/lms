@@ -45,7 +45,7 @@ function ConfirmDialog({
       onClick={(e) => {
         if (e.target === e.currentTarget) onCancel();
       }}
-      className="m-auto w-[calc(100%-2rem)] max-w-sm rounded-lg border border-line-strong bg-surface-raised p-0 text-ink backdrop:bg-heading/40"
+      className="m-auto w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-line-strong bg-surface-raised p-0 text-ink backdrop:bg-overlay/50"
     >
       <div className="flex flex-col gap-4 p-6">
         <h2
