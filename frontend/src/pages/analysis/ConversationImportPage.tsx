@@ -1,83 +1,133 @@
-import { Lock, Upload } from 'lucide-react';
-import { AiBadge, SubPage } from '@/components';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { ME_QUERY_KEY, getMe } from '@/api';
+import { AsyncBoundary, SubPage } from '@/components';
+import { useAuthStore } from '@/store/useAuthStore';
+import {
+  conversationKey,
+  maskConversation,
+  type ConversationToSend,
+  type MaskOptions,
+  type MergedImport,
+} from '@/utils';
+import FileStep from './components/import/FileStep';
+import ImportSteps from './components/import/ImportSteps';
+import MaskStep from './components/import/MaskStep';
+import SelectStep, {
+  type ConversationChoices,
+} from './components/import/SelectStep';
+import SendStep from './components/import/SendStep';
 
-// 가져오기 단계. 파싱·필터·마스킹은 모두 브라우저에서 하고, 마지막 단계에서 고른 대화만 보낸다
-const STEPS = ['파일 고르기', '대화 고르기', '가린 내용 확인', '보내기'];
-
-// TODO: utils/conversation/의 파서·키워드 필터·마스킹을 연결해 단계별 화면을 채운다
+// 읽은 대화는 이 화면의 메모리에만 둔다. 새로고침하거나 화면을 나가면 사라진다 (서버·브라우저 저장소에 남기지 않음)
 function ConversationImportPage() {
+  const [step, setStep] = useState(0);
+  const [imported, setImported] = useState<MergedImport | null>(null);
+  const [choices, setChoices] = useState<ConversationChoices | null>(null);
+  // 사용자가 고치기 전에는 내 정보의 이름을 가릴 이름으로 미리 넣어 둔다
+  const [editedOptions, setEditedOptions] = useState<MaskOptions | null>(null);
+
+  const authenticated = useAuthStore(
+    (state) => state.status === 'authenticated',
+  );
+  const { data: me } = useQuery({
+    queryKey: ME_QUERY_KEY,
+    queryFn: getMe,
+    enabled: authenticated,
+  });
+  const myName = me?.name;
+  const maskOptions = useMemo<MaskOptions>(
+    () => editedOptions ?? { names: myName ? [myName] : [], terms: [] },
+    [editedOptions, myName],
+  );
+
+  // 보낼 대화 (고른 것만, 과목 포함)
+  const selected = useMemo(() => {
+    if (!imported || !choices) return [];
+    return imported.conversations.flatMap((conversation) => {
+      const choice = choices[conversationKey(conversation)];
+      return choice?.selected
+        ? [{ courseId: choice.courseId, conversation }]
+        : [];
+    });
+  }, [imported, choices]);
+
+  const toSend = useMemo<ConversationToSend[]>(
+    () =>
+      step === 3
+        ? selected.map(({ courseId, conversation }) => ({
+            courseId,
+            conversation: maskConversation(conversation, maskOptions)
+              .conversation,
+          }))
+        : [],
+    [step, selected, maskOptions],
+  );
+
+  // 다음 버튼이 화면 아래에 있어서, 단계를 바꾸면 단계 표시가 보이도록 맨 위로 올린다
+  const goToStep = (next: number) => {
+    setStep(next);
+    window.scrollTo({ top: 0 });
+  };
+
+  const restart = () => {
+    setImported(null);
+    setChoices(null);
+    goToStep(0);
+  };
+
   return (
     <SubPage
       title="AI 대화 가져오기"
       description="ChatGPT, Claude와 공부한 대화를 가져와 개념별로 분석해요"
       breadcrumb={['학습분석', 'AI 대화 가져오기']}
     >
-      <ol className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {STEPS.map((step, index) => (
-          <li
-            key={step}
-            aria-current={index === 0 ? 'step' : undefined}
-            className={`flex items-center gap-2.5 rounded-xl border px-4 py-3 text-body ${
-              index === 0
-                ? 'border-primary bg-primary-soft font-bold text-heading'
-                : 'border-line text-ink-muted'
-            }`}
-          >
-            <span
-              className={`flex size-6 shrink-0 items-center justify-center rounded-full text-caption font-bold ${
-                index === 0
-                  ? 'bg-primary text-on-primary'
-                  : 'bg-surface-muted text-ink-muted'
-              }`}
-            >
-              {index + 1}
-            </span>
-            {step}
-          </li>
-        ))}
-      </ol>
+      <ImportSteps current={step} />
 
-      <section
-        aria-labelledby="import-file"
-        className="flex flex-col gap-5 rounded-2xl border border-line p-6 md:p-8"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="import-file" className="text-xl font-bold text-heading-soft">
-            대화 내보내기 파일 고르기
-          </h2>
-          <AiBadge label="AI 분석" />
-        </div>
-        <label
-          htmlFor="conversation-file"
-          className="flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed border-line-strong px-6 py-12 text-center hover:border-primary hover:bg-primary-soft"
-        >
-          <Upload size={28} className="text-primary" aria-hidden="true" />
-          <span className="font-medium text-heading">
-            내보내기 파일을 여기에 놓거나 눌러서 고르세요
-          </span>
-          <span className="text-body text-ink-muted">
-            ChatGPT, Claude 공식 내보내기 파일(.zip 또는 conversations.json)
-          </span>
-        </label>
-        <input
-          id="conversation-file"
-          type="file"
-          accept=".zip,.json"
-          className="sr-only"
+      {step === 0 && (
+        <FileStep
+          imported={imported}
+          onLoaded={(next) => {
+            setImported(next);
+            // 파일을 다시 고르면 이전 선택은 버린다
+            setChoices(null);
+          }}
+          onNext={() => goToStep(1)}
         />
-        <div className="flex items-start gap-3 rounded-xl bg-surface-muted p-4">
-          <Lock
-            size={20}
-            className="mt-0.5 shrink-0 text-heading-soft"
-            aria-hidden="true"
+      )}
+
+      {step === 1 && imported && (
+        <AsyncBoundary>
+          <SelectStep
+            conversations={imported.conversations}
+            initialChoices={choices}
+            onBack={() => goToStep(0)}
+            onNext={(next) => {
+              setChoices(next);
+              goToStep(2);
+            }}
           />
-          <p className="text-body leading-relaxed text-ink-soft">
-            파일은 서버로 보내지 않고 내 브라우저에서만 읽어요. 학습 관련 대화만
-            골라 이메일, 전화번호 같은 개인정보를 가린 뒤, 내가 선택한 대화만
-            보내요.
-          </p>
-        </div>
-      </section>
+        </AsyncBoundary>
+      )}
+
+      {step === 2 && (
+        <MaskStep
+          conversations={selected.map(({ conversation }) => conversation)}
+          options={maskOptions}
+          onChangeOptions={setEditedOptions}
+          onBack={() => goToStep(1)}
+          onNext={() => goToStep(3)}
+        />
+      )}
+
+      {step === 3 && (
+        <AsyncBoundary>
+          <SendStep
+            items={toSend}
+            onBack={() => goToStep(2)}
+            onRestart={restart}
+          />
+        </AsyncBoundary>
+      )}
     </SubPage>
   );
 }
