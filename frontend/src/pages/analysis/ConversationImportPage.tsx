@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { ME_QUERY_KEY, getMe } from '@/api';
 import { AsyncBoundary, SubPage } from '@/components';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useMe } from '@/hooks';
 import {
   conversationKey,
   maskConversation,
@@ -26,14 +24,7 @@ function ConversationImportPage() {
   // 사용자가 고치기 전에는 내 정보의 이름을 가릴 이름으로 미리 넣어 둔다
   const [editedOptions, setEditedOptions] = useState<MaskOptions | null>(null);
 
-  const authenticated = useAuthStore(
-    (state) => state.status === 'authenticated',
-  );
-  const { data: me } = useQuery({
-    queryKey: ME_QUERY_KEY,
-    queryFn: getMe,
-    enabled: authenticated,
-  });
+  const { data: me } = useMe();
   const myName = me?.name;
   const maskOptions = useMemo<MaskOptions>(
     () => editedOptions ?? { names: myName ? [myName] : [], terms: [] },

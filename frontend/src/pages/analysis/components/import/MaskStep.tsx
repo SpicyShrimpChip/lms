@@ -1,6 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { ChevronDown, EyeOff } from 'lucide-react';
-import { Button, Chip, TextInput } from '@/components';
+import { Button, Card, Chip, TextInput } from '@/components';
 import {
   MASK_LABELS,
   conversationKey,
@@ -139,9 +139,10 @@ function MaskStep({
   const totalCount = masked.reduce((sum, item) => sum + item.totalCount, 0);
 
   return (
-    <section
+    <Card
+      as="section"
       aria-labelledby="import-mask"
-      className="flex flex-col gap-6 rounded-2xl border border-line bg-surface-raised p-6 md:p-8"
+      className="flex flex-col gap-6 p-6 md:p-8"
     >
       <div className="flex flex-col gap-2">
         <h2 id="import-mask" className="text-xl font-extrabold text-heading">
@@ -270,7 +271,7 @@ function MaskStep({
         </Button>
         <Button onClick={onNext}>다음: 보내기</Button>
       </div>
-    </section>
+    </Card>
   );
 }
 

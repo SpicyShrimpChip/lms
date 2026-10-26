@@ -5,7 +5,7 @@
 ## 스택
 
 React 19, TypeScript 6, Vite 8, Tailwind CSS 4, React Router 7(`createBrowserRouter` 배열 라우팅),
-TanStack Query 5(서버 상태), Zustand 5(클라이언트 UI 상태만), Axios, zod(LLM 출력 검증, 설치 예정), Motion(`motion` 패키지, 움직임)
+TanStack Query 5(서버 상태), Zustand 5(클라이언트 UI 상태만), Axios, zod(LLM 출력 검증), Motion(`motion` 패키지, 움직임)
 
 버전별 주의 (예제·자료가 이전 버전 기준인 경우가 많다):
 
@@ -32,7 +32,7 @@ src/
 ├── api/          Axios 인스턴스·인터셉터, 기능별 API 함수 (materials.api.ts 등)
 ├── components/   공통 UI, 레이아웃(Header·GNB·Footer), AsyncBoundary, Chatbot
 ├── constants/    메뉴 구성, 라벨 매핑 등 상수
-├── hooks/        공통 커스텀 훅
+├── hooks/        공통 커스텀 훅 (`useCourses`: 내 과목 목록, `useMe`: 로그인했을 때 내 정보)
 ├── mocks/        백엔드 없이 개발할 때 쓰는 샘플 데이터
 ├── pages/        페이지(default export). 페이지 전용 컴포넌트는 pages/<페이지>/components/ 에 둔다
 ├── router/       라우트 정의, 로그인 가드
@@ -43,8 +43,8 @@ src/
 ```
 
 - import는 `@/` 절대경로를 쓰고, 공통 컴포넌트는 배럴(`index.ts`)로 내보낸다.
-- 화면을 만들 때 공통 부품을 먼저 쓴다: 버튼 `Button`, 흰 카드 `Card`, 작은 알약 `Chip`, 점수·비중 막대 `ScoreBar`, 입력칸 `TextInput`·`SelectInput`(그 밖의 칸 모양은 `FIELD_CLASS`), 폼 줄과 오류 문구 `FormRow`(`error`), AI 글 `AiNote`·`AiBadge`, 강점·보완 `LevelBadge`. 같은 클래스 묶음을 세 번째로 쓰게 되면 공통 부품으로 뺀다.
-- 서버 데이터는 React Query로만 다루고 Zustand에 복사하지 않는다.
+- 화면을 만들 때 공통 부품을 먼저 쓴다: 버튼 `Button`, 흰 카드 `Card`, 작은 알약 `Chip`, 점수·비중 막대 `ScoreBar`(개념 막대는 `level`을 넘기면 보완 필요가 붉게), 파일 끌어다 놓기 `FileDropZone`, 입력칸 `TextInput`·`SelectInput`(그 밖의 칸 모양은 `FIELD_CLASS`), 폼 줄과 오류 문구 `FormRow`(`error`), AI 글 `AiNote`·`AiBadge`, 강점·보완 `LevelBadge`. 같은 클래스 묶음을 세 번째로 쓰게 되면 공통 부품으로 뺀다.
+- 서버 데이터는 React Query로만 다루고 Zustand에 복사하지 않는다. 쿼리 키는 문자열로 직접 쓰지 않고 API 파일의 상수(`ME_QUERY_KEY`, `COURSES_QUERY_KEY`)나 훅을 쓴다.
 - 로딩·에러 처리는 `useSuspenseQuery` + `AsyncBoundary`로 한다. 불러오는 동안은 `LoadingFallback`(회색 틀 `Skeleton`)이 보인다.
 - 페이지는 처음 방문할 때만 코드를 불러온다. `router/index.tsx`에 `lazyPage(() => import('@/pages/...'))`로 추가하고, 페이지 파일은 default export로 만든다(메인·404만 처음부터 불러온다). 여러 페이지를 한 번에 export하는 모음 파일(`pages/index.ts`)은 만들지 않는다. 쪼개지지 않는다.
 

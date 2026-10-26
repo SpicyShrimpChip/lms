@@ -1,13 +1,14 @@
 import { useState, type FormEvent } from 'react';
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { LoaderCircle, Upload } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
-import { getCourses, uploadMaterial } from '@/api';
+import { uploadMaterial } from '@/api';
 import {
   AsyncBoundary,
   Button,
+  FileDropZone,
   FormRow,
   SelectInput,
   SubPage,
@@ -19,6 +20,7 @@ import {
   MATERIAL_MAX_SIZE_MB,
   MATERIAL_TITLE_MAX_LENGTH,
 } from '@/constants';
+import { useCourses } from '@/hooks';
 import {
   MATERIAL_FORMAT_LABEL,
   formatSemester,
@@ -30,16 +32,12 @@ const ACCEPT = MATERIAL_EXTENSIONS.map((ext) => `.${ext}`).join(',');
 const ACCEPT_LABEL = `${MATERIAL_FORMAT_LABEL} · ${MATERIAL_MAX_SIZE_MB}MB까지`;
 
 function MaterialUploadForm() {
-  const { data: courses } = useSuspenseQuery({
-    queryKey: ['courses'],
-    queryFn: getCourses,
-  });
+  const { data: courses } = useCourses();
   const [courseId, setCourseId] = useState('');
   const [title, setTitle] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string>();
   const [agreed, setAgreed] = useState(false);
-  const [dragging, setDragging] = useState(false);
   // 같은 파일을 다시 고를 수 있도록 올린 뒤 파일 입력칸을 새로 그린다
   const [fileInputKey, setFileInputKey] = useState(0);
 
@@ -116,44 +114,17 @@ function MaterialUploadForm() {
           required
           error={fileError ?? ''}
         >
-          {/* 끌어다 놓거나 눌러서 고르는 영역. 실제 입력칸은 화면에서 숨기고 라벨이 대신 눌린다 */}
-          <label
-            htmlFor="material-file"
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragging(false);
-              handleFileChange(e.dataTransfer.files[0]);
-            }}
-            className={`flex cursor-pointer flex-col items-center gap-2.5 rounded-2xl border-2 border-dashed px-6 py-10 text-center hover:border-primary hover:bg-primary-soft ${
-              dragging
-                ? 'border-primary bg-primary-soft'
-                : 'border-line-strong bg-surface-muted'
-            }`}
-          >
-            <span className="flex size-12 items-center justify-center rounded-xl bg-primary text-on-primary">
-              <Upload size={22} aria-hidden="true" />
-            </span>
-            <span className="font-bold text-heading">
-              {file ? file.name : '파일을 끌어다 놓거나 눌러서 고르세요'}
-            </span>
-            <span className="text-caption text-ink-muted">
-              {file ? '다른 파일을 고르려면 다시 눌러 주세요' : ACCEPT_LABEL}
-            </span>
-          </label>
-          <input
+          <FileDropZone
             key={fileInputKey}
             id="material-file"
-            type="file"
             accept={ACCEPT}
+            title={file ? file.name : '파일을 끌어다 놓거나 눌러서 고르세요'}
+            description={
+              file ? '다른 파일을 고르려면 다시 눌러 주세요' : ACCEPT_LABEL
+            }
             aria-invalid={fileError ? true : undefined}
             aria-describedby="material-file-error"
-            onChange={(e) => handleFileChange(e.target.files?.[0])}
-            className="sr-only"
+            onFiles={(files) => handleFileChange(files[0])}
           />
         </FormRow>
         <FormRow label="자료 제목" htmlFor="material-title" required>

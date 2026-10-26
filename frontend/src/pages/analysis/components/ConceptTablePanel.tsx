@@ -70,9 +70,7 @@ function ConceptTablePanel({
                     <span className="flex items-center gap-3">
                       <ScoreBar
                         value={concept.score}
-                        tone={
-                          concept.level === 'weakness' ? 'weakness' : 'primary'
-                        }
+                        level={concept.level}
                         className="flex-1"
                       />
                       <span className="w-8 text-right font-bold text-heading">

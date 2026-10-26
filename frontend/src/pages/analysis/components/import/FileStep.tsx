@@ -1,6 +1,6 @@
-import { useState, type DragEvent } from 'react';
-import { FileText, LoaderCircle, Lock, Upload } from 'lucide-react';
-import { Button } from '@/components';
+import { useState } from 'react';
+import { FileText, Lock } from 'lucide-react';
+import { Button, Card, FileDropZone } from '@/components';
 import type { MergedImport } from '@/utils';
 import { readExportFiles } from './readExportFiles';
 
@@ -12,10 +12,8 @@ interface FileStepProps {
 
 function FileStep({ imported, onLoaded, onNext }: FileStepProps) {
   const [reading, setReading] = useState(false);
-  const [dragging, setDragging] = useState(false);
 
-  const handleFiles = async (list: FileList | null) => {
-    const files = list ? [...list] : [];
+  const handleFiles = async (files: File[]) => {
     if (files.length === 0) return;
     setReading(true);
     try {
@@ -25,70 +23,30 @@ function FileStep({ imported, onLoaded, onNext }: FileStepProps) {
     }
   };
 
-  const handleDrop = (e: DragEvent<HTMLLabelElement>) => {
-    e.preventDefault();
-    setDragging(false);
-    void handleFiles(e.dataTransfer.files);
-  };
-
   const count = imported?.conversations.length ?? 0;
 
   return (
-    <section
+    <Card
+      as="section"
       aria-labelledby="import-file"
-      className="flex flex-col gap-5 rounded-2xl border border-line bg-surface-raised p-6 md:p-8"
+      className="flex flex-col gap-5 p-6 md:p-8"
     >
       <h2 id="import-file" className="text-xl font-extrabold text-heading">
         대화 내보내기 파일 고르기
       </h2>
 
-      <label
-        htmlFor="conversation-file"
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={handleDrop}
-        className={`flex cursor-pointer flex-col items-center gap-2.5 rounded-2xl border-2 border-dashed px-6 py-10 text-center hover:border-primary hover:bg-primary-soft ${
-          dragging
-            ? 'border-primary bg-primary-soft'
-            : 'border-line-strong bg-surface-muted'
-        }`}
-      >
-        <span className="flex size-12 items-center justify-center rounded-xl bg-primary text-on-primary">
-          {reading ? (
-            <LoaderCircle
-              size={22}
-              className="animate-spin"
-              aria-hidden="true"
-            />
-          ) : (
-            <Upload size={22} aria-hidden="true" />
-          )}
-        </span>
-        <span className="font-bold text-heading">
-          {reading
-            ? '파일을 읽는 중이에요'
-            : 'conversations.json을 여기에 놓거나 눌러서 고르세요'}
-        </span>
-        <span className="text-body text-ink-muted">
-          ChatGPT, Claude에서 내보낸 압축 파일을 풀면 들어 있어요. 여러 개로
-          나뉘어 있으면 모두 골라 주세요.
-        </span>
-      </label>
-      <input
+      <FileDropZone
         id="conversation-file"
-        type="file"
         accept=".json,.zip,application/json"
         multiple
-        disabled={reading}
-        onChange={(e) => {
-          void handleFiles(e.target.files);
-          // 같은 파일을 다시 골라도 읽도록 비운다
-          e.target.value = '';
-        }}
-        className="sr-only"
+        busy={reading}
+        title={
+          reading
+            ? '파일을 읽는 중이에요'
+            : 'conversations.json을 여기에 놓거나 눌러서 고르세요'
+        }
+        description="ChatGPT, Claude에서 내보낸 압축 파일을 풀면 들어 있어요. 여러 개로 나뉘어 있으면 모두 골라 주세요."
+        onFiles={(files) => void handleFiles(files)}
       />
 
       <div aria-live="polite" className="flex flex-col gap-3">
@@ -141,7 +99,7 @@ function FileStep({ imported, onLoaded, onNext }: FileStepProps) {
           다음: 공부한 대화 고르기
         </Button>
       </div>
-    </section>
+    </Card>
   );
 }
 

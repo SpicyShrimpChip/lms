@@ -1,7 +1,8 @@
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { CircleCheck, TriangleAlert } from 'lucide-react';
-import { getCourses, importConversations } from '@/api';
-import { Button } from '@/components';
+import { importConversations } from '@/api';
+import { Button, Card } from '@/components';
+import { useCourses } from '@/hooks';
 import type { ConversationImportResult } from '@/types';
 import { buildImportRequests, type ConversationToSend } from '@/utils';
 
@@ -26,10 +27,7 @@ async function sendAll(
 }
 
 function SendStep({ items, onBack, onRestart }: SendStepProps) {
-  const { data: courses } = useSuspenseQuery({
-    queryKey: ['courses'],
-    queryFn: getCourses,
-  });
+  const { data: courses } = useCourses();
   const mutation = useMutation({ mutationFn: sendAll });
 
   const countByCourse = courses
@@ -45,9 +43,10 @@ function SendStep({ items, onBack, onRestart }: SendStepProps) {
   if (mutation.isSuccess) {
     const { importedCount, rejected } = mutation.data;
     return (
-      <section
+      <Card
+        as="section"
         aria-labelledby="import-done"
-        className="flex flex-col gap-6 rounded-2xl border border-line bg-surface-raised p-6 md:p-8"
+        className="flex flex-col gap-6 p-6 md:p-8"
       >
         <div className="flex items-start gap-3">
           <CircleCheck
@@ -94,14 +93,15 @@ function SendStep({ items, onBack, onRestart }: SendStepProps) {
           </Button>
           <Button to="/analysis">학습 분석 보기</Button>
         </div>
-      </section>
+      </Card>
     );
   }
 
   return (
-    <section
+    <Card
+      as="section"
       aria-labelledby="import-send"
-      className="flex flex-col gap-6 rounded-2xl border border-line bg-surface-raised p-6 md:p-8"
+      className="flex flex-col gap-6 p-6 md:p-8"
     >
       <div className="flex flex-col gap-2">
         <h2 id="import-send" className="text-xl font-extrabold text-heading">
@@ -148,7 +148,7 @@ function SendStep({ items, onBack, onRestart }: SendStepProps) {
             : `선택한 대화 ${items.length}개 보내기`}
         </Button>
       </div>
-    </section>
+    </Card>
   );
 }
 
