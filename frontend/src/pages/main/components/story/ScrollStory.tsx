@@ -31,6 +31,9 @@ const SCENE_VARIANTS = {
   }),
 };
 
+// 맥 창의 닫기·최소화·확대 버튼 색 (꾸밈용)
+const WINDOW_DOTS = ['bg-window-close', 'bg-window-minimize', 'bg-window-zoom'];
+
 // 장면을 실제 화면처럼 보이게 하는 브라우저 창 틀 (점 3개 + 주소줄)
 function BrowserFrame({
   path,
@@ -42,11 +45,11 @@ function BrowserFrame({
   return (
     <figure className="relative m-0 overflow-hidden rounded-2xl border border-line bg-surface-raised shadow-[0_30px_60px_-20px] shadow-brand/30">
       <div className="flex h-10.5 items-center gap-2 border-b border-line bg-surface-muted px-4">
-        {[0, 1, 2].map((dot) => (
+        {WINDOW_DOTS.map((color) => (
           <span
-            key={dot}
+            key={color}
             aria-hidden="true"
-            className="size-2.5 rounded-full bg-line-strong"
+            className={`size-3 rounded-full ${color}`}
           />
         ))}
         <span className="mx-auto flex h-6.5 items-center gap-1.5 rounded-full border border-line bg-surface-raised px-3.5 text-xs text-ink-muted">
