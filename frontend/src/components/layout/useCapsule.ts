@@ -10,11 +10,11 @@ const SCROLL_THRESHOLD = 8;
 // Tailwind lg (64rem). 좁은 화면은 햄버거 메뉴라 알약으로 바꾸지 않는다
 const DESKTOP_QUERY = '(min-width: 64rem)';
 
-// 알약 안쪽 여백·칸 사이·테두리(px). Header의 알약 클래스(gap-x-4 pl-5 pr-2 border)와 같게 맞춘다
+// 알약 안쪽 여백·칸 사이·테두리(px). Header의 알약 클래스(gap-x-5 pl-5 pr-3 border)와 같게 맞춘다
 const CAPSULE_SPACING = {
-  gap: 16,
+  gap: 20,
   paddingLeft: 20,
-  paddingRight: 8,
+  paddingRight: 12,
   border: 2,
 };
 // 주 메뉴 칸 사이 (Gnb의 gap-1)

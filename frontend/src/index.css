@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 /* 화면 모드를 바꿀 때 색이 서서히 바뀌게 하는 토큰 등록. 색 토큰을 추가하면 이 파일에도 같이 추가한다 */
 @import './styles/theme-transition.css';
+/* 유리 재질(.glass): 상단바 알약처럼 떠 있는 요소에만 쓴다 */
+@import './styles/glass.css';
 
 /* 다크모드는 <html class="dark">로 켠다 (index.html 스크립트와 useThemeStore가 붙이고 뗀다) */
 @custom-variant dark (&:where(.dark, .dark *));
