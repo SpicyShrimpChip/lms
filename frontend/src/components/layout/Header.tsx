@@ -20,7 +20,11 @@ import Gnb from './Gnb';
 import MobileMenu, { MOBILE_MENU_ID } from './MobileMenu';
 import ThemeToggle from './ThemeToggle';
 import { useCapsuleMode, useCapsuleWidth } from './useCapsule';
+import { GlassSurface } from '../common';
 import { FIELD_CLASS } from '../common/fieldClass';
+
+// 알약 높이(px). 알약 클래스 h-14와 같다
+const CAPSULE_HEIGHT = 56;
 
 const ACCOUNT_LINK_CLASS = 'font-medium text-ink-soft hover:text-heading';
 
@@ -129,6 +133,10 @@ function Header() {
   const rightRef = useRef<HTMLDivElement>(null);
   const capsule = useCapsuleMode();
   const capsuleWidth = useCapsuleWidth(logoRef, gnbRef, rightRef);
+  // 알약일 때 검색칸은 접어 두고, 돋보기를 누르거나 입력 중일 때만 펼친다
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchCollapsed = capsule && !searchOpen && !keyword;
 
   // Esc로 닫고 포커스를 햄버거 버튼으로 돌려준다
   useEffect(() => {
@@ -164,13 +172,17 @@ function Header() {
         style={{ '--capsule': `${capsuleWidth}px` } as CSSProperties}
         className={`mx-auto flex flex-wrap items-center justify-between gap-y-3 lg:flex-nowrap border transition-[max-width,height,margin,padding,border-radius,column-gap,background-color,border-color,box-shadow] duration-[640ms] ease-[cubic-bezier(0.16,1,0.3,1)] max-lg:py-3.5 ${
           capsule
-            ? 'mt-1.5 h-14 max-w-(--capsule) gap-x-4 rounded-full border-line bg-surface-raised/80 pr-2 pl-5 shadow-lg shadow-brand/15 backdrop-blur-md backdrop-saturate-150'
+            ? 'glass-frame mt-1.5 h-14 max-w-(--capsule) gap-x-5 rounded-full border-transparent pr-3 pl-5'
             : 'max-w-page gap-x-6 border-transparent px-6 lg:h-17'
         }`}
       >
+        {/* 알약일 때 유리 바탕 (높이 h-14 = 56px, 모서리는 그 절반) */}
+        {capsule && (
+          <GlassSurface radius={CAPSULE_HEIGHT / 2} height={CAPSULE_HEIGHT} />
+        )}
         <div
           ref={logoRef}
-          className="flex items-center justify-between max-lg:w-full"
+          className="flex items-center justify-between max-lg:w-full lg:shrink-0"
         >
           <Link to="/" className="flex items-center gap-2.5 text-heading">
             <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-on-primary">
@@ -209,30 +221,60 @@ function Header() {
 
         <div
           ref={rightRef}
-          className="flex flex-wrap items-center gap-3 text-sm"
+          className="flex flex-wrap items-center gap-3 text-sm lg:shrink-0 lg:flex-nowrap"
         >
+          {/* 알약일 때는 돋보기 버튼만 두고, 누르면 칸이 옆으로 펼쳐진다 (상자 안의 상자가 생기지 않게) */}
           <form
             role="search"
             onSubmit={handleSearch}
-            className={`flex h-9 items-center gap-1.5 px-2.5 ${FIELD_CLASS}`}
+            className={`flex h-9 items-center gap-1.5 transition-[padding,border-color,background-color,border-radius] duration-300 ${
+              searchCollapsed
+                ? 'rounded-full border border-transparent px-0'
+                : `px-2.5 ${FIELD_CLASS}`
+            }`}
           >
             <label htmlFor="global-search" className="sr-only">
               검색
             </label>
             <input
+              ref={searchInputRef}
               id="global-search"
               type="search"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
+              onBlur={() => {
+                if (!keyword) setSearchOpen(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setSearchOpen(false);
+                  e.currentTarget.blur();
+                }
+              }}
+              tabIndex={searchCollapsed ? -1 : undefined}
               placeholder="자료, 개념 검색"
-              className="w-28 bg-transparent text-sm outline-none placeholder:text-ink-muted"
+              className={`bg-transparent text-sm outline-none transition-[width] duration-300 placeholder:text-ink-muted ${
+                searchCollapsed ? 'w-0' : 'w-28'
+              }`}
             />
             <button
-              type="submit"
-              aria-label="검색하기"
-              className="text-ink-muted hover:text-heading"
+              type={searchCollapsed ? 'button' : 'submit'}
+              aria-label={searchCollapsed ? '검색 열기' : '검색하기'}
+              onClick={
+                searchCollapsed
+                  ? () => {
+                      setSearchOpen(true);
+                      searchInputRef.current?.focus();
+                    }
+                  : undefined
+              }
+              className={
+                searchCollapsed
+                  ? 'grid size-9 place-items-center rounded-full text-ink-soft hover:bg-primary-soft hover:text-heading'
+                  : 'text-ink-muted hover:text-heading'
+              }
             >
-              <Search size={16} aria-hidden="true" />
+              <Search size={searchCollapsed ? 18 : 16} aria-hidden="true" />
             </button>
           </form>
 
