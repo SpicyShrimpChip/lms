@@ -6,7 +6,7 @@ import {
   SubPage,
   type BoardColumn,
 } from '@/components';
-import { getNotices } from '@/api';
+import { NOTICES_QUERY_KEY, getNotices } from '@/api';
 import type { Notice } from '@/types';
 
 const COLUMNS: BoardColumn<Notice>[] = [
@@ -35,7 +35,7 @@ const COLUMNS: BoardColumn<Notice>[] = [
 
 function NoticeTable() {
   const { data: notices } = useSuspenseQuery({
-    queryKey: ['notices'],
+    queryKey: NOTICES_QUERY_KEY,
     queryFn: getNotices,
   });
 
