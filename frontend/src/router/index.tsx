@@ -1,8 +1,9 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { Layout, LoadingFallback } from '@/components';
 import MainPage from '@/pages/main/MainPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import { lazyPage } from './lazyPage';
+import RequireAdmin from './RequireAdmin';
 import RequireAuth from './RequireAuth';
 
 // 페이지 추가 시 배열 안에 객체로 정리
@@ -82,6 +83,35 @@ export const router = createBrowserRouter([
           {
             path: 'mypage',
             lazy: lazyPage(() => import('@/pages/mypage/MyPage')),
+          },
+
+          // 관리자 (로그인 + 관리자 역할 필요. 서버도 /api/admin/** 에서 다시 확인한다)
+          {
+            element: <RequireAdmin />,
+            children: [
+              {
+                path: 'admin',
+                element: <Navigate to="/admin/notices" replace />,
+              },
+              {
+                path: 'admin/notices',
+                lazy: lazyPage(
+                  () => import('@/pages/admin/AdminNoticeListPage'),
+                ),
+              },
+              {
+                path: 'admin/notices/new',
+                lazy: lazyPage(
+                  () => import('@/pages/admin/AdminNoticeFormPage'),
+                ),
+              },
+              {
+                path: 'admin/notices/:noticeId/edit',
+                lazy: lazyPage(
+                  () => import('@/pages/admin/AdminNoticeFormPage'),
+                ),
+              },
+            ],
           },
         ],
       },
