@@ -20,6 +20,7 @@ frontend/dist/
 
 # backend
 backend/build/
+backend/bin/
 backend/.gradle/
 backend/out/
 backend/uploads/
