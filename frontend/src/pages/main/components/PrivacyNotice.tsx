@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 
-// "이렇게 공부해요" 3단계 바로 아래에 붙는 안내 (1단계 기록 모으기의 보충 설명)
+// 스크롤 소개(ScrollStory) 바로 아래에 붙는 안내 (1·2단계 대화 가져오기·개인정보 가리기의 보충 설명)
 function PrivacyNotice() {
   return (
     <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-line px-6 py-5">

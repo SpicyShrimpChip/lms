@@ -95,6 +95,8 @@ function LoginPage() {
           아직 계정이 없나요?{' '}
           <Link
             to="/signup"
+            // 가입하고 로그인하면 원래 가려던 화면으로 이어지게 넘겨준다
+            state={{ from: state.from }}
             className="font-medium text-primary underline-offset-4 hover:underline"
           >
             회원가입
