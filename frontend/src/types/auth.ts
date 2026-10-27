@@ -4,6 +4,8 @@ export interface User {
   email: string;
   name: string;
   aiAnalysisConsent: boolean;
+  // 관리자 메뉴를 보일지 정하는 데만 쓴다. 권한은 서버가 매번 확인한다
+  role: 'USER' | 'ADMIN';
 }
 
 // 회원가입 요청 (POST /api/auth/signup)

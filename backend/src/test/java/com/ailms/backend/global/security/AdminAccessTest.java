@@ -82,6 +82,19 @@ class AdminAccessTest {
 	}
 
 	@Test
+	void 내_정보_응답에_역할이_들어_있다() throws Exception {
+		String userToken = signupAndLogin("me-user@example.com");
+		String adminToken = signupAndLogin("me-admin@example.com");
+		setRole("me-admin@example.com", "ADMIN");
+
+		mockMvc.perform(get("/api/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + userToken))
+				.andExpect(status().isOk())
+				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.data.role").value("USER"));
+		mockMvc.perform(get("/api/users/me").header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
+				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.data.role").value("ADMIN"));
+	}
+
+	@Test
 	void 가입하면_항상_일반_사용자다() throws Exception {
 		signupAndLogin("new@example.com");
 

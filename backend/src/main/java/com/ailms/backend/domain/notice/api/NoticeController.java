@@ -1,6 +1,7 @@
 package com.ailms.backend.domain.notice.api;
 
 import com.ailms.backend.domain.notice.application.NoticeService;
+import com.ailms.backend.domain.notice.dto.NoticeDetailResponse;
 import com.ailms.backend.domain.notice.dto.NoticeResponse;
 import com.ailms.backend.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,5 +25,11 @@ public class NoticeController {
 	@GetMapping
 	public ApiResponse<List<NoticeResponse>> getNotices() {
 		return ApiResponse.success(noticeService.getNotices());
+	}
+
+	@Operation(summary = "공지 상세", description = "본문까지 돌려준다. 본문은 글자로만 보여 주고 HTML로 해석하지 않는다. 없으면 404.")
+	@GetMapping("/{id}")
+	public ApiResponse<NoticeDetailResponse> getNotice(@PathVariable Long id) {
+		return ApiResponse.success(noticeService.getNotice(id));
 	}
 }

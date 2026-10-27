@@ -35,6 +35,26 @@ class NoticeApiTest {
 				.andExpect(jsonPath("$.data[2].createdAt").value("2026-10-15"));
 	}
 
+	@Test
+	void 공지_상세는_로그인_없이_본문까지_돌려준다() throws Exception {
+		mockMvc.perform(get("/api/notices/1"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.success").value(true))
+				.andExpect(jsonPath("$.data.id").value(1))
+				.andExpect(jsonPath("$.data.title").value("서비스를 시작했어요"))
+				.andExpect(jsonPath("$.data.content").isNotEmpty())
+				.andExpect(jsonPath("$.data.createdAt").value("2026-10-15"))
+				.andExpect(jsonPath("$.data.updatedAt").value(nullValue()));
+	}
+
+	@Test
+	void 없는_공지_상세는_404와_안내_문구를_돌려준다() throws Exception {
+		mockMvc.perform(get("/api/notices/99999"))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.success").value(false))
+				.andExpect(jsonPath("$.message").value("공지사항을 찾을 수 없어요."));
+	}
+
 	// 로그인하지 않으면 없는 주소도 401로 막힌다 (주소 존재 여부를 알려 주지 않는다). 그래서 로그인한 상태로 확인한다
 	@Test
 	@WithMockUser

@@ -22,10 +22,17 @@
 | --- | --- | --- |
 | `V1__create_notice.sql` | `notice` | 공지사항 |
 | `V2__create_users_and_refresh_token.sql` | `users`, `refresh_token` | 회원, 로그인 세션 |
+| `V3__add_notice_content.sql` | `notice` | 공지 본문(`content`, 글자만 저장), 수정 시각(`updated_at`), 작성한 관리자(`author_id`, 탈퇴하면 NULL) |
 | `db/seed/R__sample_notices.sql` | (데이터) | 로컬 샘플 공지 3건. **운영(prod) 프로필은 이 폴더를 읽지 않는다** |
 
 - 테이블 구조는 Flyway 마이그레이션 파일로만 바꾼다. 이미 적용된 `V*` 파일은 고치지 않고 새 번호(`V3__...`)를 추가한다.
 - Hibernate는 `ddl-auto: validate`로 엔티티와 테이블이 맞는지 검사만 한다.
+
+### `notice`
+
+- 본문은 **글자로만** 저장하고 보여 준다(HTML·마크다운으로 해석하지 않음). 제목 100자, 본문 5000자.
+- 본문 컬럼이 비어 있는 행은 V3 이전에 만든 옛 공지다(API는 빈 문자열로 내려준다).
+- `author_id`는 공개 응답에 내보내지 않는다. 쓰기·수정·삭제는 `/api/admin/notices`(관리자 전용)만 한다.
 
 ### `users`
 
