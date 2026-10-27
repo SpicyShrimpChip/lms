@@ -71,6 +71,19 @@ function useAccountItems(): { key: string; node: ReactNode }[] {
           },
         ]
       : []),
+    // 관리자에게만 보인다. 눌러서 가는 화면도 서버가 다시 확인한다
+    ...(me?.role === 'ADMIN'
+      ? [
+          {
+            key: 'admin',
+            node: (
+              <Link to="/admin/notices" className={ACCOUNT_LINK_CLASS}>
+                관리자
+              </Link>
+            ),
+          },
+        ]
+      : []),
     {
       key: 'mypage',
       node: (
