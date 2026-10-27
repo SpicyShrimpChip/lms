@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { X } from 'lucide-react';
+import { cn } from '@/utils';
 
 const TONE_CLASS = {
   // 사용자가 넣은 값(키워드 등)
@@ -22,12 +23,17 @@ function Chip({
   tone = 'neutral',
   onRemove,
   removeLabel,
-  className = '',
+  className,
   children,
 }: ChipProps) {
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full py-0.5 text-caption ${onRemove ? 'pr-1 pl-2.5' : 'px-2.5'} ${TONE_CLASS[tone]} ${className}`}
+      className={cn(
+        'inline-flex items-center gap-1 rounded-full py-0.5 text-caption',
+        onRemove ? 'pr-1 pl-2.5' : 'px-2.5',
+        TONE_CLASS[tone],
+        className,
+      )}
     >
       {children}
       {onRemove && (

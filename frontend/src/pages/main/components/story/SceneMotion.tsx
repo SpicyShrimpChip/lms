@@ -1,6 +1,7 @@
 import { use, useEffect, useState, type ReactNode } from 'react';
 import * as m from 'motion/react-m';
 import { MOTION_DURATION, SWEEP_TRANSITION } from '@/constants';
+import { cn } from '@/utils';
 import { SceneMotionContext } from './sceneMotionContext';
 
 // 장면 안 움직임 부품. 움직임이 꺼져 있으면(SceneMotionContext) 마지막 모습을 그대로 그린다.
@@ -69,7 +70,7 @@ export function Dim({
 }) {
   const animated = use(SceneMotionContext);
   if (!animated) {
-    return <span className={`opacity-50 ${className ?? ''}`}>{children}</span>;
+    return <span className={cn('opacity-50', className)}>{children}</span>;
   }
   return (
     <m.span
