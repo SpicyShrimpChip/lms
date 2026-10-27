@@ -55,6 +55,12 @@ Swagger UI: `/swagger-ui/index.html` — 프론트와 API를 맞출 때 이 문�
 - CORS 허용 출처는 설정값으로 관리한다 (로컬: `http://localhost:5173`).
 - 업로드 파일은 확장자·크기·MIME을 검증한다.
 
+## CI와 main 보호
+
+- `main`은 삭제·강제 푸시가 막혀 있고, 프론트 CI(`build-and-lint`)는 머지 필수 검사다(10/27). 백엔드 CI(`build-and-test`, `mysql-test`)는 **아직 필수가 아니다**: 규칙셋 "backend CI required"는 만들어 두고 꺼 둔 상태이고, `backend-ci.yml`의 PR 실행은 `backend/**` 변경이 있을 때만 돈다.
+- 백엔드 CI를 필수로 켤 때(백엔드 작업이 본격화되면 주미와 정하기): `backend-ci.yml`의 `pull_request`에서 `paths` 줄을 지우고, GitHub Settings → Rules → Rulesets에서 "backend CI required"를 Active로 바꾼다. 순서가 반대면 backend 밖만 바꾼 PR이 머지되지 않는다. 자세한 건 `backend-ci.yml` 위쪽 주석.
+- 필수 검사 이름은 workflow의 job 이름(`build-and-test`, `mysql-test`)과 같아야 한다. job 이름을 바꾸면 규칙셋의 검사 이름도 같이 고친다.
+
 ## 미결 사항 처리 방법
 
 - **LLM:** 제공사·모델 수가 미정이므로 `global/llm`에 인터페이스를 두고 구현체를 설정으로 고른다. 여러 모델이 독립 판단 → 결과 비교·통합하는 구조로 확장할 수 있게 설계한다. 키가 없을 때는 mock 구현체로 동작하게 한다.
