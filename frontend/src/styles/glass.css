@@ -1,0 +1,92 @@
+/*
+  유리 재질. 내용 위에 떠 있는 조작 영역(상단바 알약 등)에만 쓴다. 점수·근거·표처럼 읽는 내용에는 쓰지 않는다.
+  - .glass: 요소 하나로 된 유리 (흐림 + 옅은 색 + 머리카락 선 + 안쪽 밝은 선 + 두 겹 그림자)
+  - .glass-frame + GlassSurface: 굴절 유리. 바탕을 조각(.glass-tile)으로 나눠 가장자리에만 굴절을 건다 (크롬·엣지).
+    backdrop-filter가 걸린 요소의 자식은 페이지를 볼 수 없어서, 틀에는 필터를 걸지 않고 조각마다 따로 건다
+  - "투명도 줄이기": 흐림 없이 단단한 바탕
+  색은 화면 모드별로 아래 변수에서 정한다 (컴포넌트에 dark: 클래스를 붙이지 않는다)
+*/
+:root {
+  --glass-tint: rgb(255 255 255 / 0.55);
+  --glass-rim-top: rgb(255 255 255 / 0.6);
+  /* 머리카락 선: 흰 바탕 위에서도 유리 가장자리가 보이게 하는 아주 옅은 어두운 선 (파란 바탕 위에서는 거의 안 보인다) */
+  --glass-hairline: rgb(15 27 51 / 0.08);
+  /* 그림자 두 겹: 가장자리 바로 아래 짧고 진한 것 + 멀리 퍼지는 옅은 것 */
+  --glass-shadow-near: rgb(15 27 51 / 0.06);
+  --glass-shadow: rgb(19 59 158 / 0.16);
+  --glass-blur: blur(6px) saturate(1.7) brightness(1.04);
+}
+
+:root.dark {
+  --glass-tint: rgb(22 29 43 / 0.55);
+  --glass-rim-top: rgb(255 255 255 / 0.08);
+  --glass-hairline: rgb(255 255 255 / 0.07);
+  --glass-shadow-near: rgb(0 0 0 / 0.3);
+  --glass-shadow: rgb(0 0 0 / 0.5);
+}
+
+/* components 단계에 둬서 absolute·rounded 같은 Tailwind 클래스가 이 규칙보다 우선하게 한다 */
+@layer components {
+  .glass {
+    position: relative;
+    background-color: var(--glass-tint);
+    backdrop-filter: blur(12px) saturate(1.7) brightness(1.04);
+    box-shadow:
+      inset 0 1px 0 var(--glass-rim-top),
+      0 0 0 1px var(--glass-hairline),
+      0 1px 2px var(--glass-shadow-near),
+      0 12px 32px -12px var(--glass-shadow);
+  }
+
+  /* 굴절 유리 틀: 바탕은 안쪽 GlassSurface가 그리고, 틀은 머리카락 선·안쪽 밝은 선·그림자만 맡는다 */
+  .glass-frame {
+    position: relative;
+    z-index: 0;
+    box-shadow:
+      0 0 0 1px var(--glass-hairline),
+      0 1px 2px var(--glass-shadow-near),
+      0 12px 32px -12px var(--glass-shadow);
+  }
+
+  /* 두께감: 위쪽 안쪽에만 옅은 밝은 선 (흰 빛 테두리는 어두운 화면에서 회색 윤곽선처럼 보여 두지 않는다. 바탕 조각 위에 그려지도록 가상 요소로) */
+  .glass-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: inset 0 1px 0 var(--glass-rim-top);
+  }
+
+  .glass-surface {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+    background-color: var(--glass-tint);
+  }
+
+  .glass-tile {
+    position: absolute;
+    backdrop-filter: var(--glass-blur);
+  }
+
+  /* 굴절 조각: 살짝 흐린 뒤 렌즈로 휘고, 가운데 조각과 같은 만큼 다시 흐려 이음매가 보이지 않게 한다 */
+  .glass-tile[data-lens] {
+    backdrop-filter: blur(1px) var(--glass-lens) var(--glass-blur);
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .glass,
+    .glass-surface {
+      background-color: var(--color-surface-raised);
+    }
+    .glass,
+    .glass-tile,
+    .glass-tile[data-lens] {
+      backdrop-filter: none;
+    }
+  }
+}
