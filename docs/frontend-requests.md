@@ -104,17 +104,25 @@ API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, �
 
 프론트 연결 상태: **목업** = 가짜 데이터로 화면 완성, 실제 API 기다리는 중
 
-### 공지사항 — 목록 구현됨 (확정: Swagger `공지사항`)
+### 공지사항 — 목록 구현됨, 상세·관리자 작성·수정·삭제 구현됨 (10/27, 확정: Swagger `공지사항`, `공지사항 관리 (관리자)`)
 
-| 메서드 | 경로           | 응답 `data` |
-| ------ | -------------- | ----------- |
-| GET    | `/api/notices` | `Notice[]`  |
+| 메서드 | 경로                          | 권한   | 응답 `data`                              |
+| ------ | ----------------------------- | ------ | ---------------------------------------- |
+| GET    | `/api/notices`                | 공개   | `Notice[]` (본문 없음)                   |
+| GET    | `/api/notices/{id}`           | 공개   | `NoticeDetail` (없으면 404)              |
+| POST   | `/api/admin/notices`          | 관리자 | `NoticeDetail` (201), 본문 `{ title, content }` |
+| PUT    | `/api/admin/notices/{id}`     | 관리자 | `NoticeDetail`, 본문 `{ title, content }` |
+| DELETE | `/api/admin/notices/{id}`     | 관리자 | 없음 (완전히 삭제)                       |
 
 ```ts
 Notice = { id: number, title: string, createdAt: string }; // createdAt: "2026-10-24"
+NoticeDetail = { id: number, title: string, content: string, createdAt: string, updatedAt: string | null }; // updatedAt: 수정한 적이 없으면 null
 ```
 
-상세(`GET /api/notices/{id}`)는 화면만 있고 아직 연결 안 함. 본문 필드가 생기면 알려 주기.
+- 제목 100자·본문 5000자까지, 둘 다 필수이고 앞뒤 공백은 서버가 지운다. 어기면 400 + 안내 문구.
+- **본문은 글자로만 다룬다.** 서버는 HTML을 해석하지 않고 그대로 저장하며, 프론트도 줄바꿈만 살려 보여 준다(`dangerouslySetInnerHTML` 금지).
+- 작성자는 요청 본문이 아니라 토큰의 사용자로 정해 `author_id`에 저장하고, 응답에는 내보내지 않는다. 작성한 관리자가 탈퇴해도 공지는 남는다.
+- 일반 사용자는 403, 로그인하지 않으면 401.
 
 ### 내 과목 — 목업
 
@@ -201,7 +209,7 @@ SignupInput = {
   agreedPrivacy: boolean, // true여야 함
   agreedAiAnalysis: boolean,
 };
-User = { id: number, email: string, name: string, aiAnalysisConsent: boolean };
+User = { id: number, email: string, name: string, aiAnalysisConsent: boolean, role: 'USER' | 'ADMIN' };
 ```
 
 - 가입 동의 3가지 중 이용약관·개인정보 수집은 필수, **AI 대화 분석은 선택**이다. 선택 동의를 안 해도 자료로 공부할 수 있어야 한다.
@@ -212,7 +220,7 @@ User = { id: number, email: string, name: string, aiAnalysisConsent: boolean };
 - **동의 철회(`aiAnalysis: false`)하면 가져온 대화와 그로부터 계산된 분석 결과를 함께 삭제한다.** 삭제 범위는 아래 대화 가져오기와 같다. 프론트는 철회 전에 확인 창으로 "되돌릴 수 없어요"를 보여 준다.
 - **탈퇴(`DELETE /api/users/me`)는 내 모든 데이터를 지운다:** 계정, 과목, 자료와 그로부터 만든 요약·개념·퀴즈, 퀴즈 결과, 가져온 대화, 분석 결과(근거·점수·배치). refresh 토큰도 모두 폐기하고 쿠키를 지운다. 프론트는 확인 창을 거친 뒤 부르고, 성공하면 화면 데이터를 비우고 첫 화면으로 간다.
 - 동의를 다시 켜는 것(`aiAnalysis: true`)도 같은 API로 받는다. 동의 시각을 새로 기록한다.
-- **관리자 역할(10/27, 백엔드 반영):** `User.role`은 `USER`/`ADMIN`. 가입은 항상 `USER`이고 관리자는 DB에서 직접 지정한다. `/api/admin/**`는 관리자만 열리고(일반 사용자 403, 로그인 안 하면 401), 역할은 요청마다 DB에서 읽는다. `GET /api/users/me` 응답에 역할은 아직 넣지 않았다. 관리자 화면을 만들 때 프론트가 알아야 하면 `role`을 `User`에 추가하기로 한다(화면 메뉴 노출용일 뿐, 권한은 서버가 매번 확인).
+- **관리자 역할(10/27, 백엔드 반영):** `User.role`은 `USER`/`ADMIN`. 가입은 항상 `USER`이고 관리자는 DB에서 직접 지정한다. `/api/admin/**`는 관리자만 열리고(일반 사용자 403, 로그인 안 하면 401), 역할은 요청마다 DB에서 읽는다. `GET /api/users/me`와 로그인 응답의 `User`에 `role`을 넣었다(10/27). 화면에서 관리자 메뉴를 보일지 정하는 데만 쓰고, 권한은 서버가 매번 확인한다.
 - 토큰이 만료돼 401이 오면 프론트가 `/api/auth/refresh`를 한 번 부르고 원래 요청을 다시 보낸다(`api/axios.ts`). 갱신에도 실패하면 로그아웃 상태가 되고 로그인 가드가 로그인 화면으로 보낸다.
 - 로그인이 필요한 화면은 `router/RequireAuth.tsx` 아래에 둔다. **`VITE_USE_MOCK=true`(팀 기본값)에서는 가드를 건너뛰어** 백엔드 없이 화면을 개발할 수 있다.
 
