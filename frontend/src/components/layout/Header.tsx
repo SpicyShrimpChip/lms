@@ -3,6 +3,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type CSSProperties,
   type FormEvent,
   type ReactNode,
 } from 'react';
@@ -18,6 +19,7 @@ import { useAuthStore } from '@/store';
 import Gnb from './Gnb';
 import MobileMenu, { MOBILE_MENU_ID } from './MobileMenu';
 import ThemeToggle from './ThemeToggle';
+import { useCapsuleMode, useCapsuleWidth } from './useCapsule';
 import { FIELD_CLASS } from '../common/fieldClass';
 
 const ACCOUNT_LINK_CLASS = 'font-medium text-ink-soft hover:text-heading';
@@ -122,6 +124,11 @@ function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
+  const logoRef = useRef<HTMLDivElement>(null);
+  const gnbRef = useRef<HTMLElement>(null);
+  const rightRef = useRef<HTMLDivElement>(null);
+  const capsule = useCapsuleMode();
+  const capsuleWidth = useCapsuleWidth(logoRef, gnbRef, rightRef);
 
   // Esc로 닫고 포커스를 햄버거 버튼으로 돌려준다
   useEffect(() => {
@@ -143,10 +150,28 @@ function Header() {
   };
 
   return (
-    // 로고·주 메뉴·검색·계정을 한 줄에 둔다. 좁은 화면에서는 주 메뉴 대신 햄버거 메뉴(MobileMenu)
-    <header className="border-b border-line bg-surface-raised print:hidden">
-      <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-6 gap-y-3 px-6 max-lg:py-3.5">
-        <div className="flex items-center justify-between max-lg:w-full">
+    // 로고·주 메뉴·검색·계정을 한 줄에 둔다. 좁은 화면에서는 주 메뉴 대신 햄버거 메뉴(MobileMenu).
+    // 넓은 화면에서는 위에 붙어 따라오고, 맨 위를 벗어나면 가운데로 모인 반투명 알약이 된다.
+    // 알약일 때도 바깥 높이(h-17)는 그대로 둬서 아래 내용이 들썩이지 않게 한다
+    <header
+      className={`relative z-40 border-b print:hidden lg:sticky lg:top-0 lg:h-17 ${
+        capsule
+          ? 'border-transparent bg-transparent'
+          : 'border-line bg-surface-raised'
+      }`}
+    >
+      <div
+        style={{ '--capsule': `${capsuleWidth}px` } as CSSProperties}
+        className={`mx-auto flex flex-wrap items-center justify-between gap-y-3 lg:flex-nowrap border transition-[max-width,height,margin,padding,border-radius,column-gap,background-color,border-color,box-shadow] duration-[640ms] ease-[cubic-bezier(0.16,1,0.3,1)] max-lg:py-3.5 ${
+          capsule
+            ? 'mt-1.5 h-14 max-w-(--capsule) gap-x-4 rounded-full border-line bg-surface-raised/80 pr-2 pl-5 shadow-lg shadow-brand/15 backdrop-blur-md backdrop-saturate-150'
+            : 'max-w-page gap-x-6 border-transparent px-6 lg:h-17'
+        }`}
+      >
+        <div
+          ref={logoRef}
+          className="flex items-center justify-between max-lg:w-full"
+        >
           <Link to="/" className="flex items-center gap-2.5 text-heading">
             <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-on-primary">
               AI
@@ -180,9 +205,12 @@ function Header() {
           </button>
         </div>
 
-        <Gnb />
+        <Gnb ref={gnbRef} compact={capsule} />
 
-        <div className="flex flex-wrap items-center gap-3 text-sm">
+        <div
+          ref={rightRef}
+          className="flex flex-wrap items-center gap-3 text-sm"
+        >
           <form
             role="search"
             onSubmit={handleSearch}

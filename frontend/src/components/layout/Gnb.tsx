@@ -1,3 +1,4 @@
+import type { Ref } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { MENU, type MenuGroup } from '@/constants';
 import { isActivePath } from './menuActive';
@@ -8,25 +9,39 @@ const isActiveGroup = (group: MenuGroup, pathname: string) =>
     isActivePath(path, pathname),
   );
 
-// 상단바 안의 주 메뉴. 좁은 화면에서는 햄버거 메뉴(MobileMenu)가 대신한다
-function Gnb() {
+interface GnbProps {
+  // 상단바가 알약 폭을 재는 데 쓴다
+  ref?: Ref<HTMLElement>;
+  // 스크롤해서 상단바가 알약이 됐을 때: 아래 선 대신 연한 파랑 알약으로 현재 위치를 보여 준다
+  compact?: boolean;
+}
+
+// 상단바 안의 주 메뉴. 좁은 화면에서는 햄버거 메뉴(MobileMenu)가 대신한다.
+// 알약 폭을 메뉴 칸 너비로 재므로, 두 모양에서 칸 너비(px-3·글자 굵기)는 같게 둔다
+function Gnb({ ref, compact = false }: GnbProps) {
   const { pathname } = useLocation();
 
   return (
-    <nav aria-label="주 메뉴" className="flex-1 self-stretch max-lg:hidden">
+    <nav
+      ref={ref}
+      aria-label="주 메뉴"
+      className="flex-1 self-stretch max-lg:hidden"
+    >
       <ul className="flex h-full gap-1">
         {MENU.map((group) => {
           const active = isActiveGroup(group, pathname);
           return (
             // 마우스를 올리거나 키보드로 포커스가 들어오면 하위 메뉴를 연다
             // (마우스 클릭 포커스로는 열지 않아 이동 후 메뉴가 남지 않는다)
-            <li key={group.label} className="group relative flex">
+            <li key={group.label} className="group relative flex items-center">
               <Link
                 to={group.path}
                 aria-current={active ? 'page' : undefined}
-                className={`flex h-17 items-center px-3 text-base ${
+                className={`flex items-center px-3 text-base ${
+                  compact ? 'h-10 rounded-full' : 'h-full'
+                } ${
                   active
-                    ? 'font-bold text-primary shadow-[inset_0_-3px_0_var(--color-primary)]'
+                    ? `font-bold text-primary ${compact ? 'bg-primary-soft' : 'shadow-[inset_0_-3px_0_var(--color-primary)]'}`
                     : 'font-medium text-heading hover:text-primary'
                 }`}
               >
