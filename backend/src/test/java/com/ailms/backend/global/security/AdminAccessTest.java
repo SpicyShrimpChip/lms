@@ -1,0 +1,117 @@
+package com.ailms.backend.global.security;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.ailms.backend.domain.auth.dao.RefreshTokenRepository;
+import com.ailms.backend.domain.user.dao.UserRepository;
+import com.ailms.backend.support.IntegrationTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.web.servlet.MockMvc;
+
+/**
+ * /api/admin/** 은 관리자만 열린다. 역할은 토큰이 아니라 요청마다 DB에서 읽으므로 역할을 바꾸면 같은 토큰도 바로 달라진다.
+ * 아직 /api/admin 아래 API가 없어서, 권한을 통과하면 404, 못 통과하면 401/403이 나온다.
+ */
+@IntegrationTest
+class AdminAccessTest {
+
+	private static final String PASSWORD = "Passw0rd!";
+	private static final String ADMIN_PATH = "/api/admin/members";
+
+	@Autowired
+	private MockMvc mockMvc;
+	@Autowired
+	private ObjectMapper objectMapper;
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private RefreshTokenRepository refreshTokenRepository;
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
+	@BeforeEach
+	void setUp() {
+		refreshTokenRepository.deleteAllInBatch();
+		userRepository.deleteAllInBatch();
+	}
+
+	@Test
+	void 토큰이_없으면_관리자_경로는_401() throws Exception {
+		mockMvc.perform(get(ADMIN_PATH)).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void 일반_사용자는_관리자_경로가_403() throws Exception {
+		String token = signupAndLogin("user@example.com");
+
+		mockMvc.perform(get(ADMIN_PATH).header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void 관리자는_관리자_경로의_권한을_통과한다() throws Exception {
+		String token = signupAndLogin("admin@example.com");
+		setRole("admin@example.com", "ADMIN");
+
+		// 만든 API가 없으므로 권한을 통과한 결과는 404 (403이 아니다)
+		mockMvc.perform(get(ADMIN_PATH).header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void 역할을_바꾸면_같은_토큰도_바로_막힌다() throws Exception {
+		String token = signupAndLogin("demoted@example.com");
+		setRole("demoted@example.com", "ADMIN");
+		mockMvc.perform(get(ADMIN_PATH).header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+				.andExpect(status().isNotFound());
+
+		setRole("demoted@example.com", "USER");
+
+		mockMvc.perform(get(ADMIN_PATH).header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void 가입하면_항상_일반_사용자다() throws Exception {
+		signupAndLogin("new@example.com");
+
+		String role = jdbcTemplate.queryForObject(
+				"select role from users where email = ?", String.class, "new@example.com");
+		org.assertj.core.api.Assertions.assertThat(role).isEqualTo("USER");
+	}
+
+	private void setRole(String email, String role) {
+		jdbcTemplate.update("update users set role = ? where email = ?", role, email);
+	}
+
+	private String signupAndLogin(String email) throws Exception {
+		mockMvc.perform(post("/api/auth/signup")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(Map.of(
+						"email", email,
+						"name", "테스터",
+						"password", PASSWORD,
+						"passwordConfirm", PASSWORD,
+						"agreedTerms", true,
+						"agreedPrivacy", true,
+						"agreedAiAnalysis", false))))
+				.andExpect(status().isCreated());
+		String body = mockMvc.perform(post("/api/auth/login")
+				.header("X-Requested-With", "XMLHttpRequest")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(Map.of("email", email, "password", PASSWORD))))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
+		return JsonPath.read(body, "$.data.accessToken");
+	}
+}
