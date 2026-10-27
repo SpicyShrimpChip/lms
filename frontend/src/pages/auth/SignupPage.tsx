@@ -1,14 +1,20 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { signup } from '@/api';
 import { Button, FormRow, SubPage, TextInput } from '@/components';
 import { isPasswordValid } from '@/utils';
 import PasswordRules from './components/PasswordRules';
 import SignupAgreements from './components/SignupAgreements';
 
+interface SignupLocationState {
+  // 가입 뒤 이어서 갈 화면 (메인 시작 안내·로그인 화면이 넘겨 준다)
+  from?: string;
+}
+
 function SignupPage() {
   const navigate = useNavigate();
+  const { from } = (useLocation().state ?? {}) as SignupLocationState;
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -21,7 +27,8 @@ function SignupPage() {
   const mutation = useMutation({
     mutationFn: signup,
     onSuccess: (user) => {
-      navigate('/login', { state: { signedUpEmail: user.email } });
+      // 로그인하면 가입 전에 고른 화면으로 이어진다
+      navigate('/login', { state: { signedUpEmail: user.email, from } });
     },
   });
 

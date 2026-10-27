@@ -9,6 +9,12 @@ export const MOTION_TRANSITION = {
   ease: MOTION_EASE,
 } as const;
 
+// 장면을 가림막 걷듯 바꾸는 움직임 (메인 스크롤 소개). 길게 미끄러지다 천천히 멈춘다
+export const SWEEP_TRANSITION = {
+  duration: 0.64,
+  ease: [0.16, 1, 0.3, 1],
+} as const;
+
 // 나타날 때 쓰는 공통 움직임: 살짝 아래에서 올라오며 짙어진다
 export const FADE_UP = {
   initial: { opacity: 0, y: 8 },
