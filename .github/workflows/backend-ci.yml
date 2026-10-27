@@ -1,6 +1,11 @@
 name: Backend CI
 
 # main 대상 push·PR 중 backend 변경이 있을 때만 실행
+#
+# 아직 main 보호의 필수 검사가 아니다(규칙셋 "backend CI required"는 만들어 두고 꺼 둠). 필수로 켜려면 순서대로:
+#   1) 이 파일의 pull_request에서 paths 줄을 지운다(필터가 있으면 backend 밖만 바꾼 PR이 머지되지 않는다)
+#   2) GitHub Settings → Rules → Rulesets → "backend CI required"를 Active로 바꾼다
+# 필수 검사 이름은 job 이름과 같아야 한다(build-and-test, mysql-test). job 이름을 바꾸면 규칙셋도 같이 고친다
 on:
   push:
     branches: ["main"]

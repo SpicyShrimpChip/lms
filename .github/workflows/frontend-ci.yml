@@ -1,13 +1,14 @@
 name: Frontend CI
 
-# main 대상 push·PR 중 frontend 변경이 있을 때만 실행
+# main 대상 모든 PR에서 실행한다. build-and-lint가 main 보호의 필수 검사라서 PR에는 경로 필터를 걸지 않는다
+# (필터가 있으면 frontend 밖만 바꾼 PR은 검사가 안 돌아 머지가 막힌다)
+# push는 frontend 변경이 있을 때만 실행
 on:
   push:
     branches: ["main"]
     paths: ["frontend/**", ".github/workflows/frontend-ci.yml"]
   pull_request:
     branches: ["main"]
-    paths: ["frontend/**", ".github/workflows/frontend-ci.yml"]
 
 # 같은 브랜치에서 새 실행이 시작되면 이전 실행 취소
 concurrency:
