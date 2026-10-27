@@ -1,4 +1,8 @@
 {
+  // 중간 심사(11/6) 전까지는 의존성 PR이 쌓이지 않도록 꺼 둔다. 켤 때는 이 줄을 지운다
+  // (켜기 전에 main 보호에 CI 통과 필수를 먼저 걸 것: @types 업데이트가 자동 머지된다)
+  "enabled": false,
+
   "extends": ["config:best-practices"], // 글로벌 표준 의존성 관리(Dependency Management) 프리셋 확장
 
   "timezone": "Asia/Seoul", // 봇의 기준 시간대를 한국으로 설정
