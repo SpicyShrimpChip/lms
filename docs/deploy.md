@@ -2,7 +2,17 @@
 
 프론트(`frontend/`)를 Vercel에 올려 링크로 바로 볼 수 있게 한다. 백엔드가 아직 배포되지 않았으므로 처음에는 **목업 모드**로 올린다(로그인·서버 없이 모든 화면이 뜬다). 링크가 공개되어도 화면에 나오는 것은 `src/mocks/`의 예시 데이터뿐이다.
 
-## 1. 연결하기 (처음 한 번, 사람이 직접)
+## 지금 연결 상태 (2026-10-27 연결)
+
+- 운영 주소: https://lms-seven-tawny.vercel.app/ (목업 모드)
+- Vercel: 팀 `SSC`(Hobby 무료 플랜) / 프로젝트 `lms`, GitHub `SpicyShrimpChip/lms`의 `main`에 Git 연결
+- 설정: 아래 1번 표 그대로(Root Directory `frontend`, 환경변수 `VITE_USE_MOCK=true`·`HUSKY=0`)
+- main에 머지되면 운영 주소가 자동으로 새로 배포되고, PR마다 미리보기 주소가 달린다
+- 무료 플랜은 조직 소유 비공개 레포를 연결하지 못해서, 같은 날 레포를 **공개로 바꾼 뒤** 연결했다(팀원 동의, 대회 제출에도 공개 링크가 필요했다). 그래서 아래 3번은 지금은 쓰지 않는다
+- 서비스 이름이 정해지면: 프로젝트 이름은 Settings → General에서 바꾸고, 주소는 자동으로 바뀌지 않으므로 Settings → Domains에서 `<새 이름>.vercel.app`을 추가한다
+- 목업의 퀴즈 결과·자료 목록 변경은 보는 사람 브라우저(localStorage)에만 남는다. 다른 사람이 링크로 들어오면 처음 상태부터 보인다
+
+## 1. 연결하기 (처음 한 번, 사람이 직접 — 10/27 완료, 다시 연결할 때 참고)
 
 1. Vercel에 가입·로그인하고 **Add New → Project**에서 GitHub의 `SpicyShrimpChip/lms`를 고른다.
    - 조직(SpicyShrimpChip) 레포가 목록에 없으면 GitHub 연결 화면에서 조직 접근을 허용한다(조직 관리자 승인이 필요할 수 있다).
@@ -48,7 +58,7 @@ React Router로 화면을 나누기 때문에 `/analysis`처럼 바로 들어오
 
 ## 3. 막혔을 때 (조직 비공개 레포를 가져오지 못함)
 
-정책은 바뀔 수 있으니 연결 화면의 안내를 먼저 본다. 쓸 수 있는 방법:
+레포를 공개로 바꿔서 지금은 해당하지 않는다. 다시 비공개로 돌리면 새 배포가 막힐 수 있으니 그때 본다. 정책은 바뀔 수 있으니 연결 화면의 안내를 먼저 본다. 쓸 수 있는 방법:
 
 - **Pro 무료 체험**(기간 한정): 체험이 끝나기 전에 아래 방법으로 옮겨야 한다.
 - **GitHub Actions + Vercel CLI**: Vercel에서 프로젝트를 만들고(Git 연결 없이) `VERCEL_TOKEN`·`VERCEL_ORG_ID`·`VERCEL_PROJECT_ID`를 GitHub Actions 시크릿에 넣은 뒤, 워크플로에서 `vercel deploy`로 올린다. 토큰은 시크릿에만 두고 커밋하지 않는다.
