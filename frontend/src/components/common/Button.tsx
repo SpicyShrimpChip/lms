@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { cn } from '@/utils';
 
 type ButtonVariant = 'primary' | 'secondary' | 'pill';
 type ButtonSize = 'md' | 'lg';
@@ -38,11 +39,16 @@ const SIZE_CLASS: Record<ButtonSize, string> = {
 function Button({
   variant = 'primary',
   size = 'md',
-  className = '',
+  className,
   children,
   ...rest
 }: ButtonProps) {
-  const classes = `inline-flex items-center justify-center gap-2 font-medium disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLASS[variant]} ${SIZE_CLASS[size]} ${className}`;
+  const classes = cn(
+    'inline-flex items-center justify-center gap-2 font-medium disabled:cursor-not-allowed disabled:opacity-50',
+    VARIANT_CLASS[variant],
+    SIZE_CLASS[size],
+    className,
+  );
 
   if (rest.to !== undefined) {
     return (
