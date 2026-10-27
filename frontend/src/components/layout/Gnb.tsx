@@ -24,7 +24,7 @@ function Gnb() {
               <Link
                 to={group.path}
                 aria-current={active ? 'page' : undefined}
-                className={`flex h-17 items-center px-3.5 text-base ${
+                className={`flex h-17 items-center px-3 text-base ${
                   active
                     ? 'font-bold text-primary shadow-[inset_0_-3px_0_var(--color-primary)]'
                     : 'font-medium text-heading hover:text-primary'

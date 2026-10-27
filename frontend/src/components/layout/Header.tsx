@@ -67,7 +67,15 @@ function useAccountItems(): { key: string; node: ReactNode }[] {
       ? [
           {
             key: 'name',
-            node: <span className="font-medium text-heading">{me.name}님</span>,
+            // 이름은 최대 30자까지 가입할 수 있어서, 길면 줄여 보여 줘 상단바가 두 줄로 깨지지 않게 한다
+            node: (
+              <span
+                title={`${me.name}님`}
+                className="inline-block max-w-28 truncate align-bottom font-medium text-heading"
+              >
+                {me.name}님
+              </span>
+            ),
           },
         ]
       : []),
@@ -137,7 +145,7 @@ function Header() {
   return (
     // 로고·주 메뉴·검색·계정을 한 줄에 둔다. 좁은 화면에서는 주 메뉴 대신 햄버거 메뉴(MobileMenu)
     <header className="border-b border-line bg-surface-raised print:hidden">
-      <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-8 gap-y-3 px-6 max-lg:py-3.5">
+      <div className="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-6 gap-y-3 px-6 max-lg:py-3.5">
         <div className="flex items-center justify-between max-lg:w-full">
           <Link to="/" className="flex items-center gap-2.5 text-heading">
             <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-on-primary">
@@ -174,7 +182,7 @@ function Header() {
 
         <Gnb />
 
-        <div className="flex flex-wrap items-center gap-4 text-sm">
+        <div className="flex flex-wrap items-center gap-3 text-sm">
           <form
             role="search"
             onSubmit={handleSearch}
@@ -189,7 +197,7 @@ function Header() {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               placeholder="자료, 개념 검색"
-              className="w-40 bg-transparent text-sm outline-none placeholder:text-ink-muted"
+              className="w-28 bg-transparent text-sm outline-none placeholder:text-ink-muted"
             />
             <button
               type="submit"
@@ -200,7 +208,7 @@ function Header() {
             </button>
           </form>
 
-          <nav aria-label="계정" className="flex items-center gap-4">
+          <nav aria-label="계정" className="flex items-center gap-3">
             {accountItems.map((item) => (
               <span key={item.key}>{item.node}</span>
             ))}
