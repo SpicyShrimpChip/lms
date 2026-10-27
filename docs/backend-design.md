@@ -35,7 +35,7 @@
 | `email` | VARCHAR(254) **UNIQUE** | 소문자로 저장. 중복은 앱 검사 + DB 제약으로 막는다 |
 | `password_hash` | VARCHAR(100) | BCrypt 해시 (원본 저장 안 함) |
 | `name` | VARCHAR(30) | |
-| `role` | VARCHAR(20) | `USER` |
+| `role` | VARCHAR(20) | `USER` 또는 `ADMIN`. 가입하면 항상 `USER`, 관리자는 이 값을 DB에서 직접 `ADMIN`으로 바꿔 지정한다(역할 변경 API 없음) |
 | `ai_analysis_consent` | BOOLEAN | AI 대화 분석 동의(선택) |
 | `ai_analysis_consented_at` | DATETIME(6) NULL | 동의 시각 |
 | `terms_agreed_at`, `privacy_agreed_at` | DATETIME(6) | 필수 동의 시각 |
@@ -166,6 +166,7 @@ erDiagram
 - 컨트롤러는 사용자 id를 요청 본문·경로에서 받지 않고 **토큰의 `AuthUser.userId()`만 쓴다** (`@AuthenticationPrincipal AuthUser`).
 - 리포지토리 조회는 `findByIdAndUserId(id, userId)`처럼 항상 소유자 조건을 함께 건다. 없으면 403이 아니라 404로 응답해 남의 데이터 존재 여부를 알리지 않는다.
 - Spring Security: 공지 조회, `/api/auth/**`(가입·로그인·갱신·로그아웃), Swagger만 공개. 나머지는 로그인 필요. 로그인하지 않으면 없는 주소도 401이다.
+- **관리자:** `/api/admin/**`는 `ADMIN`만 열린다(`SecurityConfig`). 역할은 토큰에 넣지 않고 **요청마다 DB에서 읽는다**(`SessionValidator.findActiveRole`, 세션 확인과 같은 쿼리 한 번). 그래서 역할을 바꾸면 같은 토큰도 바로 달라진다. 규모가 커져 이 조회가 부담이 되면 캐시를 붙이거나 토큰에 역할을 넣는 방식을 검토한다(그땐 역할 변경이 토큰이 끝날 때까지 늦게 반영됨).
 - 앱 DB 계정(`ai_lms_app`)은 데이터 읽기·쓰기만 할 수 있고 테이블을 바꿀 수 없다. 테이블 변경은 마이그레이션 계정(`ai_lms_migrator`)만 한다.
 
 ## 5. 인증 흐름

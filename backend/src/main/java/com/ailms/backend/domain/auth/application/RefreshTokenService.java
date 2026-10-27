@@ -2,6 +2,7 @@ package com.ailms.backend.domain.auth.application;
 
 import com.ailms.backend.domain.auth.dao.RefreshTokenRepository;
 import com.ailms.backend.domain.auth.entity.RefreshToken;
+import com.ailms.backend.domain.user.entity.Role;
 import com.ailms.backend.global.security.SessionValidator;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -77,8 +78,8 @@ public class RefreshTokenService implements SessionValidator {
 
 	@Override
 	@Transactional(readOnly = true)
-	public boolean isActive(String sessionId) {
-		return refreshTokenRepository.existsBySessionIdAndRevokedAtIsNullAndExpiresAtAfter(sessionId, now());
+	public Optional<Role> findActiveRole(Long userId, String sessionId) {
+		return refreshTokenRepository.findActiveRoles(userId, sessionId, now()).stream().findFirst();
 	}
 
 	private IssuedToken issue(Long userId, String sessionId, LocalDateTime now) {

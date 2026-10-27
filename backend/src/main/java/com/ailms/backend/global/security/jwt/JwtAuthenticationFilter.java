@@ -1,5 +1,6 @@
 package com.ailms.backend.global.security.jwt;
 
+import com.ailms.backend.domain.user.entity.Role;
 import com.ailms.backend.global.security.AuthUser;
 import com.ailms.backend.global.security.SessionValidator;
 import jakarta.servlet.FilterChain;
@@ -34,16 +35,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 		if (header != null && header.startsWith(BEARER_PREFIX)) {
 			tokenProvider.parse(header.substring(BEARER_PREFIX.length()))
-					.filter(user -> sessionValidator.isActive(user.sessionId()))
-					.ifPresent(this::authenticate);
+					.ifPresent(user -> sessionValidator.findActiveRole(user.userId(), user.sessionId())
+							.ifPresent(role -> authenticate(user, role)));
 		}
 		chain.doFilter(request, response);
 	}
 
-	private void authenticate(AuthUser user) {
-		// TODO: 관리자 기능이 생기면 users.role을 토큰이나 조회로 반영한다. 지금은 모두 일반 사용자
+	// 역할은 토큰이 아니라 요청마다 DB에서 읽은 값을 쓴다 (역할을 바꾸면 바로 적용)
+	private void authenticate(AuthUser user, Role role) {
 		var authentication = new UsernamePasswordAuthenticationToken(
-				user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+				user, null, List.of(new SimpleGrantedAuthority("ROLE_" + role.name())));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
 }

@@ -46,6 +46,8 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.POST, PUBLIC_AUTH).permitAll()
 						.requestMatchers(PUBLIC_DOCS).permitAll()
 						.requestMatchers("/error").permitAll()
+						// 관리자 전용. 화면에서 메뉴를 숨기는 것과 별개로 서버가 매번 역할을 확인한다
+						.requestMatchers("/api/admin/**").hasRole("ADMIN")
 						.anyRequest().authenticated())
 				.addFilterBefore(new JwtAuthenticationFilter(tokenProvider, sessionValidator),
 						UsernamePasswordAuthenticationFilter.class);
