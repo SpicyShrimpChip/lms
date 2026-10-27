@@ -162,7 +162,7 @@ function Header() {
     // 넓은 화면에서는 위에 붙어 따라오고, 맨 위를 벗어나면 가운데로 모인 반투명 알약이 된다.
     // 알약일 때도 바깥 높이(h-17)는 그대로 둬서 아래 내용이 들썩이지 않게 한다
     <header
-      className={`relative z-40 border-b print:hidden lg:sticky lg:top-0 lg:h-17 ${
+      className={`relative z-40 border-b lg:sticky lg:top-0 lg:h-17 print:hidden ${
         capsule
           ? 'border-transparent bg-transparent'
           : 'border-line bg-surface-raised'
@@ -170,7 +170,7 @@ function Header() {
     >
       <div
         style={{ '--capsule': `${capsuleWidth}px` } as CSSProperties}
-        className={`mx-auto flex flex-wrap items-center justify-between gap-y-3 lg:flex-nowrap border transition-[max-width,height,margin,padding,border-radius,column-gap,background-color,border-color,box-shadow] duration-[640ms] ease-[cubic-bezier(0.16,1,0.3,1)] max-lg:py-3.5 ${
+        className={`mx-auto flex flex-wrap items-center justify-between gap-y-3 border transition-[max-width,height,margin,padding,border-radius,column-gap,background-color,border-color,box-shadow] duration-[640ms] ease-[cubic-bezier(0.16,1,0.3,1)] max-lg:py-3.5 lg:flex-nowrap ${
           capsule
             ? 'glass-frame mt-1.5 h-14 max-w-(--capsule) gap-x-5 rounded-full border-transparent pr-3 pl-5'
             : 'max-w-page gap-x-6 border-transparent px-6 lg:h-17'
@@ -253,7 +253,7 @@ function Header() {
               }}
               tabIndex={searchCollapsed ? -1 : undefined}
               placeholder="자료, 개념 검색"
-              className={`bg-transparent text-sm outline-none transition-[width] duration-300 placeholder:text-ink-muted ${
+              className={`bg-transparent text-sm transition-[width] duration-300 outline-none placeholder:text-ink-muted ${
                 searchCollapsed ? 'w-0' : 'w-28'
               }`}
             />

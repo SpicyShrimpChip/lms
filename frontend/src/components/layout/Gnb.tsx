@@ -52,7 +52,7 @@ function Gnb({ ref, compact = false }: GnbProps) {
                 {group.label}
               </Link>
               {/* 상단바 알약과 같은 유리 재질(styles/glass.css). 살짝 아래에서 올라오며 나타난다 */}
-              <ul className="glass invisible absolute top-full left-0 z-10 mt-2 min-w-44 translate-y-1 rounded-2xl p-1.5 opacity-0 transition-[opacity,translate] group-has-[:focus-visible]:visible group-has-[:focus-visible]:translate-y-0 group-has-[:focus-visible]:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 motion-reduce:transition-none">
+              <ul className="glass invisible absolute top-full left-0 z-10 mt-2 min-w-44 translate-y-1 rounded-2xl p-1.5 opacity-0 transition-[opacity,translate] group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-has-[:focus-visible]:visible group-has-[:focus-visible]:translate-y-0 group-has-[:focus-visible]:opacity-100 motion-reduce:transition-none">
                 {group.children.map((child) => (
                   <li key={child.path}>
                     <Link
