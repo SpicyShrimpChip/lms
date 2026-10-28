@@ -59,7 +59,7 @@ function StartPaths() {
             <Link
               to={signedIn ? path.to : '/signup'}
               state={signedIn ? undefined : { from: path.to }}
-              className="group flex h-full items-center gap-4 rounded-2xl border border-line bg-surface-raised p-4.5 shadow-sm md:p-6 hover:border-primary-pill hover:shadow-lg hover:shadow-brand/10"
+              className="group flex h-full items-center gap-4 rounded-2xl border border-line bg-surface-raised p-4.5 shadow-sm hover:border-primary-pill hover:shadow-lg hover:shadow-brand/10 md:p-6"
             >
               <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
                 {path.icon}
