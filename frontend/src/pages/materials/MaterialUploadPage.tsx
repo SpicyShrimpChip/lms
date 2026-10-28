@@ -94,7 +94,6 @@ function MaterialUploadForm() {
               required
               value={courseId}
               onChange={(e) => setCourseId(e.target.value)}
-              disabled={!hasCourses}
               className="w-full"
             >
               <option value="">과목을 골라 주세요</option>

@@ -1,17 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { LoaderCircle } from 'lucide-react';
-import {
-  NOTICES_QUERY_KEY,
-  createNotice,
-  getNotice,
-  updateNotice,
-} from '@/api';
+import { NOTICES_QUERY_KEY, createNotice, updateNotice } from '@/api';
 import {
   AsyncBoundary,
   Button,
@@ -20,11 +11,13 @@ import {
   FormRow,
   SubPage,
   TextInput,
+  ErrorText,
 } from '@/components';
 import {
   NOTICE_CONTENT_MAX_LENGTH,
   NOTICE_TITLE_MAX_LENGTH,
 } from '@/constants';
+import { useNotice } from '@/hooks';
 import type { NoticeDetail } from '@/types';
 
 // 새로 쓰기(notice 없음)와 고치기(notice 있음)가 같은 폼을 쓴다
@@ -92,11 +85,7 @@ function NoticeForm({ notice }: { notice?: NoticeDetail }) {
         </p>
       </FormRow>
 
-      {mutation.isError && (
-        <p role="alert" className="text-body text-danger">
-          {mutation.error.message}
-        </p>
-      )}
+      <ErrorText error={mutation.error} />
 
       <div className="flex flex-wrap gap-2">
         <Button type="submit" size="lg" disabled={mutation.isPending || empty}>
@@ -122,10 +111,7 @@ function NoticeForm({ notice }: { notice?: NoticeDetail }) {
 }
 
 function EditNotice({ noticeId }: { noticeId: number }) {
-  const { data: notice } = useSuspenseQuery({
-    queryKey: [...NOTICES_QUERY_KEY, noticeId],
-    queryFn: () => getNotice(noticeId),
-  });
+  const { data: notice } = useNotice(noticeId);
   return <NoticeForm notice={notice} />;
 }
 

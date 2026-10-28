@@ -8,6 +8,7 @@ import {
   ConfirmDialog,
   EmptyState,
   SubPage,
+  ErrorText,
 } from '@/components';
 import type { Course } from '@/types';
 import { compareSemesterDesc } from '@/utils';
@@ -52,11 +53,7 @@ function CourseManager() {
         <h2 id="course-list" className="text-xl font-extrabold text-heading">
           등록한 과목 {courses.length}개
         </h2>
-        {removal.isError && (
-          <p role="alert" className="text-body text-danger">
-            {removal.error.message}
-          </p>
-        )}
+        <ErrorText error={removal.error} />
         {sorted.length === 0 ? (
           <EmptyState
             icon={<BookMarked size={24} aria-hidden="true" />}

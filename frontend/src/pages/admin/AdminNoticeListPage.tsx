@@ -1,11 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
-import { NOTICES_QUERY_KEY, deleteNotice, getNotices } from '@/api';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { NOTICES_QUERY_KEY, deleteNotice } from '@/api';
+import { useNotices } from '@/hooks';
 import {
   AsyncBoundary,
   BoardTable,
@@ -13,15 +10,13 @@ import {
   ConfirmDialog,
   SubPage,
   type BoardColumn,
+  ErrorText,
 } from '@/components';
 import type { Notice } from '@/types';
 
 function NoticeAdminTable() {
   const queryClient = useQueryClient();
-  const { data: notices } = useSuspenseQuery({
-    queryKey: NOTICES_QUERY_KEY,
-    queryFn: getNotices,
-  });
+  const { data: notices } = useNotices();
   const [deleting, setDeleting] = useState<Notice | null>(null);
 
   const removal = useMutation({
@@ -82,11 +77,7 @@ function NoticeAdminTable() {
         <Button to="/admin/notices/new">새 공지 쓰기</Button>
       </div>
 
-      {removal.isError && (
-        <p role="alert" className="text-body text-danger">
-          {removal.error.message}
-        </p>
-      )}
+      <ErrorText error={removal.error} />
 
       <BoardTable
         columns={columns}

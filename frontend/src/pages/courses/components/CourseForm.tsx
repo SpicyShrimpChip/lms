@@ -1,7 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { COURSES_QUERY_KEY, createCourse, updateCourse } from '@/api';
-import { Button, FormRow, SelectInput, TextInput } from '@/components';
+import {
+  Button,
+  FormRow,
+  SelectInput,
+  TextInput,
+  ErrorText,
+} from '@/components';
 import type { Course, CourseInput } from '@/types';
 import {
   formatSemester,
@@ -120,11 +126,7 @@ function CourseForm({ courses, editing, onDone }: CourseFormProps) {
         </FormRow>
       </div>
 
-      {mutation.isError && (
-        <p role="alert" className="text-body text-danger">
-          {mutation.error.message}
-        </p>
-      )}
+      <ErrorText error={mutation.error} />
 
       <div className="flex gap-3">
         {editing && (

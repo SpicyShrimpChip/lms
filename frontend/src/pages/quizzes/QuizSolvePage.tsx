@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-query';
 import { LoaderCircle } from 'lucide-react';
 import { QUIZZES_QUERY_KEY, getQuiz, submitQuiz } from '@/api';
-import { AsyncBoundary, Button, Card, SubPage } from '@/components';
+import { AsyncBoundary, Button, Card, SubPage, ErrorText } from '@/components';
 
 function QuizForm({ quizId }: { quizId: number }) {
   const queryClient = useQueryClient();
@@ -93,11 +93,7 @@ function QuizForm({ quizId }: { quizId: number }) {
         ))}
       </ol>
 
-      {mutation.isError && (
-        <p role="alert" className="text-body text-danger">
-          {mutation.error.message}
-        </p>
-      )}
+      <ErrorText error={mutation.error} />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-body text-ink-soft" aria-live="polite">

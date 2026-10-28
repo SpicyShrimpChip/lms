@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { CircleCheck, TriangleAlert } from 'lucide-react';
 import { importConversations } from '@/api';
-import { Button, Card } from '@/components';
+import { Button, Card, ErrorText } from '@/components';
 import { useCourses } from '@/hooks';
 import type { ConversationImportResult } from '@/types';
 import { buildImportRequests, type ConversationToSend } from '@/utils';
@@ -125,11 +125,7 @@ function SendStep({ items, onBack, onRestart }: SendStepProps) {
         ))}
       </ul>
 
-      {mutation.isError && (
-        <p role="alert" className="text-body text-danger">
-          {mutation.error.message}
-        </p>
-      )}
+      <ErrorText error={mutation.error} />
 
       <div className="flex flex-wrap justify-between gap-3">
         <Button

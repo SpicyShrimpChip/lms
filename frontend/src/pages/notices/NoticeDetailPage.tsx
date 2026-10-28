@@ -1,14 +1,10 @@
 import { useParams } from 'react-router-dom';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { NOTICES_QUERY_KEY, getNotice } from '@/api';
+import { useNotice } from '@/hooks';
 import { AsyncBoundary, Button, EmptyState, SubPage } from '@/components';
 import { formatDate } from '@/utils';
 
 function NoticeContent({ noticeId }: { noticeId: number }) {
-  const { data: notice } = useSuspenseQuery({
-    queryKey: [...NOTICES_QUERY_KEY, noticeId],
-    queryFn: () => getNotice(noticeId),
-  });
+  const { data: notice } = useNotice(noticeId);
   const updatedAt = formatDate(notice.updatedAt);
 
   return (
