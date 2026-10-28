@@ -39,6 +39,11 @@ jobs:
       - name: ESLint 검사
         run: npm run lint
 
+      # 커밋 훅(lint-staged)이 형식을 고쳐 주지만, 훅을 건너뛰거나 GitHub 웹에서 고친 경우를 여기서 잡는다
+      # 실패하면 frontend에서 npm run format 후 커밋
+      - name: 형식 검사 (Prettier)
+        run: npm run format:check
+
       - name: 테스트
         run: npm test
 
