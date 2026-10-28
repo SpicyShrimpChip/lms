@@ -40,7 +40,7 @@ API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, �
 
 **설정 (`application.yaml`)**
 
-- **DB는 MySQL로 시작하는 것을 잠정안으로 한다(`mysql-connector-j`).** 10/27 멘토링에서 MySQL로 갈지, 챗봇 검색용으로 벡터 DB(Qdrant)를 쓸지 물어볼 예정이라 최종은 그 뒤에 정한다. 회원·자료·퀴즈는 어느 쪽이든 관계형 DB에 들어가므로, JPA로 쓰고 DB 전용 문법(특정 DB 전용 함수, JSON 타입 등)을 피하면 나중에 바꿔도 부담이 적다.
+- **DB는 MySQL로 시작하는 것을 잠정안으로 한다(`mysql-connector-j`).** 10/28 멘토링에서 멘토님이 PostgreSQL + pgvector를 추천했고, 최종은 두 사람이 협의해 정한다. 회원·자료·퀴즈는 어느 쪽이든 관계형 DB에 들어가므로, JPA로 쓰고 DB 전용 문법(특정 DB 전용 함수, JSON 타입 등)을 피하면 나중에 바꿔도 부담이 적다.
 
 - 포트 8080, 로컬 DB는 H2 메모리 `jdbc:h2:mem:lms;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1`
 - JPA: `ddl-auto: create-drop`, `defer-datasource-initialization: true`, `open-in-view: false`. 샘플 데이터는 `data.sql`로 넣고 `sql.init.mode: always`

@@ -111,7 +111,7 @@ flowchart TD
 | LLM | 제공사 미정. 여러 모델의 판단을 비교·통합할 수 있는 구조 |
 | 개발 환경 | GitHub Actions, ESLint, Prettier, Husky + lint-staged, Renovate, Claude Code |
 
-<!-- TODO: DB는 10/27 멘토링 뒤 최종 결정 (MySQL 유지 또는 벡터 DB 추가). 결정되면 위 표와 아래 실행 안내를 고친다 -->
+<!-- TODO: DB 최종 결정 (10/28 멘토링에서 PostgreSQL + pgvector 추천, MySQL 유지 여부는 협의 중). 결정되면 위 표와 아래 실행 안내를 고친다 -->
 
 ## 팀
 
@@ -122,7 +122,7 @@ flowchart TD
 
 - **협업 방식:** 기능별 브랜치 → PR → CI 통과 후 `main`에 합칩니다. API처럼 상대 작업에 영향을 주는 변경은 [`docs/frontend-requests.md`](docs/frontend-requests.md)에 정리해 함께 봅니다.
 
-<!-- TODO: 멘토링 후 받은 피드백과 반영 내용 한두 줄 -->
+<!-- TODO: 10/28 멘토링에서 받은 피드백과 반영 내용 한두 줄 (반영한 뒤 채운다) -->
 
 ## 다음 계획
 
