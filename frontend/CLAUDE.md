@@ -18,11 +18,12 @@ TanStack Query 5(서버 상태), Zustand 5(클라이언트 UI 상태만), Axios,
 ```bash
 npm run dev      # 개발 서버 (http://localhost:5173)
 npm run lint     # ESLint
+npm run format   # Prettier로 형식·클래스 순서 맞추기 (CI의 형식 검사가 실패하면 실행)
 npm test         # Vitest (src/**/*.test.ts)
 npm run build    # 타입 체크 + 빌드
 ```
 
-작업을 마치면 `npm run lint && npm test && npm run build`가 통과해야 한다.
+작업을 마치면 `npm run lint && npm run format:check && npm test && npm run build`가 통과해야 한다.
 테스트는 화면이 아니라 틀리면 안 되는 로직(대화 파싱·마스킹, 점수 계산, API 응답 처리)에 쓴다.
 
 ## 폴더 구조 (보일러플레이트 기준)
