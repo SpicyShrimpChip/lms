@@ -14,6 +14,7 @@ import {
   ConfirmDialog,
   EmptyState,
   SubPage,
+  ErrorText,
 } from '@/components';
 import { useAuthStore } from '@/store';
 import type { User } from '@/types';
@@ -83,11 +84,7 @@ function AiConsentSection({ me }: { me: User }) {
           : '동의하지 않아도 학습 자료로 공부하는 기능은 그대로 쓸 수 있어요. 동의하면 AI 대화 가져오기를 쓸 수 있어요.'}
       </p>
 
-      {mutation.isError && (
-        <p role="alert" className="text-body text-danger">
-          {mutation.error.message}
-        </p>
-      )}
+      <ErrorText error={mutation.error} />
 
       <div>
         {me.aiAnalysisConsent ? (
@@ -149,11 +146,7 @@ function DeleteAccountSection() {
         계정과 함께 내 과목, 올린 자료와 그로부터 만든 요약·퀴즈, 퀴즈 결과,
         가져온 AI 대화, 분석 결과가 모두 지워져요.
       </p>
-      {mutation.isError && (
-        <p role="alert" className="text-body text-danger">
-          {mutation.error.message}
-        </p>
-      )}
+      <ErrorText error={mutation.error} />
       <div>
         <Button
           variant="secondary"

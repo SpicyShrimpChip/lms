@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ME_QUERY_KEY, login } from '@/api';
-import { Button, SubPage, TextInput } from '@/components';
+import { Button, ErrorText, FormRow, SubPage, TextInput } from '@/components';
 
 interface LoginLocationState {
   // 로그인 가드가 넘겨 준 원래 주소
@@ -45,13 +45,7 @@ function LoginPage() {
             가입이 완료됐어요. 로그인해 주세요.
           </p>
         )}
-        <div className="flex flex-col gap-2">
-          <label
-            htmlFor="login-email"
-            className="text-body font-bold text-heading"
-          >
-            이메일
-          </label>
+        <FormRow label="이메일" htmlFor="login-email">
           <TextInput
             id="login-email"
             type="email"
@@ -61,14 +55,8 @@ function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label
-            htmlFor="login-password"
-            className="text-body font-bold text-heading"
-          >
-            비밀번호
-          </label>
+        </FormRow>
+        <FormRow label="비밀번호" htmlFor="login-password">
           <TextInput
             id="login-password"
             type="password"
@@ -77,12 +65,8 @@ function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-        </div>
-        {mutation.isError && (
-          <p role="alert" className="text-body text-danger">
-            {mutation.error.message}
-          </p>
-        )}
+        </FormRow>
+        <ErrorText error={mutation.error} />
         <Button
           type="submit"
           size="lg"

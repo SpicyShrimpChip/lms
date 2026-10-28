@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { signup } from '@/api';
-import { Button, FormRow, SubPage, TextInput } from '@/components';
+import { Button, FormRow, SubPage, TextInput, ErrorText } from '@/components';
 import { isPasswordValid } from '@/utils';
 import PasswordRules from './components/PasswordRules';
 import SignupAgreements from './components/SignupAgreements';
@@ -115,11 +115,7 @@ function SignupPage() {
           onAiConsentChange={setAiConsent}
         />
 
-        {mutation.isError && (
-          <p role="alert" className="text-body text-danger">
-            {mutation.error.message}
-          </p>
-        )}
+        <ErrorText error={mutation.error} />
 
         <div className="flex">
           <Button

@@ -6,7 +6,6 @@ interface ConfirmDialogProps {
   title: string;
   description?: string;
   confirmLabel: string;
-  cancelLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -18,7 +17,6 @@ function ConfirmDialog({
   title,
   description,
   confirmLabel,
-  cancelLabel = '취소',
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -64,7 +62,7 @@ function ConfirmDialog({
         )}
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onCancel}>
-            {cancelLabel}
+            취소
           </Button>
           <Button onClick={onConfirm}>{confirmLabel}</Button>
         </div>

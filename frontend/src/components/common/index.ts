@@ -7,6 +7,7 @@ export { default as AiNote } from './AiNote';
 export { default as Button } from './Button';
 export { default as Card } from './Card';
 export { default as ConfirmDialog } from './ConfirmDialog';
+export { default as ErrorText } from './ErrorText';
 export { default as Chip } from './Chip';
 export { default as SubPage } from './SubPage';
 export { default as EmptyState } from './EmptyState';

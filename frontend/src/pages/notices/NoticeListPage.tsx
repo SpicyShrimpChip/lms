@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom';
-import { useSuspenseQuery } from '@tanstack/react-query';
 import {
   AsyncBoundary,
   BoardTable,
   SubPage,
   type BoardColumn,
 } from '@/components';
-import { NOTICES_QUERY_KEY, getNotices } from '@/api';
+import { useNotices } from '@/hooks';
 import type { Notice } from '@/types';
 
 const COLUMNS: BoardColumn<Notice>[] = [
@@ -34,10 +33,7 @@ const COLUMNS: BoardColumn<Notice>[] = [
 ];
 
 function NoticeTable() {
-  const { data: notices } = useSuspenseQuery({
-    queryKey: NOTICES_QUERY_KEY,
-    queryFn: getNotices,
-  });
+  const { data: notices } = useNotices();
 
   return (
     <BoardTable

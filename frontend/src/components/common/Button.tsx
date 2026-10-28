@@ -2,11 +2,11 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/utils';
 
-type ButtonVariant = 'primary' | 'secondary' | 'pill';
+type ButtonVariant = 'primary' | 'secondary';
 type ButtonSize = 'md' | 'lg';
 
 interface BaseProps {
-  // primary: 주 버튼, secondary: 테두리 보조 버튼, pill: 알약형 보조 버튼
+  // primary: 주 버튼, secondary: 테두리 보조 버튼
   variant?: ButtonVariant;
   size?: ButtonSize;
   className?: string;
@@ -27,7 +27,6 @@ const VARIANT_CLASS: Record<ButtonVariant, string> = {
   primary: 'rounded-lg bg-primary text-on-primary hover:bg-primary-hover',
   secondary:
     'rounded-lg border border-line-strong bg-surface-raised text-heading-soft hover:bg-surface-muted',
-  pill: 'rounded-full bg-primary-pill text-heading hover:bg-primary-pill-hover',
 };
 
 const SIZE_CLASS: Record<ButtonSize, string> = {

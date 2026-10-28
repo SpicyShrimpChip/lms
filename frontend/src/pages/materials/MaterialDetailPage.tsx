@@ -8,12 +8,7 @@ import {
   TriangleAlert,
   Video,
 } from 'lucide-react';
-import {
-  MATERIALS_QUERY_KEY,
-  QUIZZES_QUERY_KEY,
-  getMaterial,
-  getQuizzes,
-} from '@/api';
+import { MATERIALS_QUERY_KEY, getMaterial } from '@/api';
 import {
   AiNote,
   AsyncBoundary,
@@ -23,7 +18,7 @@ import {
   SubPage,
   Tabs,
 } from '@/components';
-import { useCourses } from '@/hooks';
+import { useCourses, useQuizzes } from '@/hooks';
 import type { MaterialDetail } from '@/types';
 import { formatDate } from '@/utils';
 import QuizCard from '@/pages/quizzes/components/QuizCard';
@@ -111,10 +106,7 @@ function ConceptsTab({ material }: { material: MaterialDetail }) {
 }
 
 function QuizTab({ material }: { material: MaterialDetail }) {
-  const { data: quizzes } = useSuspenseQuery({
-    queryKey: QUIZZES_QUERY_KEY,
-    queryFn: getQuizzes,
-  });
+  const { data: quizzes } = useQuizzes();
   if (material.status !== 'ready') return <NotReady status={material.status} />;
   const mine = quizzes.filter((quiz) => quiz.materialId === material.id);
   if (mine.length === 0) {

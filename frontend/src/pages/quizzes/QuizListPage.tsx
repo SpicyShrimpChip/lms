@@ -1,16 +1,11 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
 import { ListChecks } from 'lucide-react';
-import { QUIZZES_QUERY_KEY, getQuizzes } from '@/api';
 import { AsyncBoundary, EmptyState, SubPage } from '@/components';
-import { useCourses } from '@/hooks';
+import { useCourses, useQuizzes } from '@/hooks';
 import { formatSemester } from '@/utils';
 import QuizCard from './components/QuizCard';
 
 function QuizList() {
-  const { data: quizzes } = useSuspenseQuery({
-    queryKey: QUIZZES_QUERY_KEY,
-    queryFn: getQuizzes,
-  });
+  const { data: quizzes } = useQuizzes();
   const { data: courses } = useCourses();
 
   if (quizzes.length === 0) {

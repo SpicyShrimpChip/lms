@@ -15,6 +15,7 @@ import {
   ConfirmDialog,
   EmptyState,
   SubPage,
+  ErrorText,
 } from '@/components';
 import { useCourses } from '@/hooks';
 import type { Course, MaterialSummary } from '@/types';
@@ -149,11 +150,7 @@ function MaterialList() {
         <Button to="/materials/upload">자료 올리기</Button>
       </div>
 
-      {removal.isError && (
-        <p role="alert" className="text-body text-danger">
-          {removal.error.message}
-        </p>
-      )}
+      <ErrorText error={removal.error} />
 
       {groups.map((group) => (
         <section
