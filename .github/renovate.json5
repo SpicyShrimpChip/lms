@@ -8,6 +8,12 @@
   "timezone": "Asia/Seoul", // 봇의 기준 시간대를 한국으로 설정
   "schedule": ["before 9am on monday"], // 매주 월요일 9시 전에만 묶어서 배달
   "labels": ["dependencies"], // 봇 생성 PR의 자동 생성 라벨
+  "lockFileMaintenance": { "automerge": true }, // 주간 lockfile 갱신(best-practices 포함)도 CI 통과 시 봇 자동 머지
+  // TODO(임시): npm 12와 충돌해서 넣은 우회 설정. npm 12부터 allow-remote 기본값이 none이라
+  // 공식 registry tarball(@tailwindcss/oxide-wasm32-wasi)까지 막혀(EALLOWREMOTE) Renovate의 lockfile 갱신이 실패한다.
+  // npm 쪽에서 고쳐지면 이 줄을 지운다. 확인: 최신 npm으로 @tailwindcss/vite를 올려 lockfile이 갱신되는지
+  // (react-vite-boilerplate #22, 12.0.0~12.2.1에서 재현)
+  "constraints": { "npm": "<12" },
 
   "packageRules": [
     {
