@@ -11,7 +11,8 @@ Lombok, springdoc-openapi(Swagger)
 
 ```bash
 ./gradlew bootRun    # 로컬 실행 (http://localhost:8080)
-./gradlew test       # 테스트
+./gradlew test       # 테스트 (H2)
+./gradlew pgTest     # 같은 테스트를 PostgreSQL(ai_lms_test)로
 ./gradlew build      # 빌드
 ```
 
@@ -57,15 +58,15 @@ Swagger UI: `/swagger-ui/index.html` — 프론트와 API를 맞출 때 이 문�
 
 ## CI와 main 보호
 
-- `main`은 삭제·강제 푸시가 막혀 있고, 프론트 CI(`build-and-lint`)는 머지 필수 검사다(10/27). 백엔드 CI(`build-and-test`, `mysql-test`)는 **아직 필수가 아니다**: 규칙셋 "backend CI required"는 만들어 두고 꺼 둔 상태이고, `backend-ci.yml`의 PR 실행은 `backend/**` 변경이 있을 때만 돈다.
+- `main`은 삭제·강제 푸시가 막혀 있고, 프론트 CI(`build-and-lint`)는 머지 필수 검사다(10/27). 백엔드 CI(`build-and-test`, `postgres-test`)는 **아직 필수가 아니다**: 규칙셋 "backend CI required"는 만들어 두고 꺼 둔 상태이고, `backend-ci.yml`의 PR 실행은 `backend/**` 변경이 있을 때만 돈다.
 - 백엔드 CI를 필수로 켤 때(백엔드 작업이 본격화되면 주미와 정하기): `backend-ci.yml`의 `pull_request`에서 `paths` 줄을 지우고, GitHub Settings → Rules → Rulesets에서 "backend CI required"를 Active로 바꾼다. 순서가 반대면 backend 밖만 바꾼 PR이 머지되지 않는다. 자세한 건 `backend-ci.yml` 위쪽 주석.
-- 필수 검사 이름은 workflow의 job 이름(`build-and-test`, `mysql-test`)과 같아야 한다. job 이름을 바꾸면 규칙셋의 검사 이름도 같이 고친다.
+- 필수 검사 이름은 workflow의 job 이름(`build-and-test`, `postgres-test`)과 같아야 한다. job 이름을 바꾸면 규칙셋의 검사 이름도 같이 고친다.
 
 ## 미결 사항 처리 방법
 
 - **LLM:** 제공사·모델 수가 미정이므로 `global/llm`에 인터페이스를 두고 구현체를 설정으로 고른다. 여러 모델이 독립 판단 → 결과 비교·통합하는 구조로 확장할 수 있게 설계한다. 키가 없을 때는 mock 구현체로 동작하게 한다.
 - **숙련도 점수:** 대화 분류 결과(이해 못 함 / 재설명 요청 / 스스로 활용)와 퀴즈 정답률을 받아 점수를 계산하는 클래스를 분리하고, 가중치는 설정값으로 둔다. LLM이 점수를 직접 매기지 않는다. 계산 로직에는 단위 테스트를 작성한다.
-- **DB:** MySQL로 시작(잠정). 10/28 멘토링에서 PostgreSQL + pgvector를 추천받아 협의 중이라 최종은 그 뒤에 정한다. 로컬은 H2. 두 DB에서 모두 돌도록 특정 DB 전용 문법을 쓰지 않는다. 루트 `CLAUDE.md`의 미결 사항 참고.
+- **DB:** PostgreSQL 16 + pgvector(확정, MySQL에서 이주). 기본 프로필·`./gradlew test`는 H2(PostgreSQL 모드), 실제 DB 테스트는 `./gradlew pgTest`(`ai_lms_test`). H2에서도 돌도록 마이그레이션에는 특정 DB 전용 문법을 쓰지 않고, `CREATE EXTENSION vector`처럼 PostgreSQL 전용인 것은 `db/vector/`에 둔다(local·prod에서만 적용). 로컬 DB는 `backend/db/docker-compose.yml` + `setup-local-postgres.sh`.
 - **배치 JSON:** LLM이 출력한 화면 배치 JSON은 서버에서도 허용 컴포넌트 목록 기준으로 1차 검증한 뒤 프론트에 전달한다.
 
 ## 대화 가져오기 API

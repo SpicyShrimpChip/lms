@@ -10,9 +10,9 @@ class TestDatabaseGuardTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = {
-			"jdbc:h2:mem:lms;MODE=MySQL",
-			"jdbc:mysql://localhost:3306/ai_lms_test?characterEncoding=UTF-8",
-			"jdbc:mysql://127.0.0.1:3306/ai_lms_test"
+			"jdbc:h2:mem:lms;MODE=PostgreSQL",
+			"jdbc:postgresql://localhost:5432/ai_lms_test",
+			"jdbc:postgresql://127.0.0.1:5432/ai_lms_test?sslmode=require"
 	})
 	void H2_메모리_DB와_test_DB에서는_실행한다(String url) {
 		assertThatCode(() -> TestDatabaseGuard.check(url)).doesNotThrowAnyException();
@@ -20,10 +20,10 @@ class TestDatabaseGuardTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = {
-			"jdbc:mysql://localhost:3306/ai_lms?characterEncoding=UTF-8",
-			"jdbc:mysql://localhost:3306/ai_lms",
-			"jdbc:mysql://localhost:3306/ai_lms_testing",
-			"jdbc:mysql://localhost:3306/",
+			"jdbc:postgresql://localhost:5432/ai_lms?sslmode=require",
+			"jdbc:postgresql://localhost:5432/ai_lms",
+			"jdbc:postgresql://localhost:5432/ai_lms_testing",
+			"jdbc:postgresql://localhost:5432/",
 			""
 	})
 	void 서비스_DB나_알_수_없는_DB에서는_멈춘다(String url) {
