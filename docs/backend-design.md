@@ -9,12 +9,12 @@
 
 | 저장소 | 상태 | 담는 것 |
 | --- | --- | --- |
-| **MySQL** (`ai_lms`) | 사용 중 | 회원·인증 세션, 과목, 학습 기록, 숙련도·근거, 커리큘럼, 업로드 파일 메타데이터, 자료 조각(Chunk) 원문, AI 생성 결과 메타데이터, 대시보드 배치. **소유권(누구 데이터인지)의 기준** |
-| **벡터 DB** (Qdrant 후보) | 미결 (10/28 멘토링에서 PostgreSQL + pgvector 추천, 협의 후 결정) | 자료 조각 임베딩, 유사도 검색용 인덱스, 검색 필터용 최소 메타데이터(`user_id`, `material_id`, `course_id`) |
+| **PostgreSQL** (`ai_lms`) | 사용 중 | 회원·인증 세션, 과목, 학습 기록, 숙련도·근거, 커리큘럼, 업로드 파일 메타데이터, 자료 조각(Chunk) 원문, AI 생성 결과 메타데이터, 대시보드 배치. **소유권(누구 데이터인지)의 기준** |
+| **벡터 검색** (pgvector) | 확장만 설치(`db/vector`). 임베딩 테이블은 챗봇 검색 구현 때 추가 | 자료 조각 임베딩, 유사도 검색용 인덱스. 같은 PostgreSQL 안에 두므로 `user_id` 조건을 SQL로 함께 건다 |
 | **파일 저장소** (`global/storage`) | 미구현 | 업로드 원본(보관 여부 미결), AI가 만든 이미지·영상 파일. 로컬 / S3 구현을 인터페이스로 분리 |
 
-- 벡터 DB는 **검색 인덱스일 뿐 원본이 아니다.** 임베딩은 MySQL의 자료 조각에서 언제든 다시 만들 수 있어야 한다.
-- 로컬 테스트는 H2(MySQL 모드)도 지원한다. 두 DB에서 모두 돌도록 DB 전용 문법(JSON 타입, 전용 함수)은 쓰지 않는다.
+- 벡터 DB는 **검색 인덱스일 뿐 원본이 아니다.** 임베딩은 자료 조각 원문에서 언제든 다시 만들 수 있어야 한다.
+- 로컬 테스트는 H2(PostgreSQL 모드)도 지원한다. 두 DB에서 모두 돌도록 DB 전용 문법(JSON 타입, 전용 함수)은 쓰지 않는다. H2에 없는 pgvector 확장은 `db/vector/` 마이그레이션으로 분리해 local·prod에서만 적용한다.
 
 ## 2. 지금 만든 테이블 (Flyway `backend/src/main/resources/db/migration`)
 
@@ -206,28 +206,28 @@ global/
 ├── llm/          LlmClient (제공사별 구현 + mock). 여러 모델 독립 판단 → 통합
 ├── embedding/    EmbeddingClient (임베딩 모델 미결)
 ├── vector/       VectorStore 인터페이스 — upsert, search(filter), deleteByMaterial, deleteByUser
-│                 구현: QdrantVectorStore(후보) / 벡터 DB 없이 시작할 때 MySQL 전문 검색 구현
+│                 구현: PgVectorStore(pgvector, 확정) — 구현체는 인터페이스 뒤에 둔다
 └── storage/      FileStorage (로컬 / S3)
 domain/
 ├── material/     업로드 → 텍스트 추출 → 조각 나누기(material_chunk) → 임베딩 → VectorStore.upsert
-└── chatbot/      질문 → VectorStore.search → MySQL에서 소유권 재확인 → LLM 답변 + chat_citation
+└── chatbot/      질문 → VectorStore.search → DB에서 소유권 재확인 → LLM 답변 + chat_citation
 ```
 
 ### ID 연결과 소유권 확인
 
-1. 자료 조각은 **MySQL `material_chunk`에 먼저 저장**하고, 벡터 DB 점(point) id는 `material_chunk.id`(또는 저장한 `vector_point_id`)로 맞춘다.
+1. 자료 조각은 **`material_chunk`에 먼저 저장**하고, 벡터 DB 점(point) id는 `material_chunk.id`(또는 저장한 `vector_point_id`)로 맞춘다.
 2. 점의 payload에는 검색 필터용으로 `user_id`, `material_id`, `course_id`, `embedding_model`만 넣는다 (본문·개인정보는 넣지 않는다).
-3. 검색은 `user_id = 로그인 사용자`로 필터한 뒤, 돌아온 조각 id로 **MySQL에서 `WHERE id IN (...) AND user_id = :me`로 다시 조회**한다. MySQL에 없거나 소유자가 다르면 버린다. **벡터 DB의 `user_id`는 검색 범위를 줄이는 용도일 뿐 권한 판단에 쓰지 않는다.**
+3. 검색은 `user_id = 로그인 사용자`로 필터한 뒤, 돌아온 조각 id로 **`WHERE id IN (...) AND user_id = :me`로 다시 조회**한다. 없거나 소유자가 다르면 버린다. **벡터 DB의 `user_id`는 검색 범위를 줄이는 용도일 뿐 권한 판단에 쓰지 않는다.**
 
 ### 삭제 연쇄
 
-| 사건 | MySQL | 벡터 DB | 파일 |
+| 사건 | DB 행 | 벡터 | 파일 |
 | --- | --- | --- | --- |
 | 자료 삭제 | `material` 삭제 → `material_chunk`, 그 자료로 만든 퀴즈·근거 연쇄 삭제 → 숙련도 재계산 | `deleteByMaterial(materialId)` | 원본·생성 파일 삭제 |
 | AI 대화 분석 동의 철회 | 대화·대화에서 나온 근거 삭제 → 숙련도 재계산 | 해당 없음(대화는 임베딩하지 않는 안) | - |
 | 탈퇴 | `users` 삭제 → 모든 자식 행 `ON DELETE CASCADE` | `deleteByUser(userId)` | 사용자 폴더 삭제 |
 
-- 벡터 DB·파일 삭제는 DB 트랜잭션 밖이라 실패할 수 있다. MySQL에 "지울 것" 작업 행을 같은 트랜잭션으로 남기고(outbox) 재시도하는 방식을 제안한다.
+- 벡터 DB·파일 삭제는 DB 트랜잭션 밖이라 실패할 수 있다. DB에 "지울 것" 작업 행을 같은 트랜잭션으로 남기고(outbox) 재시도하는 방식을 제안한다.
 
 ## 7. AI 분석·RAG와의 연결
 
@@ -237,43 +237,35 @@ domain/
 - **맞춤 설명서·이미지·영상:** 약점 개념 → 관련 조각 검색 → 생성 요청 → `ai_generation`에 상태·모델·결과 위치 저장. 파일은 `global/storage`.
 - 모든 AI 호출은 로그인 사용자의 `user_id` 범위 데이터만 입력으로 쓴다.
 
-## 8. 로컬 MySQL 설정
-
-### 이미 만든 DB·계정을 쓰는 경우 (Workbench 등으로 직접 만듦)
+## 8. 로컬 PostgreSQL 설정
 
 ```bash
-cd backend
-./db/configure-local-env.sh   # 두 계정 비밀번호와 JWT 시크릿을 입력 → 접속 확인 → backend/.env 생성
-./gradlew bootRun             # 처음 실행할 때 Flyway가 ai_lms에 테이블을 만든다
+cd backend/db
+POSTGRES_PASSWORD='관리자비밀번호' docker compose up -d   # pgvector/pgvector:pg16 (127.0.0.1:5432에만 열림). Docker 대신 직접 설치해도 된다(pgvector 필요)
+cd ..
+./db/setup-local-postgres.sh   # 관리자 비밀번호 + 새 계정 비밀번호 입력 → DB·계정·vector 확장 생성 → backend/.env 생성
+./gradlew bootRun              # 처음 실행할 때 Flyway가 ai_lms에 테이블을 만든다
 ```
 
-- 이 스크립트는 DB·계정을 만들거나 바꾸지 않는다. 접속 확인용 `SELECT`만 실행한다.
+- 스크립트는 `ai_lms`, `ai_lms_test` DB와 `ai_lms_migrator`(DDL, DB 소유자), `ai_lms_app`(읽기·쓰기만) 계정을 만든다. 이미 있으면 아무것도 바꾸지 않고 멈춘다.
 - 일반 DataSource는 `ai_lms_app`, Flyway는 `ai_lms_migrator`를 쓴다 (`application-local.yaml`).
-- 처음부터 DB·계정까지 만들 때는 `./db/setup-local-mysql.sh`(관리자 비밀번호 필요)를 쓴다.
+- `vector` 확장은 슈퍼유저만 만들 수 있어 스크립트가 미리 설치한다. Flyway의 `db/vector` 마이그레이션은 `IF NOT EXISTS`라 그대로 통과한다.
+- 원격 공유 DB를 쓸 때는 5432를 공인망에 열지 말고 VPN 사설 주소 + SSL로 접속하며, 주소·비밀번호는 `backend/.env`로만 관리한다.
 
 ### 테스트 전용 DB (`ai_lms_test`)
 
-`./gradlew mysqlTest`는 같은 테스트를 실제 MySQL에서 돌린다. 테스트는 매번 회원·세션 행을 지우므로 **서비스 DB(`ai_lms`)와 분리한 `ai_lms_test`에서만** 돈다.
+`./gradlew pgTest`는 같은 테스트를 실제 PostgreSQL에서 돌린다. 테스트는 매번 회원·세션 행을 지우므로 **서비스 DB(`ai_lms`)와 분리한 `ai_lms_test`에서만** 돈다. `ai_lms_test`는 위 스크립트가 함께 만든다. 다른 주소를 쓰려면 `TEST_DB_URL`을 지정한다.
 
 - Gradle이 시작 전에 DB 이름이 `_test`로 끝나는지 확인하고, 테스트 코드(`TestDatabaseGuard`)가 스프링이 뜨기 전에 한 번 더 확인한다. 둘 다 통과하지 못하면 DB에 접속하지 않고 멈춘다.
-- 테스트 DB는 관리자 계정으로 아래 SQL을 실행해 만든다.
+
+### psql에서 확인할 SQL
 
 ```sql
-CREATE DATABASE ai_lms_test CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ai_lms_test.* TO 'ai_lms_app'@'localhost';
-GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON ai_lms_test.* TO 'ai_lms_migrator'@'localhost';
-```
-
-영향: 빈 DB 하나가 새로 생기고, 기존 두 계정이 그 DB에 대해서만 권한을 더 갖는다. `ai_lms`의 데이터·권한과 계정 비밀번호는 바뀌지 않는다.
-계정까지 완전히 나누고 싶으면 `ai_lms_test` 전용 계정을 따로 만들고 `DB_USERNAME`·`DB_MIGRATION_USERNAME`을 `mysqlTest` 실행 때만 바꿔 넣으면 된다(비밀번호를 두 벌 관리해야 한다).
-
-### Workbench에서 확인할 SQL
-
-```sql
-USE ai_lms;
-SHOW TABLES;                                             -- flyway_schema_history, notice, refresh_token, users
+\c ai_lms
+\dt                                                     -- flyway_schema_history, notice, refresh_token, users
 SELECT version, description, success, installed_on FROM flyway_schema_history ORDER BY installed_rank;
-SHOW CREATE TABLE users;                                 -- uk_users_email UNIQUE, utf8mb4
+\d users                                                -- uk_users_email UNIQUE
+SELECT extname, extversion FROM pg_extension;            -- vector
 SELECT id, email, name, ai_analysis_consent, created_at FROM users;   -- password_hash는 조회하지 않아도 된다
 SELECT id, user_id, session_id, expires_at, revoked_at FROM refresh_token ORDER BY id;  -- token_hash는 원문이 아니다
 SELECT * FROM notice ORDER BY created_at DESC;

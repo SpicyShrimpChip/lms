@@ -1,5 +1,5 @@
 # 공통 설정 + 기본 프로필(H2 메모리 DB). ./gradlew test는 이 설정으로 돈다.
-# 로컬 MySQL은 application-local.yaml, 운영은 application-prod.yaml. 비밀값은 여기에 쓰지 않는다
+# 로컬 PostgreSQL은 application-local.yaml, 운영은 application-prod.yaml. 비밀값은 여기에 쓰지 않는다
 server:
   port: 8080
 
@@ -12,7 +12,7 @@ spring:
     import: optional:file:.env[.properties]
 
   datasource:
-    url: jdbc:h2:mem:lms;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:lms;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
     username: sa
     password:
 
@@ -23,6 +23,7 @@ spring:
     open-in-view: false
 
   # db/seed: 로컬 확인용 샘플 데이터 (운영 프로필에서는 빠진다)
+  # db/vector(pgvector 확장)는 H2에 없어서 PostgreSQL을 쓰는 local·prod 프로필에서만 추가한다
   flyway:
     locations: classpath:db/migration,classpath:db/seed
 

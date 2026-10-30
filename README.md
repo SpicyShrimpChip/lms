@@ -90,7 +90,7 @@ flowchart TD
 
 [![Frontend CI](https://github.com/SpicyShrimpChip/lms/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/SpicyShrimpChip/lms/actions/workflows/frontend-ci.yml) [![Backend CI](https://github.com/SpicyShrimpChip/lms/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/SpicyShrimpChip/lms/actions/workflows/backend-ci.yml)
 
-프론트 테스트 76개, 백엔드 테스트 56개가 해당 코드가 바뀐 PR마다 GitHub Actions에서 실행됩니다. 백엔드는 H2와 실제 MySQL 8 두 환경에서 같은 테스트를 돌립니다.
+프론트 테스트 76개, 백엔드 테스트 56개가 해당 코드가 바뀐 PR마다 GitHub Actions에서 실행됩니다. 백엔드는 H2와 실제 PostgreSQL 16(pgvector) 두 환경에서 같은 테스트를 돌립니다.
 
 ## 설계 원칙
 
@@ -102,16 +102,14 @@ flowchart TD
 
 ## 기술 스택
 
-![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-6DB33F?style=flat-square&logo=springboot&logoColor=white) ![Java](https://img.shields.io/badge/Java-17-ED8B00?style=flat-square&logo=openjdk&logoColor=white) ![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?style=flat-square&logo=mysql&logoColor=white) ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI-2088FF?style=flat-square&logo=githubactions&logoColor=white) ![Claude](https://img.shields.io/badge/Claude-Code-D97757?style=flat-square&logo=claude&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-6DB33F?style=flat-square&logo=springboot&logoColor=white) ![Java](https://img.shields.io/badge/Java-17-ED8B00?style=flat-square&logo=openjdk&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white) ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI-2088FF?style=flat-square&logo=githubactions&logoColor=white) ![Claude](https://img.shields.io/badge/Claude-Code-D97757?style=flat-square&logo=claude&logoColor=white)
 
 | 영역 | 기술 |
 | --- | --- |
 | Frontend | React 19, TypeScript 6, Vite 8, Tailwind CSS 4, React Router 7, TanStack Query 5, Zustand 5, Axios, zod, Motion, Vitest |
-| Backend | Spring Boot 3.5, Java 17, Gradle, Spring Security(JWT), Spring Data JPA, Flyway, MySQL 8, H2(테스트) |
+| Backend | Spring Boot 3.5, Java 17, Gradle, Spring Security(JWT), Spring Data JPA, Flyway, PostgreSQL 16 + pgvector, H2(테스트) |
 | LLM | 제공사 미정. 여러 모델의 판단을 비교·통합할 수 있는 구조 |
 | 개발 환경 | GitHub Actions, ESLint, Prettier, Husky + lint-staged, Renovate, Claude Code |
-
-<!-- TODO: DB 최종 결정 (10/28 멘토링에서 PostgreSQL + pgvector 추천, MySQL 유지 여부는 협의 중). 결정되면 위 표와 아래 실행 안내를 고친다 -->
 
 ## 팀
 
@@ -158,19 +156,19 @@ npm run dev   # http://localhost:5173
 <details>
 <summary>백엔드까지 실행하기</summary>
 
-> JDK 17과 MySQL 8이 필요합니다. 설계는 [`docs/backend-design.md`](docs/backend-design.md)를 참고하세요.
+> JDK 17과 PostgreSQL 16(pgvector 포함, `backend/db/docker-compose.yml`로 띄울 수 있음)이 필요합니다. 설계는 [`docs/backend-design.md`](docs/backend-design.md)를 참고하세요.
 
 ```bash
 cd lms/backend
-./db/configure-local-env.sh # 처음 한 번: 이미 만든 DB·계정으로 backend/.env 생성 (DB·계정까지 새로 만들 때는 ./db/setup-local-mysql.sh)
-./gradlew bootRun           # http://localhost:8080 (로컬 MySQL, 테이블은 Flyway가 자동 생성)
+./db/setup-local-postgres.sh # 처음 한 번: DB·계정을 만들고 backend/.env 생성 (관리자 비밀번호 필요)
+./gradlew bootRun           # http://localhost:8080 (로컬 PostgreSQL, 테이블은 Flyway가 자동 생성)
 ./gradlew test              # H2 메모리 DB로 테스트
-./gradlew mysqlTest         # 같은 테스트를 로컬 MySQL(ai_lms_test)로 실행
+./gradlew pgTest            # 같은 테스트를 PostgreSQL(ai_lms_test)로 실행
 ```
 
 - API 문서(Swagger): http://localhost:8080/swagger-ui/index.html
 - 비밀값(DB 비밀번호, JWT 시크릿)은 `backend/.env`(커밋 안 됨)에만 둡니다. 형식은 `backend/.env.example` 참고.
-- MySQL 없이 띄우려면 `SPRING_PROFILES_ACTIVE=default ./gradlew bootRun` (H2 메모리 DB, 재시작하면 데이터가 사라짐).
+- PostgreSQL 없이 띄우려면 `SPRING_PROFILES_ACTIVE=default ./gradlew bootRun` (H2 메모리 DB, 재시작하면 데이터가 사라짐).
 - 프론트에서 실제 API로 확인하려면 `frontend/.env.development.local`(커밋 안 됨)에 `VITE_USE_MOCK=false`를 넣습니다.
 - `npm ci`를 실행하면 Git 훅도 함께 설치됩니다. 커밋할 때 lint-staged, push할 때 타입 체크가 실행됩니다.
 

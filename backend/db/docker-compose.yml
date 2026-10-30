@@ -1,0 +1,17 @@
+# 로컬 개발용 PostgreSQL(+pgvector). 실행: cd backend/db && docker compose up -d
+# 관리자 비밀번호는 환경변수 POSTGRES_PASSWORD로 넘긴다 (파일에 쓰지 않는다)
+#   예: POSTGRES_PASSWORD='원하는비밀번호' docker compose up -d
+# 이어서 ./setup-local-postgres.sh로 DB·계정을 만든다.
+# 5432는 이 PC에서만 접근하도록 127.0.0.1에 묶는다. 원격 공유 DB는 따로 구성한다(공인망에 열지 않는다)
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD 환경변수를 지정해 주세요}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

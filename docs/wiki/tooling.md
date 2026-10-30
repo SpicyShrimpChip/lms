@@ -19,7 +19,7 @@
 - 상황: 규칙셋 "backend CI required"를 켜려 한다(지금은 꺼 둠).
 - 원인: 백엔드 CI가 `paths` 필터로 `backend/` 변경 때만 돈다. 필수로 켜면 `backend/` 밖만 바꾼 PR은 검사가 돌지 않아 머지되지 않는다.
 - 해결: ① `backend-ci.yml`의 `pull_request`에서 `paths` 줄을 지운다. ② 규칙셋을 Active로 바꾼다. 순서가 반대면 안 된다.
-- 다음에는: 필수 검사 이름은 job 이름(`build-and-test`, `mysql-test`)과 같아야 한다. job 이름을 바꾸면 규칙셋도 같이 고친다.
+- 다음에는: 필수 검사 이름은 job 이름(`build-and-test`, `postgres-test`)과 같아야 한다. job 이름을 바꾸면 규칙셋도 같이 고친다.
 
 ## npm 12가 공식 registry 파일까지 막는다 (2026-10-28, #73)
 

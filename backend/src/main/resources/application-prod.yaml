@@ -1,6 +1,6 @@
 # 운영 설정 (SPRING_PROFILES_ACTIVE=prod). 접속 정보·시크릿·출처는 모두 환경변수로만 받는다
 spring:
-  # 예: jdbc:mysql://<호스트>:3306/ai_lms?characterEncoding=UTF-8
+  # 예: jdbc:postgresql://<호스트>:5432/ai_lms
   # TODO(미결): AWS 세부 서비스(RDS 등)는 정해지지 않았다
   datasource:
     url: ${DB_URL}
@@ -11,7 +11,7 @@ spring:
     user: ${DB_MIGRATION_USERNAME}
     password: ${DB_MIGRATION_PASSWORD}
     # 샘플 데이터(db/seed)는 넣지 않는다
-    locations: classpath:db/migration
+    locations: classpath:db/migration,classpath:db/vector
 
 app:
   cors:
