@@ -28,7 +28,7 @@
 - 해결: 제목 100자·본문 5000자로 검증하고 앞뒤 공백을 지운 뒤, HTML로 해석하지 않고 글자 그대로 저장한다. 프론트도 글자로만 다룬다.
 - 다음에는: 작성자는 요청 본문이 아니라 토큰의 사용자로 정하고 응답에는 내보내지 않는다. 작성자가 탈퇴해도 공지는 남도록 `ON DELETE SET NULL`로 두었다.
 
-## MySQL에서 PostgreSQL로 옮길 때 H2 테스트를 지키는 법 (2026-10-30)
+## MySQL에서 PostgreSQL로 옮길 때 H2 테스트를 지키는 법 (2026-10-30, #78)
 
 - 상황: 10/28 멘토링 추천으로 DB를 PostgreSQL + pgvector로 바꿨다. 빠른 기본 테스트는 H2로 유지하고 싶었다.
 - 원인: `CREATE EXTENSION vector`는 H2에서 실패한다. `AUTO_INCREMENT`·`DATETIME(6)`·`FROM DUAL`은 PostgreSQL 문법이 아니다.
