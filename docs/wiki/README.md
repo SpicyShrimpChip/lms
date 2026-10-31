@@ -42,6 +42,7 @@
 
 - 패키지가 늘어난 뒤에는 다른 컴퓨터에서 `npm ci`를 다시 한다
 - Prettier 검사는 CI가, 고치는 건 커밋 훅이 한다
+- 도커: `docker --version`은 되는데 연결 오류가 난다
 - 백엔드 CI를 필수 검사로 켜는 순서
 - npm 12가 공식 registry 파일까지 막는다(Renovate 임시 제한)
 - Claude는 강제 푸시가 막혀 있다

@@ -239,6 +239,8 @@ domain/
 
 ## 8. 로컬 PostgreSQL 설정
 
+새 컴퓨터 세팅 전체 순서와 막힐 때 대처는 [`docs/setup.md`](setup.md)에 있고, 아래는 요약이다.
+
 ```bash
 cd backend/db
 POSTGRES_PASSWORD='관리자비밀번호' docker compose up -d   # pgvector/pgvector:pg16 (127.0.0.1:5432에만 열림). Docker 대신 직접 설치해도 된다(pgvector 필요)

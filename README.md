@@ -134,7 +134,7 @@ flowchart TD
 .
 ├── frontend/   React 앱
 ├── backend/    Spring Boot API
-├── docs/       기획 문서, 백엔드 설계, 프론트–백엔드 API 요청
+├── docs/       세팅 매뉴얼, 기획 문서, 백엔드 설계, 프론트–백엔드 API 요청
 └── .github/    CI 워크플로, Renovate 설정
 ```
 
@@ -156,11 +156,11 @@ npm run dev   # http://localhost:5173
 <details>
 <summary>백엔드까지 실행하기</summary>
 
-> JDK 17과 PostgreSQL 16(pgvector 포함, `backend/db/docker-compose.yml`로 띄울 수 있음)이 필요합니다. 설계는 [`docs/backend-design.md`](docs/backend-design.md)를 참고하세요.
+> JDK 17과 PostgreSQL 16(pgvector 포함, `backend/db/docker-compose.yml`로 띄울 수 있음)이 필요합니다. 새 컴퓨터 세팅 순서와 막힐 때 대처는 [`docs/setup.md`](docs/setup.md), 설계는 [`docs/backend-design.md`](docs/backend-design.md)를 참고하세요.
 
 ```bash
 cd lms/backend
-./db/setup-local-postgres.sh # 처음 한 번: DB·계정을 만들고 backend/.env 생성 (관리자 비밀번호 필요)
+./db/setup-local-postgres.sh # 처음 한 번: DB·계정을 만들고 backend/.env 생성 (관리자 비밀번호 필요, psql이 없으면 도커 컨테이너 안의 psql을 써서 묻지 않음)
 ./gradlew bootRun           # http://localhost:8080 (로컬 PostgreSQL, 테이블은 Flyway가 자동 생성)
 ./gradlew test              # H2 메모리 DB로 테스트
 ./gradlew pgTest            # 같은 테스트를 PostgreSQL(ai_lms_test)로 실행

@@ -14,6 +14,13 @@
 - 해결: `frontend-ci.yml`이 `npm run format:check`로 검사만 한다. 실패하면 `frontend`에서 `npm run format` 후 커밋한다.
 - 다음에는: `package-lock.json`은 npm이 만드는 파일이라 `.prettierignore`로 제외한다.
 
+## 도커: `docker --version`은 되는데 연결 오류가 난다 (2026-10-31)
+
+- 상황: Windows에서 Docker Desktop을 막 설치하고 `docker run`을 했더니 `//./pipe/docker_engine` 연결 오류가 났다. 이미 열어 둔 터미널·앱에서는 `docker` 명령 자체를 못 찾기도 했다.
+- 원인: `docker` 명령은 설치만 되면 나오지만 엔진은 Docker Desktop 앱을 실행해야 켜진다. 설치하기 전에 열어 둔 프로그램은 새 PATH를 모른다.
+- 해결: Docker Desktop을 실행해 왼쪽 아래가 초록색(Engine running)이 된 뒤 다시 실행한다. 명령을 못 찾으면 터미널(안 되면 앱)을 껐다 켠다. 계속 멈추면 `wsl --update` 후 재부팅.
+- 다음에는: `docker compose` 명령은 `docker-compose.yml`의 필수 환경변수(`POSTGRES_PASSWORD`)가 없으면 `ps`·`exec`에도 오류를 낸다. 켜 둔 컨테이너는 `docker start`·`docker exec` 같은 일반 도커 명령을 쓴다. 세팅 순서는 `docs/setup.md`.
+
 ## 백엔드 CI를 필수 검사로 켜는 순서 (2026-10-27, #65)
 
 - 상황: 규칙셋 "backend CI required"를 켜려 한다(지금은 꺼 둠).
