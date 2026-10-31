@@ -14,7 +14,7 @@
 - 해결: `frontend-ci.yml`이 `npm run format:check`로 검사만 한다. 실패하면 `frontend`에서 `npm run format` 후 커밋한다.
 - 다음에는: `package-lock.json`은 npm이 만드는 파일이라 `.prettierignore`로 제외한다.
 
-## VS Code PostgreSQL 확장 접속 오류 세 가지 (2026-10-31)
+## VS Code PostgreSQL 확장 접속 오류 세 가지 (2026-10-31, #84)
 
 - 상황: 도커 PostgreSQL에 VS Code 확장(`ms-ossdata.vscode-pgsql`)으로 처음 접속했다.
 - 원인: ① SERVER NAME에 `localhost:5432`처럼 포트를 붙이면 통째로 호스트 이름으로 읽어 `getaddrinfo failed`가 난다. ② `localhost`가 IPv6로 먼저 시도돼 15초 뒤 시간 초과가 났다(컨테이너는 `127.0.0.1`에만 열려 있다). ③ 앱 계정과 마이그레이션 계정의 비밀번호를 서로 바꿔 넣으면 `password authentication failed`가 난다.
