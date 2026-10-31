@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { AsyncBoundary, SubPage } from '@/components';
-import { useMe } from '@/hooks';
+import { useMe, useSavedMaskWords } from '@/hooks';
 import {
   conversationKey,
   maskConversation,
@@ -21,14 +21,17 @@ function ConversationImportPage() {
   const [step, setStep] = useState(0);
   const [imported, setImported] = useState<MergedImport | null>(null);
   const [choices, setChoices] = useState<ConversationChoices | null>(null);
-  // 사용자가 고치기 전에는 내 정보의 이름을 가릴 이름으로 미리 넣어 둔다
+  // 사용자가 고치기 전에는 내 정보의 이름과 이 브라우저에 저장한 단어를 미리 넣어 둔다
   const [editedOptions, setEditedOptions] = useState<MaskOptions | null>(null);
+  // 새로 넣은 가릴 단어를 이 브라우저에 저장할지. 기본은 이번 가져오기에서만 쓴다
+  const [rememberTerms, setRememberTerms] = useState(false);
 
   const { data: me } = useMe();
   const myName = me?.name;
+  const { words: savedTerms, save: saveTerms } = useSavedMaskWords(me?.id);
   const maskOptions = useMemo<MaskOptions>(
-    () => editedOptions ?? { names: myName ? [myName] : [], terms: [] },
-    [editedOptions, myName],
+    () => editedOptions ?? { names: myName ? [myName] : [], terms: savedTerms },
+    [editedOptions, myName, savedTerms],
   );
 
   // 보낼 대화 (고른 것만, 과목 포함)
@@ -104,8 +107,16 @@ function ConversationImportPage() {
           conversations={selected.map(({ conversation }) => conversation)}
           options={maskOptions}
           onChangeOptions={setEditedOptions}
+          savedTerms={me ? savedTerms : null}
+          remember={rememberTerms}
+          onChangeRemember={setRememberTerms}
           onBack={() => goToStep(1)}
-          onNext={() => goToStep(3)}
+          onNext={() => {
+            // 3단계에서 뺀 저장 단어는 이번에만 빼고, 저장 목록에서 지우는 것은 마이페이지에서 한다
+            if (rememberTerms)
+              saveTerms([...savedTerms, ...(maskOptions.terms ?? [])]);
+            goToStep(3);
+          }}
         />
       )}
 
