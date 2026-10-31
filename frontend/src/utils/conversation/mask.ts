@@ -223,3 +223,51 @@ export function maskConversation(
   };
   return { conversation: masked, counts, totalCount };
 }
+
+// 가린 곳 하나 (미리보기 화면의 "가린 곳 목록"용). original은 화면에서만 쓰고 서버로 보내지 않는다
+export interface MaskedSpot {
+  // 제목이면 -1, 아니면 메시지 순서
+  messageIndex: number;
+  kind: MaskKind;
+  original: string;
+  // 가린 결과 글에서 표시 앞뒤 글 (줄바꿈은 한 칸으로)
+  before: string;
+  after: string;
+}
+
+// 앞뒤로 보여 줄 글자 수
+const SPOT_CONTEXT_LENGTH = 20;
+
+const oneLine = (text: string) => text.replace(/\s+/g, ' ');
+
+// 대화의 제목과 모든 메시지에서 가린 곳을 순서대로 모은다 (메시지 위치와 상관없이 전부)
+export function collectMaskedSpots(
+  conversation: ParsedConversation,
+  options: MaskOptions = {},
+): MaskedSpot[] {
+  const spots: MaskedSpot[] = [];
+  const texts = [
+    conversation.title,
+    ...conversation.messages.map((m) => m.text),
+  ];
+  texts.forEach((text, i) => {
+    const { text: masked, matches } = maskText(text, options);
+    for (const match of matches) {
+      spots.push({
+        messageIndex: i - 1,
+        kind: match.kind,
+        original: match.original,
+        before: oneLine(
+          masked.slice(
+            Math.max(0, match.start - SPOT_CONTEXT_LENGTH),
+            match.start,
+          ),
+        ).trimStart(),
+        after: oneLine(
+          masked.slice(match.end, match.end + SPOT_CONTEXT_LENGTH),
+        ).trimEnd(),
+      });
+    }
+  });
+  return spots;
+}
