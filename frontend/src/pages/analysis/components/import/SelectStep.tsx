@@ -7,6 +7,7 @@ import {
   Chip,
   EmptyState,
   SelectInput,
+  Notice,
   TextInput,
 } from '@/components';
 import { useCourses } from '@/hooks';
@@ -125,11 +126,12 @@ function SelectStep({
           나눴어요. 보내지 않을 대화는 선택을 풀어 주세요.
         </p>
         {hasLongConversation && (
-          <p className="mt-1 flex items-start gap-2 rounded-xl bg-surface-muted p-3 text-caption text-ink-soft">
-            <Info size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
-            메시지가 아주 많은 대화는 보낼 때 나눠서 보내요. 빠지는 메시지는
-            없고, 어떤 대화인지는 보내기 단계에서 알려 드려요.
-          </p>
+          <Notice icon={Info} size="caption" className="mt-1">
+            <p>
+              메시지가 아주 많은 대화는 보낼 때 나눠서 보내요. 빠지는 메시지는
+              없고, 어떤 대화인지는 보내기 단계에서 알려 드려요.
+            </p>
+          </Notice>
         )}
       </div>
 

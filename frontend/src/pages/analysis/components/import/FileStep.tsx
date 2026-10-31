@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CircleAlert, Download, FileText, Lock } from 'lucide-react';
-import { Button, Card, FileDropZone } from '@/components';
+import { Button, Card, FileDropZone, Notice } from '@/components';
 import type { ClaudeManifest, MergedImport } from '@/utils';
 import { readExportFiles } from './readExportFiles';
 
@@ -110,18 +110,13 @@ function FileStep({ imported, onLoaded, onNext }: FileStepProps) {
         대화 내보내기 파일 고르기
       </h2>
 
-      <div className="flex items-start gap-3 rounded-xl bg-surface-muted p-4">
-        <Lock
-          size={20}
-          className="mt-0.5 shrink-0 text-primary"
-          aria-hidden="true"
-        />
-        <p className="text-body leading-relaxed text-ink-soft">
+      <Notice icon={Lock} iconClassName="text-primary">
+        <p>
           파일은 서버로 올라가지 않아요. 압축 파일도 이 브라우저 안에서 열고,
           공부한 대화만 골라 이메일·전화번호 같은 개인정보를 가린 뒤 내가 선택한
           대화만 보내요.
         </p>
-      </div>
+      </Notice>
 
       <FileDropZone
         id="conversation-file"
