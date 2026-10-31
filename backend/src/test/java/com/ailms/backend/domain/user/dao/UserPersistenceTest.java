@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-// DB 수준 확인: 마이그레이션 적용, UNIQUE 제약, 한글·이모지(utf8mb4) 저장. mysqlTest에서는 실제 MySQL로 확인된다
+// DB 수준 확인: 마이그레이션 적용, UNIQUE 제약, 한글·이모지(UTF-8) 저장. postgresTest에서는 실제 PostgreSQL로 확인된다
 @IntegrationTest
 class UserPersistenceTest {
 
@@ -36,10 +36,10 @@ class UserPersistenceTest {
 		Integer failed = jdbcTemplate.queryForObject(
 				"SELECT COUNT(*) FROM flyway_schema_history WHERE success = FALSE", Integer.class);
 		Integer applied = jdbcTemplate.queryForObject(
-				"SELECT COUNT(*) FROM flyway_schema_history WHERE version IN ('1', '2') AND success = TRUE", Integer.class);
+				"SELECT COUNT(*) FROM flyway_schema_history WHERE version = '1' AND success = TRUE", Integer.class);
 
 		assertThat(failed).isZero();
-		assertThat(applied).isEqualTo(2);
+		assertThat(applied).isEqualTo(1);
 	}
 
 	@Test

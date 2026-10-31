@@ -14,12 +14,19 @@
 - 해결: `frontend-ci.yml`이 `npm run format:check`로 검사만 한다. 실패하면 `frontend`에서 `npm run format` 후 커밋한다.
 - 다음에는: `package-lock.json`은 npm이 만드는 파일이라 `.prettierignore`로 제외한다.
 
+## 도커: `docker --version`은 되는데 연결 오류가 난다 (2026-10-31)
+
+- 상황: Windows에서 Docker Desktop을 막 설치하고 `docker run`을 했더니 `//./pipe/docker_engine` 연결 오류가 났다.
+- 원인: `docker` 명령은 설치만 되면 나오지만, 엔진은 Docker Desktop 앱을 실행해야 켜진다.
+- 해결: Docker Desktop을 실행해 왼쪽 아래가 초록색(Engine running)이 된 뒤 다시 실행한다. 계속 멈추면 `wsl --update`와 재부팅.
+- 다음에는: PC를 재부팅하면 컨테이너도 꺼지니 Docker Desktop을 켠 뒤 `docker start lms`.
+
 ## 백엔드 CI를 필수 검사로 켜는 순서 (2026-10-27, #65)
 
 - 상황: 규칙셋 "backend CI required"를 켜려 한다(지금은 꺼 둠).
 - 원인: 백엔드 CI가 `paths` 필터로 `backend/` 변경 때만 돈다. 필수로 켜면 `backend/` 밖만 바꾼 PR은 검사가 돌지 않아 머지되지 않는다.
 - 해결: ① `backend-ci.yml`의 `pull_request`에서 `paths` 줄을 지운다. ② 규칙셋을 Active로 바꾼다. 순서가 반대면 안 된다.
-- 다음에는: 필수 검사 이름은 job 이름(`build-and-test`, `mysql-test`)과 같아야 한다. job 이름을 바꾸면 규칙셋도 같이 고친다.
+- 다음에는: 필수 검사 이름은 job 이름(`build-and-test`, `postgres-test`)과 같아야 한다. job 이름을 바꾸면 규칙셋도 같이 고친다.
 
 ## npm 12가 공식 registry 파일까지 막는다 (2026-10-28, #73)
 

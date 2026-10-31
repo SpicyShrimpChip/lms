@@ -1,9 +1,0 @@
--- 공지사항. H2(MySQL 모드)와 MySQL에서 모두 돌도록 DB 전용 문법을 쓰지 않는다
-CREATE TABLE notice (
-    id         BIGINT       NOT NULL AUTO_INCREMENT,
-    title      VARCHAR(100) NOT NULL,
-    created_at DATE         NOT NULL,
-    PRIMARY KEY (id)
-);
-
-CREATE INDEX idx_notice_created_at ON notice (created_at);

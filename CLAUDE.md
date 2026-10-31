@@ -24,6 +24,7 @@ docs/       인수인계 문서, 요구사항 정의서, API 명세, WBS, 회의
 
 - 프론트: React 19, TypeScript 6, Vite 8, Tailwind CSS 4, React Router 7, React Query(TanStack Query 5), Zustand 5, Axios (메이저 버전 고정, 세부 버전은 `frontend/package-lock.json` 기준)
 - 백엔드: Spring Boot 3.x, Java 17, Gradle, Spring Security
+- DB: **PostgreSQL**(10/31 MySQL에서 전환, 10/28 멘토링 추천). 로컬은 도커(`backend/db/compose.yaml`), 단위 테스트는 H2(PostgreSQL 모드)와 실제 PostgreSQL 두 가지. 벡터 검색은 pgvector 확장으로 하고 별도 벡터 DB는 두지 않는다(확장은 챗봇을 만들 때 마이그레이션으로 추가). 코드는 DB 전용 문법을 피하고 JPA로 쓴다
 - 대화 가져오기 1단계 지원: ChatGPT, Claude 공식 내보내기 파일
 - 협업: GitHub 조직 + 모노레포, 기능 브랜치 → PR → CI 통과 확인 후 main 머지. 리뷰 승인은 필수가 아니다(두 사람 시간이 맞지 않아 머지가 늦어지지 않도록). 리뷰는 가능할 때 하고, API·DTO처럼 상대 작업에 영향을 주는 변경은 PR에 적고 상대방에게 알린다. 머지된 원격 브랜치는 자동 삭제된다.
 
@@ -31,7 +32,6 @@ docs/       인수인계 문서, 요구사항 정의서, API 명세, WBS, 회의
 
 아래 항목이 필요한 코드는 설정값·인터페이스로 분리하고 `// TODO(미결): ...` 주석을 남긴다.
 
-- DB: MySQL로 시작하는 것을 잠정안으로 한다(로컬 개발은 H2, 팀 두 명 모두 MySQL 경험). 10/28 멘토링에서 멘토님이 MySQL 대신 PostgreSQL + pgvector(별도 벡터 DB 없이 벡터 검색)를 추천했다. 최종 결정은 두 사람이 협의한 뒤에 하고, 그 전까지 MySQL 잠정안을 유지한다(전환하면 마이그레이션 SQL·빌드 의존성·CI의 MySQL 잡이 바뀐다). 챗봇 자료 검색은 벡터 DB 없이 MySQL 전문 검색(ngram)이나 자료를 프롬프트에 넣는 방식으로 시작. PostgreSQL(Neon·pgvector)은 익숙하지 않아 보류했으나 멘토님 추천으로 다시 검토한다. 코드는 DB 전용 문법을 피하고 JPA로 쓴다.
 - LLM API 제공사와 모델 수. **GPT·Gemini·Claude 3개 모델이 독립 판단 후 통합하는 구상은 핵심 차별점이므로 삭제하지 말 것.** 단일 모델로 시작하더라도 여러 모델을 붙일 수 있는 구조로 만든다. 10/28 멘토님은 3개 모델을 매번 호출하면 비용이 3배라며 단일 모델, OpenRouter, 검증 전담 모델 1개(리플렉션) 방식을 권했다.
 - 개념별 숙련도 점수 산식(대화 분류 결과 + 퀴즈 정답률의 가중치)
 - AWS 세부 서비스 (EC2·S3·RDS 등은 후보일 뿐)

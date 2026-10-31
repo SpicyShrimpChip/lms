@@ -40,9 +40,9 @@ API는 **제안**이다. 확정은 백엔드 API 문서(Swagger)에서 하고, �
 
 **설정 (`application.yaml`)**
 
-- **DB는 MySQL로 시작하는 것을 잠정안으로 한다(`mysql-connector-j`).** 10/28 멘토링에서 멘토님이 PostgreSQL + pgvector를 추천했고, 최종은 두 사람이 협의해 정한다. 회원·자료·퀴즈는 어느 쪽이든 관계형 DB에 들어가므로, JPA로 쓰고 DB 전용 문법(특정 DB 전용 함수, JSON 타입 등)을 피하면 나중에 바꿔도 부담이 적다.
+- **DB는 PostgreSQL이다(10/31 MySQL에서 전환, `org.postgresql:postgresql`).** 회원·자료·퀴즈는 관계형 DB에 들어가므로 JPA로 쓰고 DB 전용 문법(특정 DB 전용 함수, JSON 타입 등)을 피한다. 최신 설정은 `docs/backend-design.md` 8번.
 
-- 포트 8080, 로컬 DB는 H2 메모리 `jdbc:h2:mem:lms;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1`
+- 포트 8080, 로컬 DB는 H2 메모리 `jdbc:h2:mem:lms;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1`
 - JPA: `ddl-auto: create-drop`, `defer-datasource-initialization: true`, `open-in-view: false`. 샘플 데이터는 `data.sql`로 넣고 `sql.init.mode: always`
 - 운영은 `application-prod.yaml`에서 DB 주소·계정·CORS 출처를 모두 환경변수(`${DB_URL}` 등)로 받고, `ddl-auto: none`, `sql.init.mode: never`로 둔다. 운영 스키마 관리 방식(직접 SQL, Flyway 등)은 정해지지 않았다.
 - CORS 허용 출처는 설정값(`app.cors.allowed-origins`, 로컬 `http://localhost:5173`)으로 둔다. 같은 출처로 쓰는 동안은 영향이 없다.
@@ -394,13 +394,13 @@ layout = {
 **이미 머지된 백엔드 변경 (프론트 쪽에서 직접 고침)**
 
 - #56 관리자 역할(`User.role`, `/api/admin/**` 관리자 전용), #57 공지 본문·관리자 공지 작성·수정·삭제 API. 자세한 응답은 위 3번 "공지사항"·"인증".
-- 표 구조는 **마이그레이션 3번**으로 들어갔다. pull 후 서버를 켜면 자동 적용되고, 데이터는 각자 로컬 DB라 공유되지 않는다. **다음 마이그레이션은 4번부터**라 번호가 겹치지 않게 미리 말하기.
+- 표 구조는 마이그레이션으로 들어갔다(이후 5-2에서 PostgreSQL 전환과 함께 V1 하나로 합쳤다). 데이터는 각자 로컬 DB라 공유되지 않는다.
 
 **이번 보안 점검에서 백엔드 코드는 바꾸지 않았다.** 확인한 것과 부탁할 것:
 
 - 응답 헤더 확인: `nosniff`, `X-Frame-Options: DENY`, `Cache-Control: no-store`가 정상으로 나가고, 로그인 안 하면 없는 주소도 401이다. HSTS는 공개 도메인인 Vercel이 붙이므로 백엔드는 안 해도 된다.
 - **(제안) 운영에서 Swagger 끄기:** `/swagger-ui/**`, `/v3/api-docs/**`가 로그인 없이 열려 있어 운영에서는 API 구조가 공개된다. `application-prod.yaml`에 `springdoc.api-docs.enabled: false`, `springdoc.swagger-ui.enabled: false`.
-- **(제안) 사용자별 호출 횟수 제한:** LLM·자료 업로드·대화 가져오기는 비용·남용 위험이 있어 "N분에 M번" 한도가 필요하다. 지금 로그인 제한은 서버 메모리 기반이라 재시작하면 초기화되니, 한도 기록을 MySQL 표(예: `request_quota`)에 트랜잭션으로 두는 안. 한도를 넘으면 429와 남은 시간, 한도 값은 설정값. **LLM을 붙이기 전**에 필요하고 마이그레이션 4번을 쓰게 되니 번호를 먼저 맞추기.
+- **(제안) 사용자별 호출 횟수 제한:** LLM·자료 업로드·대화 가져오기는 비용·남용 위험이 있어 "N분에 M번" 한도가 필요하다. 지금 로그인 제한은 서버 메모리 기반이라 재시작하면 초기화되니, 한도 기록을 DB 표(예: `request_quota`)에 트랜잭션으로 두는 안. 한도를 넘으면 429와 남은 시간, 한도 값은 설정값. **LLM을 붙이기 전**에 필요하고 마이그레이션 번호(V2부터)를 먼저 맞추기.
 
 **레포 설정 (참고)**
 
@@ -408,6 +408,15 @@ layout = {
 - GitHub Secret scanning·Push protection·Dependabot 보안 업데이트를 켰다. 비밀값이 든 커밋은 푸시 때 막힌다.
 - `main`은 삭제·강제 푸시가 막혔다(CI 필수는 경로 필터를 정리한 뒤에 추가 예정).
 - `.claude/settings.json`을 공유한다: Claude가 `.env`를 읽거나 `main`에 푸시하지 못하게 한다.
+
+## 5-2. DB를 PostgreSQL로 전환 (10/31)
+
+백엔드 변경입니다. 하기 전에 알리고 PR에도 적습니다(`chore/postgresql-migration`).
+
+- **바뀐 것:** 드라이버·Flyway 모듈(`flyway-database-postgresql`), H2는 `MODE=PostgreSQL`, CI의 `mysql-test` 잡은 `postgres-test`(PostgreSQL 16), `./gradlew mysqlTest`는 `postgresTest`. 로컬 DB는 도커(`backend/db/compose.yaml`)로 켜고 `backend/db/setup-local-postgres.sh`로 DB·계정을 만든다. 자바 코드는 바뀐 게 없다(엔티티는 `IDENTITY`만 쓴다).
+- **마이그레이션은 V1 하나로 합쳤다**(`V1__init_schema.sql`: `users`, `refresh_token`, `notice`). 운영 DB가 없어서 가능한 예외였다. **이제부터 다시 머지된 `V*`는 고치지 않고 V2부터 추가한다.** 번호가 겹치지 않게 미리 말하기.
+- **각자 해야 할 일:** pull 뒤 Docker Desktop을 설치하고 `docs/backend-design.md` 8번대로 컨테이너·DB를 만든 다음, 옛 MySQL용 `backend/.env`를 옮기고(스크립트가 새로 만든다) `./gradlew bootRun`. 옛 MySQL DB는 쓰지 않는다.
+- **pgvector는 이번에 넣지 않았다.** 챗봇 검색을 만들 때 `V2`에서 `CREATE EXTENSION vector`로 추가한다.
 
 ## 6. 이 문서 고치는 법
 

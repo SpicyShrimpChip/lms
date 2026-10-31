@@ -1,5 +1,5 @@
 # 공통 설정 + 기본 프로필(H2 메모리 DB). ./gradlew test는 이 설정으로 돈다.
-# 로컬 MySQL은 application-local.yaml, 운영은 application-prod.yaml. 비밀값은 여기에 쓰지 않는다
+# 로컬 PostgreSQL은 application-local.yaml, 운영은 application-prod.yaml. 비밀값은 여기에 쓰지 않는다
 server:
   port: 8080
 
@@ -12,7 +12,7 @@ spring:
     import: optional:file:.env[.properties]
 
   datasource:
-    url: jdbc:h2:mem:lms;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:lms;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
     username: sa
     password:
 

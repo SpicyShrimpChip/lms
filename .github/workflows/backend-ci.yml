@@ -5,7 +5,7 @@ name: Backend CI
 # 아직 main 보호의 필수 검사가 아니다(규칙셋 "backend CI required"는 만들어 두고 꺼 둠). 필수로 켜려면 순서대로:
 #   1) 이 파일의 pull_request에서 paths 줄을 지운다(필터가 있으면 backend 밖만 바꾼 PR이 머지되지 않는다)
 #   2) GitHub Settings → Rules → Rulesets → "backend CI required"를 Active로 바꾼다
-# 필수 검사 이름은 job 이름과 같아야 한다(build-and-test, mysql-test). job 이름을 바꾸면 규칙셋도 같이 고친다
+# 필수 검사 이름은 job 이름과 같아야 한다(build-and-test, postgres-test). job 이름을 바꾸면 규칙셋도 같이 고친다
 on:
   push:
     branches: ["main"]
@@ -51,29 +51,29 @@ jobs:
       - name: 빌드·테스트
         run: ./gradlew build --no-daemon
 
-  # 같은 테스트를 실제 MySQL 8.0(로컬과 같은 버전대)으로 실행: Flyway 마이그레이션, UNIQUE 제약, utf8mb4 확인
-  mysql-test:
+  # 같은 테스트를 실제 PostgreSQL 16(로컬 backend/db/compose.yaml과 같은 버전)으로 실행: Flyway 마이그레이션, UNIQUE 제약, UTF-8 확인
+  postgres-test:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend
 
     services:
-      mysql:
-        image: mysql:8.0
+      postgres:
+        image: postgres:16
         env:
           # 작업이 끝나면 사라지는 CI 전용 임시 컨테이너의 값이라 비밀값이 아니다
-          MYSQL_ROOT_PASSWORD: ci-root-password
+          POSTGRES_PASSWORD: ci-root-password
         ports:
-          - 3306:3306
+          - 5432:5432
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -pci-root-password"
+          --health-cmd="pg_isready -U postgres"
           --health-interval=5s
           --health-timeout=5s
           --health-retries=20
 
     env:
-      TEST_DB_URL: jdbc:mysql://127.0.0.1:3306/ai_lms_test?characterEncoding=UTF-8
+      TEST_DB_URL: jdbc:postgresql://127.0.0.1:5432/ai_lms_test
       DB_USERNAME: ai_lms_app
       DB_PASSWORD: ci-app-password
       DB_MIGRATION_USERNAME: ai_lms_migrator
@@ -93,19 +93,26 @@ jobs:
             backend/*.gradle*
             backend/gradle/wrapper/gradle-wrapper.properties
 
-      # 로컬 setup-local-mysql.sh와 같은 구성(DB utf8mb4, 계정 2개, 최소 권한)
+      # 로컬 setup-local-postgres.sh와 같은 구성(DB UTF-8, 계정 2개, 마이그레이션 계정이 DB 소유자, 앱 계정은 읽기·쓰기만)
       - name: 테스트 DB·계정 만들기
+        env:
+          PGPASSWORD: ci-root-password
         run: |
-          mysql -h 127.0.0.1 -uroot -pci-root-password <<'SQL'
-          CREATE DATABASE ai_lms_test CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-          CREATE USER 'ai_lms_migrator'@'%' IDENTIFIED BY 'ci-migrator-password';
-          CREATE USER 'ai_lms_app'@'%' IDENTIFIED BY 'ci-app-password';
-          GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON ai_lms_test.* TO 'ai_lms_migrator'@'%';
-          GRANT SELECT, INSERT, UPDATE, DELETE ON ai_lms_test.* TO 'ai_lms_app'@'%';
+          psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE ai_lms_migrator LOGIN PASSWORD 'ci-migrator-password';
+          CREATE ROLE ai_lms_app LOGIN PASSWORD 'ci-app-password';
+          CREATE DATABASE ai_lms_test OWNER ai_lms_migrator ENCODING 'UTF8' TEMPLATE template0;
+          REVOKE ALL ON DATABASE ai_lms_test FROM PUBLIC;
+          GRANT CONNECT ON DATABASE ai_lms_test TO ai_lms_app;
+          SQL
+          psql -h 127.0.0.1 -U postgres -d ai_lms_test -v ON_ERROR_STOP=1 <<'SQL'
+          GRANT USAGE ON SCHEMA public TO ai_lms_app;
+          ALTER DEFAULT PRIVILEGES FOR ROLE ai_lms_migrator IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO ai_lms_app;
+          ALTER DEFAULT PRIVILEGES FOR ROLE ai_lms_migrator IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO ai_lms_app;
           SQL
 
-      - name: MySQL 통합 테스트
+      - name: PostgreSQL 통합 테스트
         run: |
           # 실행할 때마다 새 JWT 키를 만든다 (저장하지 않음)
           export JWT_SECRET="$(openssl rand -base64 48)"
-          ./gradlew mysqlTest --no-daemon
+          ./gradlew postgresTest --no-daemon

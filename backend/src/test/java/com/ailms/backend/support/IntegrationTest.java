@@ -14,7 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 /**
  * 실제 설정으로 앱 전체를 띄우는 통합 테스트.
- * ./gradlew test는 H2, ./gradlew mysqlTest는 로컬 MySQL(ai_lms_test)로 같은 테스트를 돌린다.
+ * ./gradlew test는 H2(PostgreSQL 모드), ./gradlew postgresTest는 로컬 PostgreSQL(ai_lms_test)로 같은 테스트를 돌린다.
  * 모든 통합 테스트가 같은 설정을 써서 스프링 컨텍스트 하나를 같이 쓴다.
  * TestDatabaseGuard가 서비스 DB(ai_lms)에서는 실행되지 않게 막는다.
  */
