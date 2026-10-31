@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookMarked, SearchX } from 'lucide-react';
+import { BookMarked, Info, SearchX } from 'lucide-react';
 import {
   Button,
   Card,
@@ -16,6 +16,7 @@ import {
   conversationKey,
   formatDate,
   formatSemester,
+  partCountOf,
   type AssignedConversation,
   type ParsedConversation,
 } from '@/utils';
@@ -60,6 +61,11 @@ function SelectStep({
     () => initialChoices ?? defaultChoices(assigned),
   );
   const [query, setQuery] = useState('');
+  // 나눠 보낼 대화가 있는지 (어떤 대화인지는 보내기 단계에서 보여 준다)
+  const hasLongConversation = useMemo(
+    () => assigned.some(({ conversation }) => partCountOf(conversation) > 1),
+    [assigned],
+  );
 
   const hasKeywords = courses.some((course) => course.keywords.length > 0);
   if (!hasKeywords) {
@@ -99,6 +105,13 @@ function SelectStep({
           내 과목 키워드가 들어 있는 대화 {assigned.length}개를 과목별로
           나눴어요. 보내지 않을 대화는 선택을 풀어 주세요.
         </p>
+        {hasLongConversation && (
+          <p className="mt-1 flex items-start gap-2 rounded-xl bg-surface-muted p-3 text-caption text-ink-soft">
+            <Info size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+            메시지가 아주 많은 대화는 보낼 때 나눠서 보내요. 빠지는 메시지는
+            없고, 어떤 대화인지는 보내기 단계에서 알려 드려요.
+          </p>
+        )}
       </div>
 
       {assigned.length === 0 ? (

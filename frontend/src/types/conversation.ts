@@ -6,6 +6,14 @@ export interface ImportedConversation {
   title: string;
   createdAt?: string;
   messages: { role: 'user' | 'assistant'; text: string }[];
+  // 메시지가 너무 많아 나눠 보낸 조각일 때만 있다. 서버는 parentClientId가 같은 조각을 index 순서로 한 대화에 이어 붙인다
+  part?: ConversationPart;
+}
+
+export interface ConversationPart {
+  parentClientId: string;
+  index: number; // 1부터
+  count: number;
 }
 
 export interface ConversationImport {

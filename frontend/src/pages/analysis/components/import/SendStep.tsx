@@ -1,10 +1,15 @@
 import { useMutation } from '@tanstack/react-query';
-import { CircleCheck, TriangleAlert } from 'lucide-react';
+import { useMemo } from 'react';
+import { CircleCheck, Info, TriangleAlert } from 'lucide-react';
 import { importConversations } from '@/api';
 import { Button, Card, ErrorText } from '@/components';
 import { useCourses } from '@/hooks';
-import type { ConversationImportResult } from '@/types';
-import { buildImportRequests, type ConversationToSend } from '@/utils';
+import type { RejectedConversation } from '@/types';
+import {
+  buildImportRequests,
+  partCountOf,
+  type ConversationToSend,
+} from '@/utils';
 
 interface SendStepProps {
   // 개인정보를 가린 뒤의 대화
@@ -13,17 +18,32 @@ interface SendStepProps {
   onRestart: () => void;
 }
 
+interface SendSummary {
+  // 저장된 대화 수 (나눠 보낸 조각은 원래 대화 하나로 센다)
+  importedCount: number;
+  // 저장하지 않은 대화. 조각 하나라도 거절되면 그 대화를 한 번만 보여 준다
+  rejected: { id: string; title: string; reason: string }[];
+}
+
 // 과목별 요청을 차례로 보내고 결과를 합친다 (한 요청이 실패하면 거기서 멈추고 오류를 보여 준다)
-async function sendAll(
-  items: ConversationToSend[],
-): Promise<ConversationImportResult> {
-  const total: ConversationImportResult = { importedCount: 0, rejected: [] };
+async function sendAll(items: ConversationToSend[]): Promise<SendSummary> {
+  const rejected: RejectedConversation[] = [];
   for (const request of buildImportRequests(items)) {
     const result = await importConversations(request);
-    total.importedCount += result.importedCount;
-    total.rejected.push(...result.rejected);
+    rejected.push(...result.rejected);
   }
-  return total;
+
+  const byId = new Map(
+    items.map(({ conversation }) => [conversation.id, conversation]),
+  );
+  const summary: SendSummary['rejected'] = [];
+  for (const { clientId, reason } of rejected) {
+    // 조각의 clientId는 "<원래 id>#<번호>"
+    const id = byId.has(clientId) ? clientId : clientId.replace(/#\d+$/, '');
+    if (summary.some((item) => item.id === id)) continue;
+    summary.push({ id, title: byId.get(id)?.title ?? clientId, reason });
+  }
+  return { importedCount: items.length - summary.length, rejected: summary };
 }
 
 function SendStep({ items, onBack, onRestart }: SendStepProps) {
@@ -36,9 +56,17 @@ function SendStep({ items, onBack, onRestart }: SendStepProps) {
       count: items.filter((item) => item.courseId === course.id).length,
     }))
     .filter(({ count }) => count > 0);
-  const titleOf = (clientId: string) =>
-    items.find((item) => item.conversation.id === clientId)?.conversation
-      .title ?? clientId;
+  // 나눠 보낼 대화와 조각 수
+  const splitItems = useMemo(
+    () =>
+      items
+        .map(({ conversation }) => ({
+          conversation,
+          parts: partCountOf(conversation),
+        }))
+        .filter(({ parts }) => parts > 1),
+    [items],
+  );
 
   if (mutation.isSuccess) {
     const { importedCount, rejected } = mutation.data;
@@ -75,12 +103,10 @@ function SendStep({ items, onBack, onRestart }: SendStepProps) {
               대화 {rejected.length}개는 저장하지 않았어요
             </p>
             <ul className="flex flex-col gap-1 text-body text-ink-soft">
-              {rejected.map(({ clientId, reason }) => (
-                <li key={clientId}>
-                  <span className="font-medium text-heading">
-                    {titleOf(clientId)}
-                  </span>
-                  : {reason}
+              {rejected.map(({ id, title, reason }) => (
+                <li key={id}>
+                  <span className="font-medium text-heading">{title}</span>:{' '}
+                  {reason}
                 </li>
               ))}
             </ul>
@@ -124,6 +150,28 @@ function SendStep({ items, onBack, onRestart }: SendStepProps) {
           </li>
         ))}
       </ul>
+
+      {splitItems.length > 0 && (
+        <div className="flex flex-col gap-2 rounded-xl bg-surface-muted p-4 text-caption text-ink-soft">
+          <p className="flex items-start gap-2">
+            <Info size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+            메시지가 아주 많은 대화 {splitItems.length}개는 나눠서 보내요.
+            빠지는 메시지는 없어요.
+          </p>
+          <ul className="flex list-disc flex-col gap-1 pl-10">
+            {splitItems.map(({ conversation, parts }) => (
+              <li key={conversation.id}>
+                <span className="text-heading">{conversation.title}</span>
+                <span className="text-ink-muted">
+                  {' '}
+                  · 메시지 {conversation.messages.length.toLocaleString()}개 ·{' '}
+                  {parts}번
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <ErrorText error={mutation.error} />
 

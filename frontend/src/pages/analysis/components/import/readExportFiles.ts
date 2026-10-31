@@ -22,7 +22,7 @@ export async function readExportFiles(files: File[]): Promise<MergedImport> {
     }
     results.push({
       fileName: file.name,
-      result: parseConversationExport(await file.text()),
+      result: parseConversationExport(file.name, await file.text()),
     });
   }
   return mergeParseResults(results);

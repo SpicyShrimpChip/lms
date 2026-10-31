@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildImportRequests } from './send';
+import { buildImportRequests, partCountOf } from './send';
 import type { ParsedConversation } from './types';
 
 function conversation(id: string): ParsedConversation {
@@ -53,6 +53,76 @@ describe('buildImportRequests', () => {
     const requests = buildImportRequests(items, 2);
     expect(requests.map((r) => r.conversations.length)).toEqual([2, 2, 1]);
     expect(requests.every((r) => r.courseId === 1)).toBe(true);
+  });
+
+  // 한글 메시지 하나가 대략 300바이트가 되게 만든 긴 대화
+  function longConversation(id: string, count: number): ParsedConversation {
+    return {
+      ...conversation(id),
+      messages: Array.from({ length: count }, (_, i) => ({
+        role: i % 2 === 0 ? ('user' as const) : ('assistant' as const),
+        text: `${i + 1}번 메시지 ${'가'.repeat(90)}`,
+      })),
+    };
+  }
+  const bytesOf = (value: unknown) =>
+    new TextEncoder().encode(JSON.stringify(value)).length;
+
+  it('작은 대화는 나누지 않는다', () => {
+    expect(partCountOf(conversation('a'))).toBe(1);
+    const [request] = buildImportRequests([
+      { courseId: 1, conversation: conversation('a') },
+    ]);
+    expect(request.conversations[0].clientId).toBe('a');
+    expect(request.conversations[0]).not.toHaveProperty('part');
+  });
+
+  it('요청 크기를 넘는 대화는 메시지를 빠짐없이 순서대로 조각에 나눠 담는다', () => {
+    const long = longConversation('long', 40); // 약 12KB
+    const maxBytes = 4_000;
+    const requests = buildImportRequests(
+      [{ courseId: 1, conversation: long }],
+      50,
+      maxBytes,
+    );
+    const pieces = requests.flatMap((r) => r.conversations);
+
+    expect(pieces.length).toBeGreaterThan(1);
+    expect(partCountOf(long, maxBytes)).toBe(pieces.length);
+    expect(pieces.map((p) => p.clientId)).toEqual(
+      pieces.map((_, i) => `long#${i + 1}`),
+    );
+    expect(pieces.map((p) => p.part)).toEqual(
+      pieces.map((_, i) => ({
+        parentClientId: 'long',
+        index: i + 1,
+        count: pieces.length,
+      })),
+    );
+    expect(pieces.every((p) => p.title === '대화 long')).toBe(true);
+    // 이어 붙이면 원래 메시지와 같다
+    expect(pieces.flatMap((p) => p.messages)).toEqual(long.messages);
+    // 요청 하나하나가 한도 안에 들어간다
+    for (const request of requests) {
+      expect(bytesOf(request)).toBeLessThanOrEqual(maxBytes);
+    }
+  });
+
+  it('여러 대화를 묶을 때도 요청 크기 한도를 지킨다', () => {
+    const items = ['a', 'b', 'c', 'd'].map((id) => ({
+      courseId: 1,
+      conversation: longConversation(id, 6), // 각각 약 2KB
+    }));
+    const maxBytes = 5_000;
+    const requests = buildImportRequests(items, 50, maxBytes);
+
+    expect(requests.length).toBeGreaterThan(1);
+    expect(
+      requests.flatMap((r) => r.conversations.map((c) => c.clientId)),
+    ).toEqual(['a', 'b', 'c', 'd']);
+    for (const request of requests) {
+      expect(bytesOf(request)).toBeLessThanOrEqual(maxBytes);
+    }
   });
 
   it('고른 대화가 없으면 요청도 없다', () => {
