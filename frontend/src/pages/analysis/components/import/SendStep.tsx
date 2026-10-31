@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { CircleCheck, Info, TriangleAlert } from 'lucide-react';
 import { importConversations } from '@/api';
-import { Button, Card, ErrorText } from '@/components';
+import { Button, Card, ErrorText, Notice } from '@/components';
 import { useCourses } from '@/hooks';
 import type { RejectedConversation } from '@/types';
 import {
@@ -152,13 +152,12 @@ function SendStep({ items, onBack, onRestart }: SendStepProps) {
       </ul>
 
       {splitItems.length > 0 && (
-        <div className="flex flex-col gap-2 rounded-xl bg-surface-muted p-4 text-caption text-ink-soft">
-          <p className="flex items-start gap-2">
-            <Info size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+        <Notice icon={Info} size="caption">
+          <p>
             메시지가 아주 많은 대화 {splitItems.length}개는 나눠서 보내요.
             빠지는 메시지는 없어요.
           </p>
-          <ul className="flex list-disc flex-col gap-1 pl-10">
+          <ul className="flex list-disc flex-col gap-1 pl-4">
             {splitItems.map(({ conversation, parts }) => (
               <li key={conversation.id}>
                 <span className="text-heading">{conversation.title}</span>
@@ -170,7 +169,7 @@ function SendStep({ items, onBack, onRestart }: SendStepProps) {
               </li>
             ))}
           </ul>
-        </div>
+        </Notice>
       )}
 
       <ErrorText error={mutation.error} />

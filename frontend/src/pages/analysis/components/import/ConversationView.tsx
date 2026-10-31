@@ -1,13 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { ArrowDown, ArrowUp } from 'lucide-react';
-import Markdown, { type Components } from 'react-markdown';
+import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import {
-  cn,
-  MASK_LABELS,
-  type ConversationMessage,
-  type ConversationSource,
-} from '@/utils';
+import { cn, type ConversationMessage, type ConversationSource } from '@/utils';
+import { MARK_CLASS, markPattern, remarkMarks, splitMarks } from './marks';
+import { MARKDOWN_COMPONENTS } from './markdownComponents';
 
 // 가져온 대화를 채팅창처럼 보여 준다 (2단계 대화 보기, 3단계 가린 내용 확인에서 같이 쓴다).
 // 가린 표시는 파랑, 찾은 키워드·검색어는 형광펜으로 칠한다.
@@ -21,131 +18,6 @@ const SOURCE_NAME: Record<ConversationSource, string> = {
 
 // 처음 보여 줄 메시지 수와 "더 보기"로 늘리는 수
 const PAGE_SIZE = 30;
-
-// 가린 표시는 파랑, 찾은 키워드·검색어는 형광펜(노랑)
-const MARK_CLASS = {
-  mask: 'rounded bg-primary-soft px-0.5 font-medium text-heading',
-  keyword: 'rounded bg-highlight px-0.5 text-on-highlight',
-} as const;
-
-const MASK_SET = new Set<string>(Object.values(MASK_LABELS));
-
-const escapeRegExp = (value: string) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-// 가린 표시와 키워드를 한 번에 찾는 정규식. 긴 단어를 먼저 찾는다
-function markPattern(keywords: string[]): RegExp {
-  const words = [...MASK_SET, ...keywords]
-    .sort((a, b) => b.length - a.length)
-    .map(escapeRegExp);
-  return new RegExp(`(${words.join('|')})`, 'gi');
-}
-
-type MarkKind = keyof typeof MARK_CLASS;
-
-// 글을 조각으로 나눈다. 홀수 번째가 찾은 것 (가린 표시면 mask, 아니면 keyword)
-function splitMarks(
-  text: string,
-  pattern: RegExp,
-): { text: string; kind?: MarkKind }[] {
-  return text
-    .split(pattern)
-    .map((part, i) =>
-      i % 2 === 0
-        ? { text: part }
-        : { text: part, kind: MASK_SET.has(part) ? 'mask' : 'keyword' },
-    );
-}
-
-// 마크다운 트리에서 쓰는 만큼만 적은 모양
-interface MdNode {
-  type: string;
-  value?: string;
-  children?: MdNode[];
-  data?: { hName?: string; hProperties?: Record<string, string> };
-}
-
-// 마크다운 글 조각 안의 가린 표시·키워드를 <mark>로 바꾸는 remark 플러그인 (코드 블록 안은 그대로 둔다)
-function remarkMarks({ pattern }: { pattern: RegExp }) {
-  const visit = (node: MdNode) => {
-    if (!node.children) return;
-    node.children = node.children.flatMap((child): MdNode[] => {
-      if (child.type !== 'text' || !child.value) {
-        visit(child);
-        return [child];
-      }
-      return splitMarks(child.value, pattern)
-        .filter((part) => part.text)
-        .map((part): MdNode =>
-          part.kind
-            ? {
-                type: 'mark',
-                data: {
-                  hName: 'mark',
-                  hProperties: { className: MARK_CLASS[part.kind] },
-                },
-                children: [{ type: 'text', value: part.text }],
-              }
-            : { type: 'text', value: part.text },
-        );
-    });
-  };
-  return (tree: MdNode) => visit(tree);
-}
-
-const MARKDOWN_COMPONENTS: Components = {
-  // 대화 속 링크는 새 탭으로, 이 페이지에 손대지 못하게
-  a: ({ href, children }) => (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer nofollow"
-      className="text-primary underline"
-    >
-      {children}
-    </a>
-  ),
-  // 다른 사이트 이미지를 불러오지 않는다 (불러오면 그 사이트에 내 접속이 알려진다)
-  img: ({ alt }) => <span>[이미지{alt ? `: ${alt}` : ''}]</span>,
-  h1: ({ children }) => <p className="mt-3 font-bold">{children}</p>,
-  h2: ({ children }) => <p className="mt-3 font-bold">{children}</p>,
-  h3: ({ children }) => <p className="mt-2 font-bold">{children}</p>,
-  h4: ({ children }) => <p className="mt-2 font-bold">{children}</p>,
-  p: ({ children }) => <p className="my-1.5">{children}</p>,
-  ul: ({ children }) => <ul className="my-1.5 list-disc pl-5">{children}</ul>,
-  ol: ({ children }) => (
-    <ol className="my-1.5 list-decimal pl-5">{children}</ol>
-  ),
-  blockquote: ({ children }) => (
-    <blockquote className="my-1.5 border-l-2 border-line-strong pl-3 text-ink-soft">
-      {children}
-    </blockquote>
-  ),
-  pre: ({ children }) => (
-    <pre className="my-2 overflow-x-auto rounded-lg bg-surface-muted p-3 text-caption">
-      {children}
-    </pre>
-  ),
-  code: ({ children }) => (
-    <code className="rounded bg-surface-muted px-1 font-mono text-[0.9em]">
-      {children}
-    </code>
-  ),
-  table: ({ children }) => (
-    <div className="my-2 overflow-x-auto">
-      <table className="w-full border-collapse text-caption">{children}</table>
-    </div>
-  ),
-  th: ({ children }) => (
-    <th className="border-b border-line-strong px-2 py-1 text-left font-bold">
-      {children}
-    </th>
-  ),
-  td: ({ children }) => (
-    <td className="border-b border-line px-2 py-1">{children}</td>
-  ),
-  hr: () => <hr className="my-3 border-line" />,
-};
 
 // 내가 쓴 글은 마크다운으로 해석하지 않고 줄바꿈을 그대로 둔다 (가린 표시·키워드만 칠한다)
 function PlainText({ text, pattern }: { text: string; pattern: RegExp }) {
