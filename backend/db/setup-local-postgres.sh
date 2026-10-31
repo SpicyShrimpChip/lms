@@ -10,6 +10,9 @@
 #        ai_lms_app     : 데이터 읽기·쓰기만 (애플리케이션이 쓰는 계정)
 #   4. backend/.env(커밋 안 됨, 권한 600)에 접속 정보와 JWT 시크릿을 저장한다
 #
+# 이 PC에 psql이 없으면 도커 컨테이너(backend/db/docker-compose.yml)의 psql로 대신한다. 이때는 컨테이너 안에서 접속하므로
+# 관리자 비밀번호를 묻지 않는다. psql이 있으면(원격 DB 포함) 지금처럼 PC의 psql로 접속한다.
+#
 # vector 확장은 슈퍼유저만 만들 수 있어서 이 스크립트가 두 DB에 미리 만든다 (Flyway의 db/vector 마이그레이션은 IF NOT EXISTS라 그대로 통과한다).
 # 비밀번호는 화면에 보이지 않게 입력받고, 명령줄 인자·셸 기록에 남기지 않는다.
 set -euo pipefail
@@ -25,9 +28,19 @@ MIGRATION_USER="ai_lms_migrator"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ENV_FILE="$SCRIPT_DIR/../.env"
 
+# psql이 없으면 켜져 있는 docker-compose.yml의 postgres 컨테이너 안에서 실행한다 (컨테이너 이름이 바뀌어도 compose가 찾아 준다)
+MODE=host
+CONTAINER=""
 if ! command -v "$PSQL" >/dev/null 2>&1; then
-	echo "psql 명령을 찾을 수 없어요. PSQL=/경로/psql 로 지정하거나 'brew install libpq'로 설치해 주세요." >&2
-	exit 1
+	if command -v docker >/dev/null 2>&1; then
+		# compose 파일이 POSTGRES_PASSWORD를 요구하므로 ps에만 쓰는 값을 넣는다 (컨테이너의 실제 비밀번호와 무관)
+		CONTAINER="$(POSTGRES_PASSWORD=unused docker compose -f "$SCRIPT_DIR/docker-compose.yml" ps -q postgres 2>/dev/null || true)"
+	fi
+	if [ -z "$CONTAINER" ]; then
+		echo "psql 명령을 찾을 수 없고 켜진 도커 컨테이너도 없어요. 'cd backend/db && docker compose up -d'로 켜거나, PSQL=/경로/psql 로 지정하거나 'brew install libpq'로 설치해 주세요." >&2
+		exit 1
+	fi
+	MODE=docker
 fi
 
 if [ -e "$ENV_FILE" ]; then
@@ -48,13 +61,34 @@ sql_escape() { printf '%s' "$1" | sed -e "s/'/''/g"; }
 # Spring이 읽는 .properties: \
 prop_escape() { printf '%s' "$1" | sed -e 's/\\/\\\\/g'; }
 
-read -r -s -p "PostgreSQL 관리자($ADMIN_USER) 비밀번호: " ADMIN_PASSWORD
-echo
-printf '%s:%s:*:%s:%s\n' "$DB_HOST" "$DB_PORT" "$ADMIN_USER" "$(pgpass_escape "$ADMIN_PASSWORD")" >"$PGPASS_FILE"
-unset ADMIN_PASSWORD
+if [ "$MODE" = host ]; then
+	read -r -s -p "PostgreSQL 관리자($ADMIN_USER) 비밀번호: " ADMIN_PASSWORD
+	echo
+	printf '%s:%s:*:%s:%s\n' "$DB_HOST" "$DB_PORT" "$ADMIN_USER" "$(pgpass_escape "$ADMIN_PASSWORD")" >"$PGPASS_FILE"
+	unset ADMIN_PASSWORD
+else
+	echo "psql이 없어 도커 컨테이너 안의 psql로 접속해요 (관리자 비밀번호는 묻지 않아요)."
+fi
+
+# 관리자로 실행하는 psql. 첫 인자는 접속할 DB, 나머지는 psql 인자 (SQL은 표준 입력으로도 넘길 수 있다)
+psql_admin() {
+	local db=$1
+	shift
+	if [ "$MODE" = docker ]; then
+		# -c로 SQL을 넘길 때는 표준 입력을 연결하지 않는다 (연결하면 뒤에 읽을 입력까지 docker exec가 가져간다)
+		local stdin_flag="-i" arg
+		for arg in "$@"; do
+			[ "$arg" = "-c" ] && stdin_flag=""
+		done
+		# shellcheck disable=SC2086
+		docker exec $stdin_flag "$CONTAINER" psql -U "$ADMIN_USER" -d "$db" -v ON_ERROR_STOP=1 -X -At "$@"
+	else
+		"$PSQL" -h "$DB_HOST" -p "$DB_PORT" -U "$ADMIN_USER" -d "$db" -v ON_ERROR_STOP=1 -X -At "$@"
+	fi
+}
 
 run_sql() {
-	"$PSQL" -h "$DB_HOST" -p "$DB_PORT" -U "$ADMIN_USER" -d postgres -v ON_ERROR_STOP=1 -X -At "$@"
+	psql_admin postgres "$@"
 }
 
 echo
@@ -116,7 +150,7 @@ MIGRATION_PASSWORD=$(read_password "$MIGRATION_USER")
 
 # DB별 설정: vector 확장(슈퍼유저 필요), 앱 계정의 테이블 권한 (migrator가 만드는 테이블에 자동 적용)
 for db in "${DATABASES[@]}"; do
-	"$PSQL" -h "$DB_HOST" -p "$DB_PORT" -U "$ADMIN_USER" -d "$db" -v ON_ERROR_STOP=1 -X -q <<SQL
+	psql_admin "$db" -q <<SQL
 CREATE EXTENSION IF NOT EXISTS vector;
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 GRANT USAGE ON SCHEMA public TO $APP_USER;
