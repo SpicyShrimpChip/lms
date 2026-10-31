@@ -1,8 +1,9 @@
 import {
   IMAGE_PLACEHOLDER,
   type ConversationMessage,
+  type ConversationSourceReader,
   type ParsedConversation,
-} from './types';
+} from '../types';
 
 // ChatGPT 내보내기(conversations.json)의 대화는 메시지가 트리(mapping)로 들어 있다.
 // 다시 생성하기·수정으로 가지가 갈라질 수 있어서, 마지막으로 본 가지(current_node)에서
@@ -84,9 +85,7 @@ function nodeToMessage(node: RawNode): ConversationMessage | null {
   return { role, text };
 }
 
-export function parseChatGptConversation(
-  raw: unknown,
-): ParsedConversation | null {
+function parseChatGptConversation(raw: unknown): ParsedConversation | null {
   if (!isRecord(raw) || !isRecord(raw.mapping)) return null;
   const mapping = raw.mapping as Record<string, RawNode>;
 
@@ -112,15 +111,17 @@ export function parseChatGptConversation(
   return {
     id: typeof rawId === 'string' ? rawId : `chatgpt-${leafId}`,
     source: 'chatgpt',
-    title:
-      typeof raw.title === 'string' && raw.title.trim()
-        ? raw.title.trim()
-        : '제목 없는 대화',
+    title: typeof raw.title === 'string' ? raw.title.trim() : '',
     createdAt: toIso(raw.create_time),
     messages,
   };
 }
 
-export function looksLikeChatGpt(item: unknown): boolean {
-  return isRecord(item) && isRecord(item.mapping);
-}
+// conversations.json(나뉘면 conversations-000.json 등)은 대화 배열이고, 대화마다 mapping이 있다
+export const chatGptReader: ConversationSourceReader = {
+  source: 'chatgpt',
+  matches: ({ json }) =>
+    Array.isArray(json) && isRecord(json[0]) && isRecord(json[0].mapping),
+  read: ({ json }) =>
+    Array.isArray(json) ? json.map(parseChatGptConversation) : [],
+};

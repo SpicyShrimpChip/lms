@@ -241,14 +241,22 @@ ImportedConversation = {
   source: "chatgpt" | "claude",
   title: string,
   createdAt?: string,                // ISO 문자열
-  messages: { role: "user" | "assistant", text: string }[]
+  messages: { role: "user" | "assistant", text: string }[],
+  part?: { parentClientId: string, index: number, count: number }  // 나눠 보낸 조각일 때만 (아래 "긴 대화 나눠 보내기")
 }
 RejectedConversation = { clientId: string, reason: string }  // reason은 사용자에게 보여 줄 문구
 ConversationSummary  = { id: number, courseId: number, source: string, title: string, createdAt: string | null, messageCount: number }
 ```
 
-- 프론트는 **과목마다 요청을 따로** 보내고, 한 과목에 대화가 50개를 넘으면 50개씩 나눠 차례로 보낸다(`utils/conversation/send.ts`). 한 요청이 실패하면 거기서 멈추고 `message`를 보여 준다. 크기 제한이 정해지면 알려 주기.
+- 프론트는 **과목마다 요청을 따로** 보내고, 한 과목에 대화가 50개를 넘거나 요청이 1MB를 넘으면 나눠 차례로 보낸다(`utils/conversation/send.ts`). 한 요청이 실패하면 거기서 멈추고 `message`를 보여 준다. 크기 제한이 정해지면 알려 주기.
 - 목업(`mocks/conversations.ts`)은 개인정보 패턴이 남은 대화를 `rejected`로 돌려주는 서버 동작을 흉내 낸다.
+- **긴 대화 나눠 보내기(10/31 추가):** 프론트는 요청 한 번이 **1MB**(임시값, nginx 기본 한도에 맞춤)를 넘지 않게 대화를 묶어 보낸다. 대화 하나가 혼자 이 크기를 넘으면 메시지를 앞에서부터 차례로 담아 조각 여러 개로 보낸다(메시지는 버리지 않는다). 실제 Claude 내보내기에서 메시지 수백~수천 개짜리 대화가 있었고, 채팅 하나에 계속 이어 쓰는 사용자도 많을 것이라 버리지 않기로 했다.
+  - 조각의 `clientId`는 `<원래 id>#1`, `<원래 id>#2`처럼 서로 다르고, `part`에 원래 id(`parentClientId`)와 순서(`index`, 1부터)·전체 수(`count`)가 들어 있다. `title`·`createdAt`은 조각 모두 원래 대화 값 그대로다.
+  - 서버는 `parentClientId`가 같은 조각을 `index` 순서로 **한 대화에 이어 붙여** 저장해 주기. 조각은 같은 요청에 오지 않을 수도 있다.
+  - 거절(`rejected`)은 조각 `clientId`로 돌려주면 된다. 프론트는 조각 하나라도 거절되면 그 대화를 "저장하지 않았어요"로 보여 준다. 남은 조각을 어떻게 할지(지울지)는 저장 방식과 함께 정해 주기.
+  - 중복 저장 판단: 조각이 없는 대화는 지금처럼 `clientId`, 조각은 `parentClientId` + `index`.
+- **요청 크기 한도 정해 주기(주미):** 지금 스프링(내장 톰캣)은 JSON 본문 크기를 막지 않는다(2MB 기본값은 폼 전송에만 걸린다). 서버가 받을 최대 크기를 정해 필터 등에서 `Content-Length`로 확인하고, 넘으면 413 + `message`로 돌려주기. 배포 때 nginx·Vercel rewrite를 거치면 그쪽 한도(nginx 기본 1MB, Vercel 한도는 확인 필요)도 같이 맞춰야 한다. 정해지면 알려 주면 프론트 `MAX_REQUEST_BYTES`(`utils/conversation/send.ts`)를 맞춘다.
+  - 아래 "크기 제한"의 대화당 메시지 500개·메시지당 20,000자는 전송 크기가 아니라 **분석 비용**(LLM에 넣을 양) 기준으로 따로 정하기. 프론트는 전송을 크기로만 나누고, 개수 제한은 서버가 정하면 그때 맞춘다.
 
 서버에서도 검사해 주기:
 
