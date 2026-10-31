@@ -13,11 +13,12 @@ interface BaseProps {
   children: ReactNode;
 }
 
-// to가 있으면 페이지 이동 링크, 없으면 일반 버튼으로 그린다
+// to가 있으면 페이지 이동 링크, href가 있으면 다른 사이트를 새 탭으로 여는 링크, 없으면 일반 버튼으로 그린다
 type ButtonProps = BaseProps &
   (
-    | { to: string }
-    | ({ to?: undefined } & Omit<
+    | { to: string; href?: undefined }
+    | { href: string; to?: undefined }
+    | ({ to?: undefined; href?: undefined } & Omit<
         ButtonHTMLAttributes<HTMLButtonElement>,
         'className' | 'children'
       >)
@@ -54,6 +55,20 @@ function Button({
       <Link to={rest.to} className={classes}>
         {children}
       </Link>
+    );
+  }
+
+  if (rest.href !== undefined) {
+    // 새 탭이 이 페이지에 손대지 못하게, 어디서 왔는지도 넘기지 않는다
+    return (
+      <a
+        href={rest.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={classes}
+      >
+        {children}
+      </a>
     );
   }
 

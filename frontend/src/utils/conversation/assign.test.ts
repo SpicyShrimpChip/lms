@@ -118,12 +118,21 @@ describe('mergeParseResults', () => {
     const merged = mergeParseResults([
       {
         fileName: 'notes.json',
-        result: { ok: false, message: '형식이 달라요.' },
+        result: {
+          ok: false,
+          title: '대화 기록 파일이 아니에요',
+          message: '형식이 달라요.',
+        },
       },
     ]);
     expect(merged.conversations).toEqual([]);
     expect(merged.errors).toEqual([
-      { fileName: 'notes.json', message: '형식이 달라요.' },
+      {
+        fileName: 'notes.json',
+        title: '대화 기록 파일이 아니에요',
+        message: '형식이 달라요.',
+        manifest: undefined,
+      },
     ]);
   });
 });
