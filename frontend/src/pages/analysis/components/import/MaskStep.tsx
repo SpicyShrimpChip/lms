@@ -1,6 +1,6 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useState } from 'react';
 import { ChevronDown, Eye, EyeOff, Lock } from 'lucide-react';
-import { Button, Card, Chip, TextInput } from '@/components';
+import { Button, Card, Chip } from '@/components';
 import {
   MASK_LABELS,
   collectMaskedSpots,
@@ -11,11 +11,16 @@ import {
   type ParsedConversation,
 } from '@/utils';
 import ConversationView from './ConversationView';
+import WordList from './WordList';
 
 interface MaskStepProps {
   conversations: ParsedConversation[];
   options: MaskOptions;
   onChangeOptions: (options: MaskOptions) => void;
+  // 마이페이지에서 이 브라우저에 저장한 가릴 단어. 로그인 전이면 null (기억하기를 숨긴다)
+  savedTerms: string[] | null;
+  remember: boolean;
+  onChangeRemember: (remember: boolean) => void;
   onBack: () => void;
   onNext: () => void;
 }
@@ -115,76 +120,13 @@ function MaskPreview({ id, original, masked, options }: MaskPreviewProps) {
   );
 }
 
-interface WordListProps {
-  id: string;
-  label: string;
-  hint: string;
-  placeholder: string;
-  words: string[];
-  onChange: (words: string[]) => void;
-}
-
-// 내 이름·가릴 단어처럼 여러 개를 넣고 빼는 칸
-function WordList({
-  id,
-  label,
-  hint,
-  placeholder,
-  words,
-  onChange,
-}: WordListProps) {
-  const [draft, setDraft] = useState('');
-
-  const add = (e: FormEvent) => {
-    e.preventDefault();
-    const word = draft.trim();
-    if (word && !words.includes(word)) onChange([...words, word]);
-    setDraft('');
-  };
-
-  return (
-    <form onSubmit={add} className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-body font-bold text-heading">
-        {label}
-      </label>
-      <p id={`${id}-hint`} className="text-caption text-ink-muted">
-        {hint}
-      </p>
-      <div className="flex gap-2">
-        <TextInput
-          id={id}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder={placeholder}
-          aria-describedby={`${id}-hint`}
-          className="min-w-0 flex-1"
-        />
-        <Button type="submit" variant="secondary" disabled={!draft.trim()}>
-          더하기
-        </Button>
-      </div>
-      {words.length > 0 && (
-        <ul aria-label={label} className="flex flex-wrap gap-1.5">
-          {words.map((word) => (
-            <li key={word}>
-              <Chip
-                onRemove={() => onChange(words.filter((w) => w !== word))}
-                removeLabel={`${word} 빼기`}
-              >
-                {word}
-              </Chip>
-            </li>
-          ))}
-        </ul>
-      )}
-    </form>
-  );
-}
-
 function MaskStep({
   conversations,
   options,
   onChangeOptions,
+  savedTerms,
+  remember,
+  onChangeRemember,
   onBack,
   onNext,
 }: MaskStepProps) {
@@ -242,7 +184,26 @@ function MaskStep({
           placeholder="예: OO대학교"
           words={options.terms ?? []}
           onChange={(terms) => onChangeOptions({ ...options, terms })}
-        />
+        >
+          {savedTerms && (
+            <div className="flex flex-col gap-2">
+              <p className="text-caption text-ink-muted">
+                {savedTerms.length > 0
+                  ? `마이페이지에 저장한 단어 ${savedTerms.length}개를 불러왔어요. 새로 넣은 단어는 이번에만 써요.`
+                  : '다른 기기에서 저장했다면 여기서 한 번 더 넣어 주세요. 새로 넣은 단어는 이번에만 써요.'}
+              </p>
+              <label className="flex items-start gap-2 text-body text-ink">
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => onChangeRemember(e.target.checked)}
+                  className="mt-1"
+                />
+                <span>이 브라우저에 기억하기</span>
+              </label>
+            </div>
+          )}
+        </WordList>
       </div>
 
       <div
