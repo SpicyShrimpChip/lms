@@ -57,6 +57,10 @@
   --color-ai-chip: #f3effe;
   --color-ai-chip-hover: #e9e0fd;
 
+  /* 찾은 키워드·검색어 형광펜 (가져온 대화 보기). 가린 표시(primary-soft)와 구분되는 노랑 */
+  --color-highlight: #fde68a;
+  --color-on-highlight: #3f2d00;
+
   --color-strength: #15803d;
   --color-strength-soft: #e7f6ec;
   --color-weakness: #c0392b;
@@ -120,6 +124,9 @@
   --color-ai-border: #3d2f63;
   --color-ai-chip: #2b2147;
   --color-ai-chip-hover: #352a57;
+
+  --color-highlight: #6b5310;
+  --color-on-highlight: #fff3c4;
 
   --color-strength: #86efac;
   --color-strength-soft: #12301f;

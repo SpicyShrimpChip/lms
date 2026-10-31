@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookMarked, Info, SearchX } from 'lucide-react';
+import { BookMarked, ChevronDown, Info, Search, SearchX } from 'lucide-react';
 import {
   Button,
   Card,
@@ -15,11 +15,17 @@ import {
   assignToCourses,
   conversationKey,
   formatDate,
+  cn,
   formatSemester,
   partCountOf,
+  searchConversation,
+  sortConversations,
   type AssignedConversation,
+  type ConversationOrder,
+  type SearchHit,
   type ParsedConversation,
 } from '@/utils';
+import ConversationView from './ConversationView';
 
 // 대화마다 들어갈 과목과 보낼지 여부 (키: conversationKey)
 export type ConversationChoices = Record<
@@ -61,6 +67,10 @@ function SelectStep({
     () => initialChoices ?? defaultChoices(assigned),
   );
   const [query, setQuery] = useState('');
+  // 본문까지 찾으므로 입력이 밀리지 않게 검색은 한 박자 늦게 따라간다
+  const deferredQuery = useDeferredValue(query);
+  const [order, setOrder] = useState<ConversationOrder>('latest');
+  const [openKey, setOpenKey] = useState<string | null>(null);
   // 나눠 보낼 대화가 있는지 (어떤 대화인지는 보내기 단계에서 보여 준다)
   const hasLongConversation = useMemo(
     () => assigned.some(({ conversation }) => partCountOf(conversation) > 1),
@@ -86,9 +96,18 @@ function SelectStep({
   const update = (key: string, patch: Partial<ConversationChoices[string]>) =>
     setChoices((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } }));
 
-  const normalizedQuery = query.trim().toLowerCase();
-  const visible = assigned.filter(({ conversation }) =>
-    conversation.title.toLowerCase().includes(normalizedQuery),
+  // 제목이나 본문에 검색어가 있는 대화만, 고른 순서로
+  const hits = new Map<string, SearchHit>();
+  for (const { conversation } of assigned) {
+    const hit = searchConversation(conversation, deferredQuery);
+    if (hit) hits.set(conversationKey(conversation), hit);
+  }
+  const visible = sortConversations(
+    assigned.filter(({ conversation }) =>
+      hits.has(conversationKey(conversation)),
+    ),
+    (item) => item.conversation,
+    order,
   );
 
   return (
@@ -123,14 +142,43 @@ function SelectStep({
         />
       ) : (
         <>
-          <TextInput
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="대화 제목으로 찾기"
-            aria-label="대화 제목으로 찾기"
-            className="max-w-80"
-          />
+          <div className="flex flex-wrap items-center gap-3">
+            <TextInput
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="제목이나 내용으로 찾기"
+              aria-label="제목이나 내용으로 찾기"
+              className="max-w-80 min-w-0 flex-1"
+            />
+            <div
+              role="group"
+              aria-label="정렬"
+              className="inline-flex overflow-hidden rounded-lg border border-line-strong"
+            >
+              {(
+                [
+                  ['latest', '최신순'],
+                  ['title', '가나다순'],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={order === value}
+                  onClick={() => setOrder(value)}
+                  className={cn(
+                    'px-3 py-2 text-caption',
+                    order === value
+                      ? 'bg-primary-pill font-bold text-heading'
+                      : 'text-ink-soft hover:bg-surface-muted',
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
           {courses.map((course) => (
             <CourseGroup
               key={course.id}
@@ -142,6 +190,10 @@ function SelectStep({
                   course.id,
               )}
               choices={choices}
+              hits={hits}
+              query={deferredQuery}
+              openKey={openKey}
+              onToggleOpen={(key) => setOpenKey(openKey === key ? null : key)}
               onUpdate={update}
               onToggleAll={(keys, selected) =>
                 setChoices((prev) => {
@@ -155,7 +207,7 @@ function SelectStep({
           ))}
           {visible.length === 0 && (
             <p className="text-body text-ink-muted">
-              검색어가 들어간 대화 제목이 없어요. 다른 단어로 찾아 보세요.
+              검색어가 들어간 대화가 없어요. 다른 단어로 찾아 보세요.
             </p>
           )}
         </>
@@ -189,6 +241,12 @@ interface CourseGroupProps {
   courses: Course[];
   items: AssignedConversation[];
   choices: ConversationChoices;
+  // 대화별 검색 결과 (키: conversationKey)
+  hits: Map<string, SearchHit>;
+  query: string;
+  // 펼쳐서 보고 있는 대화
+  openKey: string | null;
+  onToggleOpen: (key: string) => void;
   onUpdate: (key: string, patch: Partial<ConversationChoices[string]>) => void;
   onToggleAll: (keys: string[], selected: boolean) => void;
 }
@@ -198,6 +256,10 @@ function CourseGroup({
   courses,
   items,
   choices,
+  hits,
+  query,
+  openKey,
+  onToggleOpen,
   onUpdate,
   onToggleAll,
 }: CourseGroupProps) {
@@ -238,62 +300,107 @@ function CourseGroup({
             matches[0];
           const checkboxId = `import-${key}`;
           const date = formatDate(conversation.createdAt);
+          const snippet = hits.get(key)?.snippet;
+          const open = openKey === key;
+          const panelId = `import-view-${key}`;
           return (
-            <li
-              key={key}
-              className="flex flex-col gap-2 py-3 sm:flex-row sm:items-start sm:justify-between"
-            >
-              <div className="flex items-start gap-3">
-                <input
-                  id={checkboxId}
-                  type="checkbox"
-                  checked={choice.selected}
-                  onChange={(e) =>
-                    onUpdate(key, { selected: e.target.checked })
-                  }
-                  className="mt-1 size-4"
-                />
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor={checkboxId}
-                    className="font-medium text-heading"
+            <li key={key} className="flex flex-col gap-3 py-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex min-w-0 items-start gap-3">
+                  <input
+                    id={checkboxId}
+                    type="checkbox"
+                    checked={choice.selected}
+                    onChange={(e) =>
+                      onUpdate(key, { selected: e.target.checked })
+                    }
+                    className="mt-1 size-4 shrink-0"
+                  />
+                  <div className="flex min-w-0 flex-col gap-1.5">
+                    <label
+                      htmlFor={checkboxId}
+                      className="font-medium text-heading"
+                    >
+                      {conversation.title}
+                    </label>
+                    <p className="flex flex-wrap gap-x-3 text-caption text-ink-muted">
+                      <span>
+                        {conversation.source === 'chatgpt'
+                          ? 'ChatGPT'
+                          : 'Claude'}
+                      </span>
+                      {date && <span>{date}</span>}
+                      <span>메시지 {conversation.messages.length}개</span>
+                    </p>
+                    <ul
+                      aria-label="찾은 키워드"
+                      className="flex flex-wrap gap-1.5"
+                    >
+                      {match.matchedKeywords.map((keyword) => (
+                        <li key={keyword}>
+                          <Chip>{keyword}</Chip>
+                        </li>
+                      ))}
+                    </ul>
+                    {snippet && (
+                      <p className="flex min-w-0 items-center gap-1.5 text-caption text-ink-soft">
+                        <Search
+                          size={13}
+                          className="shrink-0"
+                          aria-label="내용에서 찾음"
+                        />
+                        <span className="truncate">
+                          {snippet.before}
+                          <mark className="rounded bg-highlight px-0.5 text-on-highlight">
+                            {snippet.match}
+                          </mark>
+                          {snippet.after}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex shrink-0 items-center gap-3 sm:flex-col sm:items-end">
+                  {matches.length > 1 && (
+                    <SelectInput
+                      aria-label={`${conversation.title} 과목 바꾸기`}
+                      value={choice.courseId}
+                      onChange={(e) =>
+                        onUpdate(key, { courseId: Number(e.target.value) })
+                      }
+                      className="w-full sm:w-44"
+                    >
+                      {matches.map(({ courseId }) => (
+                        <option key={courseId} value={courseId}>
+                          {courses.find((item) => item.id === courseId)?.name}
+                        </option>
+                      ))}
+                    </SelectInput>
+                  )}
+                  <button
+                    type="button"
+                    aria-expanded={open}
+                    aria-controls={panelId}
+                    onClick={() => onToggleOpen(key)}
+                    className="flex items-center gap-1 text-caption font-medium whitespace-nowrap text-primary"
                   >
-                    {conversation.title}
-                  </label>
-                  <p className="flex flex-wrap gap-x-3 text-caption text-ink-muted">
-                    <span>
-                      {conversation.source === 'chatgpt' ? 'ChatGPT' : 'Claude'}
-                    </span>
-                    {date && <span>{date}</span>}
-                    <span>메시지 {conversation.messages.length}개</span>
-                  </p>
-                  <ul
-                    aria-label="찾은 키워드"
-                    className="flex flex-wrap gap-1.5"
-                  >
-                    {match.matchedKeywords.map((keyword) => (
-                      <li key={keyword}>
-                        <Chip>{keyword}</Chip>
-                      </li>
-                    ))}
-                  </ul>
+                    {open ? '접기' : '대화 보기'}
+                    <ChevronDown
+                      size={16}
+                      aria-hidden="true"
+                      className={open ? 'rotate-180' : undefined}
+                    />
+                  </button>
                 </div>
               </div>
-              {matches.length > 1 && (
-                <SelectInput
-                  aria-label={`${conversation.title} 과목 바꾸기`}
-                  value={choice.courseId}
-                  onChange={(e) =>
-                    onUpdate(key, { courseId: Number(e.target.value) })
-                  }
-                  className="w-full sm:w-44"
-                >
-                  {matches.map(({ courseId }) => (
-                    <option key={courseId} value={courseId}>
-                      {courses.find((item) => item.id === courseId)?.name}
-                    </option>
-                  ))}
-                </SelectInput>
+              {open && (
+                <div id={panelId} className="sm:pl-7">
+                  <ConversationView
+                    source={conversation.source}
+                    messages={conversation.messages}
+                    keywords={[...match.matchedKeywords, query]}
+                  />
+                </div>
               )}
             </li>
           );

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { ArrowDown, ArrowUp } from 'lucide-react';
 import Markdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
@@ -9,6 +10,7 @@ import {
 } from '@/utils';
 
 // 가져온 대화를 채팅창처럼 보여 준다 (2단계 대화 보기, 3단계 가린 내용 확인에서 같이 쓴다).
+// 가린 표시는 파랑, 찾은 키워드·검색어는 형광펜으로 칠한다.
 // 사용자의 기록이라 AI 말풍선도 보라색(이 서비스의 AI가 쓴 것)으로 칠하지 않고 서비스 이름만 붙인다.
 // HTML 문자열로 그리지 않는다: 마크다운은 react-markdown이 React 요소로 만들고, 대화 속 HTML은 그리지 않는다
 
@@ -20,17 +22,40 @@ const SOURCE_NAME: Record<ConversationSource, string> = {
 // 처음 보여 줄 메시지 수와 "더 보기"로 늘리는 수
 const PAGE_SIZE = 30;
 
-const MARK_CLASS = 'rounded bg-primary-soft px-0.5 font-medium text-heading';
+// 가린 표시는 파랑, 찾은 키워드·검색어는 형광펜(노랑)
+const MARK_CLASS = {
+  mask: 'rounded bg-primary-soft px-0.5 font-medium text-heading',
+  keyword: 'rounded bg-highlight px-0.5 text-on-highlight',
+} as const;
 
-const LABEL_PATTERN = new RegExp(
-  `(${Object.values(MASK_LABELS)
-    .map((label) => label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-    .join('|')})`,
-  'g',
-);
+const MASK_SET = new Set<string>(Object.values(MASK_LABELS));
 
-// 글을 가린 표시([이메일] 등)와 나머지로 나눈다. 홀수 번째가 가린 표시
-const splitLabels = (text: string) => text.split(LABEL_PATTERN);
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// 가린 표시와 키워드를 한 번에 찾는 정규식. 긴 단어를 먼저 찾는다
+function markPattern(keywords: string[]): RegExp {
+  const words = [...MASK_SET, ...keywords]
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp);
+  return new RegExp(`(${words.join('|')})`, 'gi');
+}
+
+type MarkKind = keyof typeof MARK_CLASS;
+
+// 글을 조각으로 나눈다. 홀수 번째가 찾은 것 (가린 표시면 mask, 아니면 keyword)
+function splitMarks(
+  text: string,
+  pattern: RegExp,
+): { text: string; kind?: MarkKind }[] {
+  return text
+    .split(pattern)
+    .map((part, i) =>
+      i % 2 === 0
+        ? { text: part }
+        : { text: part, kind: MASK_SET.has(part) ? 'mask' : 'keyword' },
+    );
+}
 
 // 마크다운 트리에서 쓰는 만큼만 적은 모양
 interface MdNode {
@@ -40,8 +65,8 @@ interface MdNode {
   data?: { hName?: string; hProperties?: Record<string, string> };
 }
 
-// 마크다운 글 조각 안의 가린 표시를 <mark>로 바꾸는 remark 플러그인 (코드 블록 안은 그대로 둔다)
-function remarkMaskLabels() {
+// 마크다운 글 조각 안의 가린 표시·키워드를 <mark>로 바꾸는 remark 플러그인 (코드 블록 안은 그대로 둔다)
+function remarkMarks({ pattern }: { pattern: RegExp }) {
   const visit = (node: MdNode) => {
     if (!node.children) return;
     node.children = node.children.flatMap((child): MdNode[] => {
@@ -49,17 +74,20 @@ function remarkMaskLabels() {
         visit(child);
         return [child];
       }
-      return splitLabels(child.value)
-        .map((part, i): MdNode | null => {
-          if (!part) return null;
-          if (i % 2 === 0) return { type: 'text', value: part };
-          return {
-            type: 'maskLabel',
-            data: { hName: 'mark', hProperties: { className: MARK_CLASS } },
-            children: [{ type: 'text', value: part }],
-          };
-        })
-        .filter((part): part is MdNode => part !== null);
+      return splitMarks(child.value, pattern)
+        .filter((part) => part.text)
+        .map((part): MdNode =>
+          part.kind
+            ? {
+                type: 'mark',
+                data: {
+                  hName: 'mark',
+                  hProperties: { className: MARK_CLASS[part.kind] },
+                },
+                children: [{ type: 'text', value: part.text }],
+              }
+            : { type: 'text', value: part.text },
+        );
     });
   };
   return (tree: MdNode) => visit(tree);
@@ -119,17 +147,17 @@ const MARKDOWN_COMPONENTS: Components = {
   hr: () => <hr className="my-3 border-line" />,
 };
 
-// 내가 쓴 글은 마크다운으로 해석하지 않고 줄바꿈을 그대로 둔다 (가린 표시만 칠한다)
-function PlainText({ text }: { text: string }) {
-  const parts: ReactNode[] = splitLabels(text).map((part, i) =>
-    i % 2 === 0 ? (
-      part
-    ) : (
+// 내가 쓴 글은 마크다운으로 해석하지 않고 줄바꿈을 그대로 둔다 (가린 표시·키워드만 칠한다)
+function PlainText({ text, pattern }: { text: string; pattern: RegExp }) {
+  const parts: ReactNode[] = splitMarks(text, pattern).map((part, i) =>
+    part.kind ? (
       // 글 조각 순서는 바뀌지 않는다
       // eslint-disable-next-line react-x/no-array-index-key
-      <mark key={i} className={MARK_CLASS}>
-        {part}
+      <mark key={i} className={MARK_CLASS[part.kind]}>
+        {part.text}
       </mark>
+    ) : (
+      part.text
     ),
   );
   return <>{parts}</>;
@@ -141,12 +169,63 @@ interface ConversationViewProps {
   messages: ConversationMessage[];
   // 이 메시지로 이동해 표시한다. 같은 메시지로 다시 가려면 nonce를 바꾼다
   focus?: { index: number; nonce: number } | null;
+  // 형광펜으로 칠할 단어(찾은 키워드·검색어). 있으면 "키워드 나온 메시지" 이전·다음 이동을 보여 준다
+  keywords?: string[];
 }
 
-function ConversationView({ source, messages, focus }: ConversationViewProps) {
+function ConversationView({
+  source,
+  messages,
+  focus: focusProp,
+  keywords = [],
+}: ConversationViewProps) {
   const [pageCount, setPageCount] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef(new Map<number, HTMLLIElement>());
+
+  // 배열이 새로 만들어져도 내용이 같으면 다시 계산하지 않도록 글자로 묶어 비교한다
+  const keywordKey = keywords.join('\n');
+  const words = useMemo(
+    () => [
+      ...new Set(
+        keywordKey
+          .split('\n')
+          .map((word) => word.trim())
+          .filter(Boolean),
+      ),
+    ],
+    [keywordKey],
+  );
+  const pattern = useMemo(() => markPattern(words), [words]);
+  // 키워드가 들어 있는 메시지 순서
+  const hits = useMemo(() => {
+    if (words.length === 0) return [];
+    const lowered = words.map((word) => word.toLowerCase());
+    return messages.flatMap((message, index) => {
+      const text = message.text.toLowerCase();
+      return lowered.some((word) => text.includes(word)) ? [index] : [];
+    });
+  }, [messages, words]);
+  // 이전·다음으로 고른 순서(-1이면 아직 안 고름)와 누른 횟수(같은 곳으로 다시 이동할 때 쓴다)
+  const [nav, setNav] = useState({ cursor: -1, count: 0 });
+  // 키워드가 바뀌어 목록이 줄면 처음 상태로 본다
+  const cursor = nav.cursor < hits.length ? nav.cursor : -1;
+  const ownFocus = useMemo(
+    () => (cursor < 0 ? null : { index: hits[cursor], nonce: nav.count }),
+    [cursor, hits, nav.count],
+  );
+  const focus = ownFocus ?? focusProp ?? null;
+
+  // 연달아 눌러도 한 칸씩 움직이도록 이전 값을 보고 정한다
+  const move = (step: 1 | -1) =>
+    setNav((prev) => {
+      const current = prev.cursor < hits.length ? prev.cursor : -1;
+      const start = current < 0 ? (step > 0 ? -1 : hits.length) : current;
+      return {
+        cursor: (start + step + hits.length) % hits.length,
+        count: prev.count + 1,
+      };
+    });
 
   // 이동할 메시지가 뒤쪽에 있으면 거기까지 펼친다
   const shown = Math.min(
@@ -170,6 +249,40 @@ function ConversationView({ source, messages, focus }: ConversationViewProps) {
 
   return (
     <div className="flex flex-col gap-2">
+      {hits.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-2 text-caption text-ink-soft">
+          <p aria-live="polite">
+            {cursor < 0 ? (
+              <>키워드가 나온 메시지 {hits.length}개</>
+            ) : (
+              <>
+                키워드가 나온 메시지{' '}
+                <span className="font-bold text-heading">
+                  {cursor + 1} / {hits.length}
+                </span>
+              </>
+            )}
+          </p>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => move(-1)}
+              className="flex items-center gap-1 font-medium text-primary"
+            >
+              <ArrowUp size={14} aria-hidden="true" />
+              이전
+            </button>
+            <button
+              type="button"
+              onClick={() => move(1)}
+              className="flex items-center gap-1 font-medium text-primary"
+            >
+              <ArrowDown size={14} aria-hidden="true" />
+              다음
+            </button>
+          </div>
+        </div>
+      )}
       <div
         ref={containerRef}
         className="relative max-h-[28rem] overflow-y-auto rounded-xl bg-surface-muted p-4"
@@ -213,10 +326,10 @@ function ConversationView({ source, messages, focus }: ConversationViewProps) {
                   )}
                 >
                   {message.role === 'user' ? (
-                    <PlainText text={message.text} />
+                    <PlainText text={message.text} pattern={pattern} />
                   ) : (
                     <Markdown
-                      remarkPlugins={[remarkGfm, remarkMaskLabels]}
+                      remarkPlugins={[remarkGfm, [remarkMarks, { pattern }]]}
                       components={MARKDOWN_COMPONENTS}
                       skipHtml
                     >

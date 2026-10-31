@@ -7,3 +7,4 @@ export * from './merge';
 export * from './manifest';
 export * from './assign';
 export * from './send';
+export * from './search';
