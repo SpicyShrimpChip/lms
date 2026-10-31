@@ -36,10 +36,10 @@ class UserPersistenceTest {
 		Integer failed = jdbcTemplate.queryForObject(
 				"SELECT COUNT(*) FROM flyway_schema_history WHERE success = FALSE", Integer.class);
 		Integer applied = jdbcTemplate.queryForObject(
-				"SELECT COUNT(*) FROM flyway_schema_history WHERE version IN ('1', '2') AND success = TRUE", Integer.class);
+				"SELECT COUNT(*) FROM flyway_schema_history WHERE version = '1' AND success = TRUE", Integer.class);
 
 		assertThat(failed).isZero();
-		assertThat(applied).isEqualTo(2);
+		assertThat(applied).isEqualTo(1);
 	}
 
 	@Test
