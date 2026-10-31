@@ -14,7 +14,7 @@
 - 해결: `frontend-ci.yml`이 `npm run format:check`로 검사만 한다. 실패하면 `frontend`에서 `npm run format` 후 커밋한다.
 - 다음에는: `package-lock.json`은 npm이 만드는 파일이라 `.prettierignore`로 제외한다.
 
-## 도커: `docker --version`은 되는데 연결 오류가 난다 (2026-10-31)
+## 도커: `docker --version`은 되는데 연결 오류가 난다 (2026-10-31, #80)
 
 - 상황: Windows에서 Docker Desktop을 막 설치하고 `docker run`을 했더니 `//./pipe/docker_engine` 연결 오류가 났다.
 - 원인: `docker` 명령은 설치만 되면 나오지만, 엔진은 Docker Desktop 앱을 실행해야 켜진다.

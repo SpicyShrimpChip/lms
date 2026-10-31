@@ -2,7 +2,7 @@
 
 > 초안: 커밋 기록과 `docs/backend-design.md`에서 정리했다. 주미 님이 확인하고 고치거나 더하는 곳이다.
 
-## DB를 MySQL에서 PostgreSQL로 바꿨다 (2026-10-31)
+## DB를 MySQL에서 PostgreSQL로 바꿨다 (2026-10-31, #80)
 
 - 상황: 운영 DB가 없는 시점에 멘토 추천으로 전환했다. MySQL 문법(`AUTO_INCREMENT`, `DATETIME(6)`, `FROM DUAL`)이 SQL 4개에 모여 있었다.
 - 해결: 운영 DB가 없으니 `V1`~`V3`을 PostgreSQL 문법의 `V1` 하나로 합쳐 다시 시작했다(적용된 파일을 고치지 않는 규칙의 예외). H2는 `MODE=PostgreSQL`, 시드의 날짜는 `DATE '...'`로 쓴다.
