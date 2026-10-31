@@ -76,6 +76,15 @@ src/
 - 백엔드 공통 응답 형식: `{ success: boolean, message: string, data: T }` (`types/api.ts`의 `ApiResponse<T>`)
 - API 함수는 `api/request.ts`의 `request<T>()`로 요청한다. 성공하면 `data`만 돌려주고, 실패하면 화면에 보여 줄 문구를 담은 `ApiError`를 던진다(`AsyncBoundary`가 받는다)
 
+## 로그인·인증 구조 (주미 인증 API 연결)
+
+- **로그인 상태**는 `store/useAuthStore.ts`(Zustand)가 든다. `status`는 `unknown`(새로고침 뒤 세션 복원 중) / `authenticated` / `anonymous`이고, Access Token은 **메모리에만** 둔다(localStorage에 저장하지 않는다). localStorage에는 "로그인한 적 있음" 표시(`ai-lms-has-session`)만 남겨, 새로고침 뒤 갱신 요청을 보낼지 정한다.
+- **새로고침 복원:** `main.tsx`가 `restoreSession()`(`api/auth.api.ts`)을 불러 HttpOnly 쿠키의 Refresh Token으로 Access Token을 다시 받는다.
+- **토큰 갱신(`api/axios.ts`):** 요청 인터셉터가 `Authorization: Bearer`를 붙인다. 401이 오면 `refreshAccessToken()`으로 한 번 갱신하고 원래 요청을 다시 보낸다. 여러 요청이 동시에 401을 받아도 갱신은 한 번만 보낸다(Refresh Token은 한 번 쓰면 폐기돼서, 두 번 보내면 서버가 재사용으로 보고 세션을 끊는다). `/auth/*` 요청은 갱신하지 않고, 갱신이 실패하면 `clearSession()`으로 로그아웃 상태가 된다. `X-Requested-With` 헤더는 CSRF 방어라 지우지 않는다.
+- **화면 가드:** `router/RequireAuth.tsx`는 로그인이 필요한 화면을 감싼다(`unknown`이면 로딩, `anonymous`면 `/login`으로 보내고 `state.from`으로 원래 화면에 돌아온다). `router/RequireAdmin.tsx`는 반드시 `RequireAuth` 안에 두고 `useMe()`의 `role`이 `ADMIN`이 아니면 안내 화면을 보여 준다. 가드는 안내용일 뿐이고 진짜 권한은 서버가 요청마다 확인한다. 내 데이터를 보여 주는 새 화면은 `RequireAuth` 아래에 넣는다.
+- **내 정보**는 스토어가 아니라 `hooks/useMe.ts`(React Query `['me']`)로 읽고, 로그인했을 때만 불러온다.
+- 목업 모드(`VITE_USE_MOCK=true`)에서는 두 가드가 검사를 건너뛴다. 실제 로그인으로 확인하려면 `.env.development.local`에 `VITE_USE_MOCK=false`를 넣고 백엔드를 켠다(`docs/setup.md`).
+
 ## 주요 화면 (GNB 5개 + 드롭다운)
 
 - 학습자료: 내 학습자료(목록), 자료 업로드, 자료 상세(탭: 요약 / 핵심 개념 / 퀴즈 / AI 요약 영상-준비 중)
