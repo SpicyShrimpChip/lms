@@ -274,14 +274,17 @@ describe('parseConversationExport', () => {
   it('JSON이 아니면 이유를 알려 준다', () => {
     const result = parseConversationExport('conversations.json', '{ 깨진 파일');
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.message).toMatch(/JSON/);
+    if (!result.ok) expect(result.title).toBe('파일을 읽지 못했어요');
   });
 
-  it('다른 형식의 JSON이면 conversations.json을 고르라고 알려 준다', () => {
+  it('다른 형식의 JSON이면 내보낸 zip을 올리라고 알려 준다', () => {
     for (const text of ['[]', '{}', '[{"a":1}]', '"문자열"']) {
       const result = parseConversationExport('conversations.json', text);
       expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.message).toMatch(/conversations\.json/);
+      if (!result.ok) {
+        expect(result.title).toBe('대화 기록 파일이 아니에요');
+        expect(result.message).toMatch(/zip/);
+      }
     }
   });
 

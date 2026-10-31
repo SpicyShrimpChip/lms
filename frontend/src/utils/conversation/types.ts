@@ -1,3 +1,5 @@
+import type { ClaudeManifest } from './manifest';
+
 export type ConversationSource = 'chatgpt' | 'claude';
 
 export interface ConversationMessage {
@@ -24,8 +26,11 @@ export type ParseResult =
     }
   | {
       ok: false;
-      // 화면에 그대로 보여 줄 문구
+      // 화면에 그대로 보여 줄 짧은 제목과 할 일 한 문장
+      title: string;
       message: string;
+      // Claude 다운로드 목록 파일이면 받을 zip 정보 (오류가 아니라 안내로 보여 준다)
+      manifest?: ClaudeManifest;
     };
 
 // 사용자가 고른 내보내기 파일 하나. 브라우저 안에서만 다룬다
