@@ -1,15 +1,16 @@
 import { useMemo, useState, type FormEvent } from 'react';
-import { ChevronDown, EyeOff } from 'lucide-react';
+import { ChevronDown, Eye, EyeOff, Lock } from 'lucide-react';
 import { Button, Card, Chip, TextInput } from '@/components';
 import {
   MASK_LABELS,
+  collectMaskedSpots,
   conversationKey,
   maskConversation,
-  maskText,
   type MaskKind,
   type MaskOptions,
   type ParsedConversation,
 } from '@/utils';
+import ConversationView from './ConversationView';
 
 interface MaskStepProps {
   conversations: ParsedConversation[];
@@ -19,28 +20,99 @@ interface MaskStepProps {
   onNext: () => void;
 }
 
-// 미리보기에서 대화 하나에 보여 줄 메시지 수 (긴 대화가 화면을 다 차지하지 않게)
-const PREVIEW_MESSAGE_LIMIT = 30;
+// 가린 곳 앞뒤 글은 한 줄 미리 보기라서 마크다운 기호(**, `, # 등)를 뺀다
+const withoutMarkdown = (text: string) => text.replace(/[*_`#>~]+/g, '');
 
-// 가린 결과 글을 그대로 보여 주고, 가린 자리만 표시한다. HTML 문자열로 만들지 않고 조각을 나눠 그린다
-function MaskedText({ text, options }: { text: string; options: MaskOptions }) {
-  const { text: masked, matches } = maskText(text, options);
-  const parts = [];
-  let cursor = 0;
-  for (const [index, match] of matches.entries()) {
-    if (match.start > cursor) parts.push(masked.slice(cursor, match.start));
-    parts.push(
-      <mark
-        key={index}
-        className="rounded bg-primary-soft px-0.5 font-medium text-heading"
-      >
-        {masked.slice(match.start, match.end)}
-      </mark>,
-    );
-    cursor = match.end;
-  }
-  parts.push(masked.slice(cursor));
-  return <>{parts}</>;
+interface MaskPreviewProps {
+  id: string;
+  original: ParsedConversation;
+  // 가린 뒤의 대화
+  masked: ParsedConversation;
+  options: MaskOptions;
+}
+
+// 대화 하나를 펼쳤을 때: 가린 곳 목록(원래 글자는 눌러야 보임) + 채팅창 모양 미리 보기
+function MaskPreview({ id, original, masked, options }: MaskPreviewProps) {
+  const spots = useMemo(
+    () => collectMaskedSpots(original, options),
+    [original, options],
+  );
+  const [showOriginal, setShowOriginal] = useState(false);
+  const [focus, setFocus] = useState<{ index: number; nonce: number } | null>(
+    null,
+  );
+
+  return (
+    <div id={id} className="mt-3 flex flex-col gap-3">
+      {spots.length > 0 && (
+        <div className="flex flex-col gap-2 rounded-xl bg-surface-muted p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="font-bold text-heading">가린 곳 {spots.length}개</p>
+            <button
+              type="button"
+              aria-pressed={showOriginal}
+              onClick={() => setShowOriginal(!showOriginal)}
+              className="flex items-center gap-1 text-caption font-medium text-primary"
+            >
+              {showOriginal ? (
+                <EyeOff size={16} aria-hidden="true" />
+              ) : (
+                <Eye size={16} aria-hidden="true" />
+              )}
+              {showOriginal ? '원래 글자 숨기기' : '원래 글자 보기'}
+            </button>
+          </div>
+          <ul className="flex flex-col divide-y divide-line border-t border-line">
+            {spots.map((spot, i) => (
+              <li
+                // 가린 곳 순서는 바뀌지 않는다
+                // eslint-disable-next-line react-x/no-array-index-key
+                key={i}
+                className="grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)_auto] items-center gap-3 py-2 text-caption"
+              >
+                <span
+                  className="truncate font-mono text-heading"
+                  aria-label={showOriginal ? undefined : '숨긴 원래 글자'}
+                >
+                  {showOriginal ? spot.original : '••••••••'}
+                </span>
+                <span className="truncate text-ink-soft">
+                  {spot.messageIndex < 0 && '제목: '}
+                  {withoutMarkdown(spot.before)}
+                  <mark className="rounded bg-primary-soft px-0.5 font-medium text-heading">
+                    {MASK_LABELS[spot.kind]}
+                  </mark>
+                  {withoutMarkdown(spot.after)}
+                </span>
+                {spot.messageIndex >= 0 ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFocus({ index: spot.messageIndex, nonce: i })
+                    }
+                    className="font-medium text-primary"
+                  >
+                    보기
+                  </button>
+                ) : (
+                  <span />
+                )}
+              </li>
+            ))}
+          </ul>
+          <p className="flex items-start gap-1.5 text-caption text-ink-muted">
+            <Lock size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
+            원래 글자는 이 화면에서만 보여요. 서버로는 가린 글만 가요.
+          </p>
+        </div>
+      )}
+      <ConversationView
+        source={masked.source}
+        messages={masked.messages}
+        focus={focus}
+      />
+    </div>
+  );
 }
 
 interface WordListProps {
@@ -228,32 +300,12 @@ function MaskStep({
                 </span>
               </button>
               {open && (
-                <div
+                <MaskPreview
                   id={panelId}
-                  className="mt-3 flex max-h-96 flex-col gap-3 overflow-y-auto rounded-xl bg-surface-muted p-4"
-                >
-                  {original.messages
-                    .slice(0, PREVIEW_MESSAGE_LIMIT)
-                    .map((message, index) => (
-                      // 메시지에는 id가 없고, 순서가 바뀌거나 중간에 빠지지 않는 읽기 전용 목록이다
-                      // eslint-disable-next-line react-x/no-array-index-key
-                      <div key={index} className="flex flex-col gap-1">
-                        <span className="text-caption font-bold text-ink-muted">
-                          {message.role === 'user' ? '나' : 'AI'}
-                        </span>
-                        <p className="text-body leading-relaxed whitespace-pre-wrap text-ink">
-                          <MaskedText text={message.text} options={options} />
-                        </p>
-                      </div>
-                    ))}
-                  {original.messages.length > PREVIEW_MESSAGE_LIMIT && (
-                    <p className="text-caption text-ink-muted">
-                      나머지 메시지{' '}
-                      {original.messages.length - PREVIEW_MESSAGE_LIMIT}개도
-                      같은 규칙으로 가려요.
-                    </p>
-                  )}
-                </div>
+                  original={original}
+                  masked={conversation}
+                  options={options}
+                />
               )}
             </li>
           );

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { maskConversation, maskText } from './mask';
+import { collectMaskedSpots, maskConversation, maskText } from './mask';
 import type { ParsedConversation } from './types';
 
 describe('maskText', () => {
@@ -142,5 +142,63 @@ describe('maskConversation', () => {
     maskConversation(conversation, { names: ['변지환'] });
     expect(conversation.title).toBe('변지환 정보보호 질문');
     expect(conversation.messages[0].text).toContain('test@example.com');
+  });
+});
+
+describe('collectMaskedSpots', () => {
+  const conversation: ParsedConversation = {
+    id: 'c1',
+    source: 'claude',
+    title: '홍길동 학점 정리',
+    createdAt: undefined,
+    messages: [
+      { role: 'user', text: '안녕하세요' },
+      { role: 'assistant', text: '네' },
+      {
+        role: 'user',
+        text: '제 번호는 010-1234-5678이고\n메일은 me@example.com 이에요',
+      },
+    ],
+  };
+
+  it('제목과 모든 메시지에서 가린 곳을 순서대로 모으고 앞뒤 글을 한 줄로 붙인다', () => {
+    const spots = collectMaskedSpots(conversation, { names: ['홍길동'] });
+    expect(
+      spots.map(({ messageIndex, kind, original, before, after }) => ({
+        messageIndex,
+        kind,
+        original,
+        before,
+        after,
+      })),
+    ).toEqual([
+      {
+        messageIndex: -1,
+        kind: 'name',
+        original: '홍길동',
+        before: '',
+        after: ' 학점 정리',
+      },
+      {
+        messageIndex: 2,
+        kind: 'phone',
+        original: '010-1234-5678',
+        before: '제 번호는 ',
+        after: '이고 메일은 [이메일] 이에요',
+      },
+      {
+        messageIndex: 2,
+        kind: 'email',
+        original: 'me@example.com',
+        before: '제 번호는 [전화번호]이고 메일은 ',
+        after: ' 이에요',
+      },
+    ]);
+  });
+
+  it('가린 곳이 없으면 빈 목록', () => {
+    expect(
+      collectMaskedSpots({ ...conversation, title: '정리', messages: [] }),
+    ).toEqual([]);
   });
 });
