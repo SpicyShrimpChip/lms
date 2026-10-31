@@ -44,7 +44,7 @@ src/
 ```
 
 - import는 `@/` 절대경로를 쓰고, 공통 컴포넌트는 배럴(`index.ts`)로 내보낸다.
-- 화면을 만들 때 공통 부품을 먼저 쓴다: 버튼 `Button`, 흰 카드 `Card`, 작은 알약 `Chip`, 점수·비중 막대 `ScoreBar`(개념 막대는 `level`을 넘기면 보완 필요가 붉게), 파일 끌어다 놓기 `FileDropZone`, 입력칸 `TextInput`·`SelectInput`(그 밖의 칸 모양은 `FIELD_CLASS`), 폼 줄과 오류 문구 `FormRow`(`error`), AI 글 `AiNote`·`AiBadge`, 강점·보완 `LevelBadge`. 같은 클래스 묶음을 세 번째로 쓰게 되면 공통 부품으로 뺀다.
+- 화면을 만들 때 공통 부품을 먼저 쓴다: 버튼 `Button`, 흰 카드 `Card`, 작은 알약 `Chip`, 점수·비중 막대 `ScoreBar`(개념 막대는 `level`을 넘기면 보완 필요가 붉게), 파일 끌어다 놓기 `FileDropZone`, 회색 안내 상자(아이콘+글) `Notice`, 입력칸 `TextInput`·`SelectInput`(그 밖의 칸 모양은 `FIELD_CLASS`), 폼 줄과 오류 문구 `FormRow`(`error`), AI 글 `AiNote`·`AiBadge`, 강점·보완 `LevelBadge`. 같은 클래스 묶음을 세 번째로 쓰게 되면 공통 부품으로 뺀다.
 - 클래스를 조건에 따라 붙이거나 부품이 받은 `className`과 합칠 때는 템플릿 문자열 대신 `cn()`(`utils/cn.ts`)을 쓴다. 겹치는 클래스는 뒤에 넘긴 값이 이긴다. `@theme`에 `--text-*`·`--container-*` 토큰을 추가하면 `cn.ts`에도 이름을 넣는다(빠뜨리면 글자 크기 클래스가 색으로 오인돼 지워진다).
 - 클래스 순서는 손으로 맞추지 않는다. `prettier-plugin-tailwindcss`가 저장·커밋할 때 `className`과 `cn()` 안의 클래스를 Tailwind 권장 순서로 정렬한다(`.prettierrc`). `TONE_CLASS` 같은 상수 문자열은 정렬 대상이 아니다.
 - 서버 데이터는 React Query로만 다루고 Zustand에 복사하지 않는다. 쿼리 키는 문자열로 직접 쓰지 않고 API 파일의 상수(`ME_QUERY_KEY`, `COURSES_QUERY_KEY`)나 훅을 쓴다.
@@ -70,7 +70,7 @@ src/
 
 - 환경변수: `VITE_API_BASE_URL`(기본 `/api`), `VITE_USE_MOCK`. 팀 공유 값은 `.env.development`(커밋), 내 PC에서만 바꿀 값은 `.env.development.local`(커밋 안 됨)
 - 요청 경로는 항상 `/api/...`. 개발 중에는 Vite 프록시가 `localhost:8080`으로, 배포 때는 Vercel rewrite가 백엔드로 넘긴다. 그래서 백엔드 컨트롤러 경로도 `/api`로 시작한다
-- 배포는 Vercel(`frontend/vercel.json`, 모든 경로를 `index.html`로). 운영 주소 https://lms-seven-tawny.vercel.app/ (목업 모드, main 머지 때 자동 배포, PR마다 미리보기). 연결 방법·환경변수(`VITE_USE_MOCK`, `HUSKY=0`)는 `docs/deploy.md`
+- 배포는 Vercel(`frontend/vercel.json`, 모든 경로를 `index.html`로). 운영 주소 https://lms-seven-tawny.vercel.app/ (목업 모드, main 머지 때 자동 배포, PR마다 미리보기). 빌드 설정·환경변수(`VITE_USE_MOCK`, `HUSKY=0`)는 `docs/deploy.md`
 - `VITE_USE_MOCK=true`면 API 함수가 `mocks/` 데이터를 반환한다. 백엔드가 준비된 API부터 하나씩 실제 호출로 바꾼다. 예시: `api/notices.api.ts`
 - 백엔드에 바라는 API(제안)는 `docs/frontend-requests.md`에 모은다. 새 화면에서 API가 필요해지면 거기에 추가하고, 목업도 같은 모양으로 만든다
 - 백엔드 공통 응답 형식: `{ success: boolean, message: string, data: T }` (`types/api.ts`의 `ApiResponse<T>`)
@@ -94,15 +94,23 @@ src/
 - 관리자(`/admin/notices`·`new`·`:id/edit`, 관리자만): 공지 작성·수정·삭제. `RequireAdmin`(`RequireAuth` 안)은 안내용 가드이고 진짜 권한은 서버가 `/api/admin/**`에서 매번 확인한다. 상단바 "관리자" 링크는 `me.role === 'ADMIN'`일 때만 보인다. 목업 모드에서는 가드를 건너뛰고(주소로 직접 접속), 공지는 브라우저(`ai-lms-mock-notices`)에만 저장된다. 공지 본문은 글자로만 다룬다(HTML 해석 금지)
 - 이용안내: 서비스 소개, 개인정보 처리방침(작성지침에 따라 링크 이름은 띄어 쓴 "개인정보 처리방침", 푸터에서 굵게)
 - 메인(`/`): 지금은 비로그인 소개 하나 — 파란 띠 → 바로가기 4칸 → 스크롤 5단계 소개(`pages/main/components/story/`) → 시작 안내(`StartPaths`) → 개인정보 안내. 로그인 홈(가입 직후·기록 쌓는 중·기록 있음)은 아직 없음(흐름은 정해 둠)
-- 그 외: 로그인, 회원가입(비밀번호 4조건 실시간 표시), 마이페이지(동의 철회·데이터 삭제), 검색
+- 그 외: 로그인, 회원가입(비밀번호 4조건 실시간 표시), 마이페이지(동의 철회·데이터 삭제, 대화 가져올 때 가릴 단어), 검색
 - 가입 뒤 이동: 로그인 가드나 시작 안내가 `state.from`(가려던 화면)을 넘기면 회원가입 → 로그인 화면이 그대로 이어 받아, 로그인 뒤 그 화면으로 보낸다. 주소에 넣지 않아 외부 링크로 엉뚱한 곳에 보낼 수 없고, 새로고침하면 사라져 메인으로 간다
 - 회원가입 동의(`SignupAgreements`, 「개인정보 처리 통합 안내서」 2025.7. Ⅳ 기준): 서비스에 꼭 필요한 정보는 필수 동의가 아니라 "개인정보 수집·이용 안내"(항목·목적·근거·보유 기간)를 보여 주고 **확인** 체크 하나(이용약관 포함)로 받는다. AI 대화 분석만 **선택 동의**로 따로 두고 목적·항목·보유 기간·거부해도 되는 점을 함께 알리며, 처음엔 체크하지 않은 상태로 둔다. "가입하면 동의한 것으로 간주" 같은 문구는 쓰지 않는다
 
 ## AI 대화 가져오기 (브라우저 처리)
 
-- `utils/conversation/`: ChatGPT·Claude `conversations.json` 파서, 키워드 매칭, 정규식 마스킹(이메일·전화번호·주민번호·카드번호·키·IP)
-- 내보내기 형식은 바뀔 수 있으므로 실제 파일로 검증하고, 파싱 실패 시 무엇이 잘못됐는지 알려 준다.
-- 서버에는 사용자가 체크한 대화만 마스킹된 상태로 보낸다.
+화면은 `pages/analysis/ConversationImportPage.tsx`(4단계: 파일 고르기 → 공부한 대화 고르기 → 가린 내용 확인 → 보내기), 단계별 부품은 `pages/analysis/components/import/`. 읽은 대화는 이 화면의 메모리에만 두고 서버·브라우저 저장소에 남기지 않는다.
+
+- **파일 읽기:** 내보낸 zip을 압축 풀지 않고 받는다. `utils/conversation/archive.ts`(fflate)가 zip 목차를 보고 대화 기록 파일만 브라우저 안에서 푼다(이미지·로그인 기록 등은 풀지 않음). 압축을 푼 `conversations.json`도 받는다. 여러 파일을 고르면 `merge.ts`가 같은 대화를 하나로 합친다
+- **서비스별 구조:** `utils/conversation/sources/`(`chatgpt.ts`, `claude.ts`)에 서비스마다 파일을 알아보고 읽는 방법을 둔다. 새 서비스는 `sources/index.ts` 목록에 추가한다(Gemini는 2단계 후보). Claude는 2026-10-31 실제 내보내기 파일로, ChatGPT는 아직 가짜 데이터로만 확인했다
+- **Claude 목록 파일:** Claude 내보내기는 먼저 "다운로드 목록 파일"(`manifest-....json`, 대화 없음)을 준다. `manifest.ts`가 알아보고 안의 zip 링크만 보여 준다. 링크를 우리 서버가 대신 열지 않는다(claude.ai 로그인이 필요하고 원본이 서버로 오면 안 된다)
+- **고르기:** `assign.ts`가 내 과목 키워드로 공부한 대화를 과목별로 나누고, `search.ts`가 본문 검색·정렬을 한다(모두 브라우저 안)
+- **가리기:** `mask.ts`가 정규식(이메일·전화번호·주민번호·카드번호·키·IP)과 내 이름(`[이름]`), 사용자가 넣은 단어(`[가린 단어]`)를 가린다. 3단계에서 가린 곳 목록과 원래 글자(이 화면에서만)를 보여 준다
+- **가릴 단어 저장:** 마이페이지와 3단계 "이 브라우저에 기억하기"로 저장한 단어는 서버에 보내지 않고 localStorage에 계정별 키(`ai-lms-mask-words:<id>`)로만 둔다(단어 목록 자체가 개인정보). 읽기·쓰기는 `utils/maskWords.ts` 한 곳에 모으고 화면은 `useSavedMaskWords` 훅으로 쓴다. 기기 간 동기화로 바꿀 때는 이 파일만 고친다. 동의 철회·탈퇴가 성공하면 지운다
+- **대화 보기:** `ConversationView.tsx`가 2·3단계에서 대화를 채팅창 모양으로 보여 준다. AI 답변 마크다운은 `react-markdown`으로 React 요소를 만들고(HTML 문자열 금지, 대화 속 HTML은 그리지 않음), 요소 모양은 `markdownComponents.tsx`(링크는 새 탭, 다른 사이트 이미지는 불러오지 않음), 가린 표시(파랑)·키워드 형광펜은 `marks.ts`. 사용자의 기록이라 AI 말풍선도 보라색으로 칠하지 않는다
+- **보내기:** 사용자가 체크한 대화만 가린 상태로 보낸다. `send.ts`가 과목마다, 요청 크기(1MB, 임시값)와 대화 수(50개)에 맞춰 나누고, 혼자 큰 대화는 메시지를 버리지 않고 조각으로 나눈다(`docs/frontend-requests.md` "대화 가져오기")
+- 내보내기 형식은 바뀔 수 있으므로 실제 파일로 검증하고, 읽지 못하면 무엇이 잘못됐는지 알려 준다. 실제 기록 파일은 레포에 넣지 않는다
 
 ## 대시보드 동적 배치
 
