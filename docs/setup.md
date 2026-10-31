@@ -88,6 +88,22 @@ docker ps                      # 켜진 컨테이너 보기
 
 DB 안을 보려면 `docker exec -it db-postgres-1 psql -U ai_lms_migrator ai_lms`. 나갈 때는 `\q`(슬래시가 아니라 백슬래시)예요. 확인용 SQL은 `docs/backend-design.md` 8번.
 
+## VS Code로 DB 보기 (선택)
+
+표를 눈으로 보고 싶으면 VS Code 확장 **PostgreSQL**(Microsoft, `ms-ossdata.vscode-pgsql`, 추천 목록에 들어 있어요)을 설치해요. 왼쪽 코끼리 아이콘 → **Add Connection**에서 아래처럼 채우고 **Test Connection**으로 확인한 뒤 **Save & Connect**를 눌러요. Docker Desktop과 컨테이너가 켜져 있어야 해요.
+
+| 칸 | 값 |
+| --- | --- |
+| SERVER NAME | `127.0.0.1` (포트는 기본 5432라 따로 안 적어도 돼요) |
+| USER NAME | `ai_lms_app` |
+| PASSWORD | `backend/.env`의 `DB_PASSWORD` |
+| DATABASE NAME | `ai_lms` |
+
+- **계정과 비밀번호는 짝이에요.** `ai_lms_app`은 `DB_PASSWORD`, `ai_lms_migrator`는 `DB_MIGRATION_PASSWORD`예요. 보기만 할 거면 표를 바꿀 수 없는 `ai_lms_app`이 안전해요.
+- 비밀번호는 각자 컴퓨터에만 저장되고 레포에는 안 올라가요.
+- 확장에는 Copilot AI 기능도 있어요. 실제 사용자 데이터가 든 DB에는 AI 기능을 쓰지 않아요.
+- 표 구조를 바꾸는 SQL은 여기서 직접 치지 말고 마이그레이션 파일(`V2__...sql`)로 만들어요. 직접 친 SQL은 그 컴퓨터의 DB에만 반영돼요.
+
 ## 처음부터 다시 하고 싶을 때
 
 데이터가 모두 지워져요. 샘플 공지는 서버를 켜면 다시 들어와요.
@@ -112,6 +128,9 @@ mv backend/.env ~/lms-env.bak     # 스크립트는 .env가 이미 있으면 덮
 | 스크립트가 "이미 있는 항목"이라며 멈춰요 | 이전에 만든 DB·계정이 남아 있어요. 위 "처음부터 다시"로 지우거나, 그대로 쓸 거면 `backend/.env`를 직접 채워요 |
 | `extension "vector" is not available` | 컨테이너가 pgvector가 없는 일반 `postgres` 이미지예요. `docker-compose.yml`의 이미지(`pgvector/pgvector`)로 다시 만들어요 |
 | 백엔드가 `password authentication failed` | `backend/.env`의 계정 비밀번호가 DB와 달라요. DB를 새로 만들고 스크립트를 다시 실행해요 |
+| VS Code 확장에서 `getaddrinfo failed` | SERVER NAME에 `localhost:5432`처럼 포트를 붙였어요. 이 칸은 호스트 이름만 받아요. `127.0.0.1`만 적어요 |
+| VS Code 확장에서 15초 뒤 시간 초과 | `localhost`가 IPv6로 먼저 시도돼서 그래요(컨테이너는 `127.0.0.1`에만 열려 있어요). SERVER NAME을 `127.0.0.1`로 바꿔요 |
+| VS Code 확장에서 `password authentication failed` | 계정과 비밀번호 짝이 안 맞아요. `ai_lms_app`↔`DB_PASSWORD`, `ai_lms_migrator`↔`DB_MIGRATION_PASSWORD`로 확인하고, 복사할 때 `+ / =` 앞에서 끊기거나 공백이 붙지 않았는지 봐요 |
 | 테스트가 `_test로 끝나는 DB` 오류로 멈춤 | 일부러 막은 거예요. 테스트는 회원 행을 지우니 `ai_lms_test`에서만 돌아요. `TEST_DB_URL` 환경변수를 설정했다면 이름이 `_test`로 끝나는 DB를 가리키는지 확인해요 |
 | 마이그레이션 오류(`checksum`, 이미 적용됨) | 옛 DB에 남은 기록과 파일이 달라요. DB를 새로 만들어요 |
 | Windows에서 `.sh`가 안 돌아요 | PowerShell이 아니라 **Git Bash**에서 실행해요 |
