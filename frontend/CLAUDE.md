@@ -128,25 +128,26 @@ src/
 
 Tailwind 4 `@theme`에 아래 이름으로 등록한다(`src/index.css`). Tailwind 기본 팔레트(`blue-600` 등)를 덮어쓰지 않도록 의미 기반 이름을 쓴다.
 
-| 토큰                                               | 값                                            | 쓰는 곳                                                           |
-| -------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------- |
-| `brand` / `on-brand` / `on-brand-hover`            | `#133b9e` / `#ffffff` / `#c3d3fb`             | 메인 첫 화면 띠처럼 넓은 짙은 파랑 면과 그 위 글자                |
-| `heading`                                          | `#0f1b33`                                     | 페이지 제목, 카드 제목                                            |
-| `heading-soft`                                     | `#1e3a8a`                                     | 섹션 제목, 표 상단선                                              |
-| `primary` / `on-primary` / `primary-hover`         | `#1d4ed8` / `#ffffff` / `#1e40af`             | 모든 버튼·글자 링크, 선택된 메뉴, 로고, 숙련도 점수 막대          |
-| `primary-soft`                                     | `#eaf1ff`                                     | 작은 강조: 아이콘 상자, 선택된 단계·버튼                          |
-| `primary-pill`                                     | `#dbe6ff`                                     | 알약형 보조 버튼                                                  |
-| `surface` / `surface-raised` / `surface-muted`     | `#ffffff` / `#ffffff` / `#f4f7fd`             | 사이트 바탕 / 카드·입력칸·드롭다운 / 표 머리·연한 칸·막대 바탕    |
-| `hero` / `section`                                 | `#f4f7fd` / `#f4f7fd`                         | 메인 첫 화면 띠 / 큰 안내 상자(시작 안내, 서비스 소개 상자)       |
-| `footer`                                           | `#eaf1ff`                                     | 푸터 배경 (글자는 `heading`)                                      |
-| `line` / `line-strong`                             | `#e3e9f3` / `#c9d3e3`                         | 구분선, 카드 테두리                                               |
-| `input-border`                                     | `#7c8598`                                     | 입력칸·검색칸 테두리 (바탕 대비 3:1 이상)                         |
-| `ai` / `ai-soft` / `ai-border` / `ai-chip`         | `#6d28d9` / `#f8f5ff` / `#ddd2fb` / `#f3effe` | AI가 만든 콘텐츠만                                                |
-| `strength` / `strength-soft`                       | `#15803d` / `#e7f6ec`                         | 강점 표시                                                         |
-| `weakness` / `weakness-soft` / `weakness-bar`      | `#c0392b` / `#fdecea` / `#e0574a`             | 보완 필요 표시 / 그 바탕 / 보완 필요 개념의 점수 막대             |
-| `danger`                                           | `#b91c1c`                                     | 오류 메시지만                                                     |
-| `overlay`                                          | `#0f1b33` (다크 `#000000`)                    | 확인 창 뒤를 덮는 막 (`backdrop:bg-overlay/50`)                   |
-| `window-close` / `window-minimize` / `window-zoom` | `#ff5f57` / `#febc2e` / `#28c840` (다크 같음) | 스크롤 소개 장면 창 틀의 맥 창 버튼 점 (꾸밈용, 글자에 쓰지 않음) |
+| 토큰                                               | 값                                                 | 쓰는 곳                                                                  |
+| -------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------ |
+| `brand` / `on-brand` / `on-brand-hover`            | `#133b9e` / `#ffffff` / `#c3d3fb`                  | 메인 첫 화면 띠처럼 넓은 짙은 파랑 면과 그 위 글자                       |
+| `heading`                                          | `#0f1b33`                                          | 페이지 제목, 카드 제목                                                   |
+| `heading-soft`                                     | `#1e3a8a`                                          | 섹션 제목, 표 상단선                                                     |
+| `primary` / `on-primary` / `primary-hover`         | `#1d4ed8` / `#ffffff` / `#1e40af`                  | 모든 버튼·글자 링크, 선택된 메뉴, 로고, 숙련도 점수 막대                 |
+| `primary-soft`                                     | `#eaf1ff`                                          | 작은 강조: 아이콘 상자, 선택된 단계·버튼                                 |
+| `primary-pill`                                     | `#dbe6ff`                                          | 알약형 보조 버튼                                                         |
+| `surface` / `surface-raised` / `surface-muted`     | `#ffffff` / `#ffffff` / `#f4f7fd`                  | 사이트 바탕 / 카드·입력칸·드롭다운 / 표 머리·연한 칸·막대 바탕           |
+| `hero` / `section`                                 | `#f4f7fd` / `#f4f7fd`                              | 메인 첫 화면 띠 / 큰 안내 상자(시작 안내, 서비스 소개 상자)              |
+| `footer`                                           | `#eaf1ff`                                          | 푸터 배경 (글자는 `heading`)                                             |
+| `line` / `line-strong`                             | `#e3e9f3` / `#c9d3e3`                              | 구분선, 카드 테두리                                                      |
+| `input-border`                                     | `#7c8598`                                          | 입력칸·검색칸 테두리 (바탕 대비 3:1 이상)                                |
+| `ai` / `ai-soft` / `ai-border` / `ai-chip`         | `#6d28d9` / `#f8f5ff` / `#ddd2fb` / `#f3effe`      | AI가 만든 콘텐츠만                                                       |
+| `highlight` / `on-highlight`                       | `#fde68a` / `#3f2d00` (다크 `#6b5310` / `#fff3c4`) | 가져온 대화에서 찾은 키워드·검색어 형광펜만 (가린 표시는 `primary-soft`) |
+| `strength` / `strength-soft`                       | `#15803d` / `#e7f6ec`                              | 강점 표시                                                                |
+| `weakness` / `weakness-soft` / `weakness-bar`      | `#c0392b` / `#fdecea` / `#e0574a`                  | 보완 필요 표시 / 그 바탕 / 보완 필요 개념의 점수 막대                    |
+| `danger`                                           | `#b91c1c`                                          | 오류 메시지만                                                            |
+| `overlay`                                          | `#0f1b33` (다크 `#000000`)                         | 확인 창 뒤를 덮는 막 (`backdrop:bg-overlay/50`)                          |
+| `window-close` / `window-minimize` / `window-zoom` | `#ff5f57` / `#febc2e` / `#28c840` (다크 같음)      | 스크롤 소개 장면 창 틀의 맥 창 버튼 점 (꾸밈용, 글자에 쓰지 않음)        |
 
 - **바탕은 흰색, 넓은 면은 옅은 파랑, 강조는 파랑.** 바탕은 흰색, 넓은 면(띠, 큰 상자, 푸터)은 옅은 파랑(`surface-muted`·`section`·`footer`)으로 나누고, 누를 수 있거나 선택된 것만 파랑(`primary` 계열)으로 칠한다. 카드는 흰색에 테두리(`line`)로 구분한다.
 

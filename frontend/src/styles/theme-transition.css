@@ -104,6 +104,16 @@
   inherits: true;
   initial-value: #e9e0fd;
 }
+@property --color-highlight {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fde68a;
+}
+@property --color-on-highlight {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #3f2d00;
+}
 @property --color-strength {
   syntax: '<color>';
   inherits: true;
@@ -234,6 +244,10 @@
     --color-ai-chip var(--theme-transition-duration)
       var(--theme-transition-ease),
     --color-ai-chip-hover var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-highlight var(--theme-transition-duration)
+      var(--theme-transition-ease),
+    --color-on-highlight var(--theme-transition-duration)
       var(--theme-transition-ease),
     --color-strength var(--theme-transition-duration)
       var(--theme-transition-ease),
